@@ -87,7 +87,6 @@
       <section class="documents-section">
         <div class="section-header">
           <h3 class="section-title">Dossiers</h3>
-          <span class="section-count">{{ filesCount() }} fichier{{ filesCount() > 1 ? 's' : '' }}</span>
         </div>
         <div class="folders-grid">
           @for (folder of filteredFolders(); track folder.id) {
@@ -119,6 +118,7 @@
       <section class="documents-section">
         <div class="section-header">
           <h3 class="section-title">Fichiers</h3>
+          <span class="section-count">{{ filesCount() }} fichier{{ filesCount() > 1 ? 's' : '' }}</span>
         </div>
         <div class="files-grid">
           @for (file of filteredFiles(); track file.id) {
