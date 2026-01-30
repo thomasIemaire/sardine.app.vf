@@ -1,0 +1,51 @@
+<app-data-view
+  [data]="filteredTeams()"
+  [columns]="columns"
+  searchPlaceholder="Rechercher une équipe..."
+  emptyMessage="Aucune équipe trouvée"
+  (searchChange)="onSearchChange($event)">
+
+  <ng-template #tableCell let-item let-column="column">
+    @switch (column.field) {
+      @case ('createdAt') {
+        {{ item.createdAt | date:'dd/MM/yyyy' }}
+      }
+      @default {
+        {{ item[column.field] }}
+      }
+    }
+  </ng-template>
+
+  <ng-template #tableActions let-item>
+    <p-button
+      icon="fa-duotone fa-solid fa-eye"
+      [routerLink]="['/teams', item.id]"
+      rounded
+      text
+      severity="secondary"
+      size="small" />
+  </ng-template>
+
+  <ng-template #card let-team>
+    <p-card class="team-card" [routerLink]="['/teams', team.id]">
+      <ng-template #header>
+        <div class="card-header">
+          <span class="card-title">{{ team.name }}</span>
+          <p-button icon="fa-duotone fa-solid fa-eye" rounded text severity="secondary" size="small" />
+        </div>
+      </ng-template>
+      <p class="card-description">{{ team.description }}</p>
+      <ng-template #footer>
+        <div class="card-footer">
+          <span class="card-stat">
+            <i class="fa-duotone fa-solid fa-users"></i>
+            {{ team.membersCount }} membres
+          </span>
+          <span class="card-date">{{ team.createdAt | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </ng-template>
+    </p-card>
+  </ng-template>
+
+  <p-button toolbar-actions label="Créer une équipe" icon="fa-duotone fa-solid fa-plus" size="small" rounded />
+</app-data-view>

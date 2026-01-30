@@ -1,0 +1,81 @@
+<div class="data-view">
+  <div class="data-view-toolbar">
+    <div class="actions-group">
+      @if (showSearch()) {
+        <p-iconfield iconPosition="left">
+          <p-inputicon styleClass="fa-duotone fa-solid fa-magnifying-glass" />
+          <input
+            type="text"
+            pInputText
+            [placeholder]="searchPlaceholder()"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchChange($event)"
+            pSize="small" />
+        </p-iconfield>
+      }
+      @if (showSearch() && showViewToggle()) {
+        <p-divider layout="vertical" />
+      }
+      @if (showViewToggle()) {
+        <p-button
+          [label]="displayMode() === 'table' ? 'Vue galerie' : 'Vue tableau'"
+          [icon]="displayMode() === 'table' ? 'fa-duotone fa-solid fa-grid-2' : 'fa-duotone fa-solid fa-table'"
+          size="small"
+          severity="secondary"
+          text
+          (click)="toggleDisplayMode()" />
+      }
+    </div>
+    <ng-content select="[toolbar-actions]"></ng-content>
+  </div>
+
+  @if (displayMode() === 'table') {
+    <p-table [value]="data()" [stripedRows]="true">
+      <ng-template #header>
+        <tr>
+          @for (col of columns(); track col.field) {
+            <th [style.width]="col.width">{{ col.header }}</th>
+          }
+          @if (tableActionsTemplate) {
+            <th></th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #body let-item>
+        <tr>
+          @for (col of columns(); track col.field) {
+            <td>
+              @if (tableCellTemplate) {
+                <ng-container *ngTemplateOutlet="tableCellTemplate; context: { $implicit: item, column: col }"></ng-container>
+              } @else {
+                {{ getFieldValue(item, col.field) }}
+              }
+            </td>
+          }
+          @if (tableActionsTemplate) {
+            <td class="actions-cell">
+              <ng-container *ngTemplateOutlet="tableActionsTemplate; context: { $implicit: item }"></ng-container>
+            </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columns().length + (tableActionsTemplate ? 1 : 0)" class="empty-message">
+            {{ emptyMessage() }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <div class="cards-grid">
+      @for (item of data(); track trackByFn($index, item)) {
+        @if (cardTemplate) {
+          <ng-container *ngTemplateOutlet="cardTemplate; context: { $implicit: item }"></ng-container>
+        }
+      } @empty {
+        <div class="empty-message">{{ emptyMessage() }}</div>
+      }
+    </div>
+  }
+</div>

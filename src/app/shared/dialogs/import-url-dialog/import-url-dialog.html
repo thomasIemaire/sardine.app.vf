@@ -1,0 +1,86 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  [style]="{ width: '480px' }"
+  styleClass="dialog-import-url">
+  <ng-template #header>
+    <div class="dialog-header">
+      <div class="dialog-icon link">
+        <i class="fa-duotone fa-solid fa-link"></i>
+      </div>
+      <div class="dialog-title-wrapper">
+        <h3 class="dialog-title">Importer depuis une URL</h3>
+        <p class="dialog-subtitle">Importez un fichier depuis un lien externe</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="dialog-content">
+    <div class="form-field">
+      <label for="fileUrl" class="field-label">
+        URL du fichier <span class="required">*</span>
+      </label>
+      <input
+        id="fileUrl"
+        type="url"
+        pInputText
+        pSize="small"
+        placeholder="https://exemple.com/document.pdf"
+        [ngModel]="fileUrl()"
+        (ngModelChange)="onUrlChange($event)"
+        class="w-full" />
+      @if (urlError()) {
+        <span class="field-error">{{ urlError() }}</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="fileName" class="field-label">
+        Nom du fichier
+      </label>
+      <input
+        id="fileName"
+        type="text"
+        pInputText
+        pSize="small"
+        [placeholder]="detectedFileName() || 'Nom automatique depuis l\'URL'"
+        [ngModel]="fileName()"
+        (ngModelChange)="fileName.set($event)"
+        (keyup.enter)="onSubmit()"
+        class="w-full" />
+      <span class="field-hint">Laissez vide pour utiliser le nom détecté automatiquement</span>
+    </div>
+
+    @if (fileUrl() && isValidUrl()) {
+      <div class="url-preview">
+        <div class="preview-icon">
+          <i class="fa-duotone fa-solid fa-file-import"></i>
+        </div>
+        <div class="preview-details">
+          <span class="preview-name">{{ finalFileName() || 'Fichier' }}</span>
+          <span class="preview-url">{{ fileUrl() }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="dialog-footer">
+      <p-button
+        label="Annuler"
+        severity="secondary"
+        size="small"
+        text
+        (click)="close()" />
+      <p-button
+        label="Importer"
+        size="small"
+        [disabled]="!isValid"
+        [loading]="isImporting()"
+        (click)="onSubmit()" />
+    </div>
+  </ng-template>
+</p-dialog>

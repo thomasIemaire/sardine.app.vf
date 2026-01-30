@@ -1,0 +1,52 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  [style]="{ width: '400px' }"
+  styleClass="dialog-permanent-delete">
+  <ng-template #header>
+    <div class="dialog-header">
+      <div class="dialog-icon danger">
+        @if (mode() === 'all') {
+          <i class="fa-duotone fa-solid fa-trash-can"></i>
+        } @else {
+          <i class="fa-duotone fa-solid fa-circle-xmark"></i>
+        }
+      </div>
+      <div class="dialog-title-wrapper">
+        <h3 class="dialog-title">{{ title }}</h3>
+        @if (mode() === 'single') {
+          <p class="dialog-subtitle">{{ documentName() }}</p>
+        }
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="dialog-content">
+    <p class="confirmation-text">{{ confirmationText }}</p>
+
+    <div class="warning-box">
+      <i class="fa-duotone fa-solid fa-triangle-exclamation"></i>
+      <span>Cette action est irréversible. Les éléments supprimés ne pourront pas être récupérés.</span>
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <div class="dialog-footer">
+      <p-button
+        label="Annuler"
+        severity="secondary"
+        size="small"
+        text
+        (click)="close()" />
+      <p-button
+        [label]="mode() === 'all' ? 'Vider la corbeille' : 'Supprimer définitivement'"
+        severity="danger"
+        size="small"
+        [loading]="isDeleting()"
+        (click)="onSubmit()" />
+    </div>
+  </ng-template>
+</p-dialog>

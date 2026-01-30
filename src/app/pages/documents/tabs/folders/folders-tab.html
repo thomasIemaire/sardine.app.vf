@@ -1,0 +1,271 @@
+<div class="folders-tab">
+  <!-- Breadcrumb -->
+  @if (breadcrumb().length > 0) {
+    <nav class="breadcrumb">
+      <a class="breadcrumb-item" routerLink="/documents">
+        <i class="fa-duotone fa-solid fa-house"></i>
+        <span>Documents</span>
+      </a>
+      @for (folder of breadcrumb(); track folder.id; let last = $last) {
+        <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
+        @if (last) {
+          <span class="breadcrumb-item current">
+            <i class="fa-duotone fa-solid fa-folder" [style.color]="folder.color"></i>
+            <span>{{ folder.name }}</span>
+          </span>
+        } @else {
+          <a class="breadcrumb-item" [routerLink]="getFolderPath(folder.id)">
+            <i class="fa-duotone fa-solid fa-folder" [style.color]="folder.color"></i>
+            <span>{{ folder.name }}</span>
+          </a>
+        }
+      }
+    </nav>
+  }
+
+  <div class="documents-toolbar">
+    <div class="toolbar-left">
+      <p-iconfield iconPosition="left">
+        <p-inputicon styleClass="fa-duotone fa-solid fa-magnifying-glass" />
+        <input
+          type="text"
+          pInputText
+          placeholder="Rechercher"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchChange($event)"
+          pSize="small" />
+      </p-iconfield>
+
+      <p-divider layout="vertical" />
+
+      <p-select
+        [options]="filterOptions"
+        [ngModel]="filterType()"
+        (ngModelChange)="onFilterChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        size="small" />
+
+      <p-button
+        label="Filtrer"
+        icon="fa-duotone fa-solid fa-filter"
+        size="small"
+        severity="secondary"
+        text />
+
+      <p-divider layout="vertical" />
+
+      <p-button
+        [label]="displayMode() === 'table' ? 'Vue galerie' : 'Vue tableau'"
+        [icon]="displayMode() === 'table' ? 'fa-duotone fa-solid fa-grid-2' : 'fa-duotone fa-solid fa-table'"
+        size="small"
+        severity="secondary"
+        text
+        (click)="toggleDisplayMode()" />
+    </div>
+
+    <div class="toolbar-right">
+      <p-button
+        label="Nouveau dossier"
+        icon="fa-duotone fa-solid fa-folder-plus"
+        size="small"
+        rounded
+        outlined
+        (click)="openCreateFolderDialog()" />
+      <p-button
+        label="Ajouter"
+        icon="fa-duotone fa-solid fa-plus"
+        size="small"
+        rounded
+        (click)="addMenu.toggle($event)" />
+      <p-menu #addMenu [model]="addMenuItems" [popup]="true" />
+    </div>
+  </div>
+
+  @if (displayMode() === 'card') {
+    @if (filteredFolders().length > 0) {
+      <section class="documents-section">
+        <div class="section-header">
+          <h3 class="section-title">Dossiers</h3>
+          <span class="section-count">{{ filesCount() }} fichier{{ filesCount() > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="folders-grid">
+          @for (folder of filteredFolders(); track folder.id) {
+            <div
+              class="folder-card"
+              [class.drop-target]="isDropTarget(folder.id)"
+              [routerLink]="getFolderPath(folder.id)"
+              draggable="true"
+              (dragstart)="onDragStart($event, folder.id, 'folder', folder.name)"
+              (dragend)="onDragEnd()"
+              (dragover)="onDragOver($event, folder.id)"
+              (dragleave)="onDragLeave()"
+              (drop)="onDrop($event, folder.id)"
+              (contextmenu)="onContextMenu($event, folder.id, 'folder', folder.name); docContextMenu.show($event)">
+              <div class="folder-icon" [style.background-color]="folder.color + '20'">
+                <i class="fa-duotone fa-solid fa-folder" [style.color]="folder.color"></i>
+              </div>
+              <div class="folder-info">
+                <span class="folder-name">{{ folder.name }}</span>
+                <span class="folder-date">{{ folder.updatedAt | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (filteredFiles().length > 0) {
+      <section class="documents-section">
+        <div class="section-header">
+          <h3 class="section-title">Fichiers</h3>
+        </div>
+        <div class="files-grid">
+          @for (file of filteredFiles(); track file.id) {
+            <div
+              class="file-card"
+              draggable="true"
+              (dragstart)="onDragStart($event, file.id, 'file', file.name)"
+              (dragend)="onDragEnd()"
+              (contextmenu)="onContextMenu($event, file.id, 'file', file.name); docContextMenu.show($event)">
+              <div class="file-preview">
+                @if (file.thumbnailUrl) {
+                  <img [src]="file.thumbnailUrl" [alt]="file.name" />
+                } @else {
+                  <div class="file-icon-preview">
+                    <i [class]="getFileIcon(file.type)" [style.color]="getFileIconColor(file.type)"></i>
+                  </div>
+                }
+              </div>
+              <div class="file-info">
+                <span class="file-name" [title]="file.name">{{ file.name }}</span>
+                <span class="file-date">{{ file.updatedAt | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (filteredFolders().length === 0 && filteredFiles().length === 0) {
+      <div class="empty-state">
+        <i class="fa-duotone fa-solid fa-folder-open"></i>
+        <p>Aucun document trouvé</p>
+      </div>
+    }
+  } @else {
+    <div class="table-view">
+      @if (filteredFolders().length > 0) {
+        <section class="documents-section">
+          <div class="section-header">
+            <h3 class="section-title">Dossiers</h3>
+          </div>
+          <div class="documents-list">
+            @for (folder of filteredFolders(); track folder.id) {
+              <div
+                class="document-row"
+                [class.drop-target]="isDropTarget(folder.id)"
+                [routerLink]="getFolderPath(folder.id)"
+                draggable="true"
+                (dragstart)="onDragStart($event, folder.id, 'folder', folder.name)"
+                (dragend)="onDragEnd()"
+                (dragover)="onDragOver($event, folder.id)"
+                (dragleave)="onDragLeave()"
+                (drop)="onDrop($event, folder.id)"
+                (contextmenu)="onContextMenu($event, folder.id, 'folder', folder.name); docContextMenu.show($event)">
+                <div class="document-icon" [style.background-color]="folder.color + '20'">
+                  <i class="fa-duotone fa-solid fa-folder" [style.color]="folder.color"></i>
+                </div>
+                <div class="document-details">
+                  <span class="document-name">{{ folder.name }}</span>
+                  <span class="document-meta">{{ folder.filesCount }} fichier{{ folder.filesCount > 1 ? 's' : '' }}</span>
+                </div>
+                <span class="document-date">{{ folder.updatedAt | date:'dd/MM/yyyy' }}</span>
+                <div class="document-actions" (click)="$event.stopPropagation()">
+                  <p-button
+                    icon="fa-duotone fa-solid fa-ellipsis-vertical"
+                    rounded
+                    text
+                    severity="secondary"
+                    size="small"
+                    (click)="onContextMenu($event, folder.id, 'folder', folder.name); docContextMenu.show($event)" />
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (filteredFiles().length > 0) {
+        <section class="documents-section">
+          <div class="section-header">
+            <h3 class="section-title">Fichiers</h3>
+          </div>
+          <div class="documents-list">
+            @for (file of filteredFiles(); track file.id) {
+              <div
+                class="document-row"
+                draggable="true"
+                (dragstart)="onDragStart($event, file.id, 'file', file.name)"
+                (dragend)="onDragEnd()"
+                (contextmenu)="onContextMenu($event, file.id, 'file', file.name); docContextMenu.show($event)">
+                <div class="document-icon file-type" [style.background-color]="getFileIconColor(file.type) + '20'">
+                  <i [class]="getFileIcon(file.type)" [style.color]="getFileIconColor(file.type)"></i>
+                </div>
+                <div class="document-details">
+                  <span class="document-name">{{ file.name }}</span>
+                  <span class="document-meta">{{ formatFileSize(file.size) }}</span>
+                </div>
+                <span class="document-date">{{ file.updatedAt | date:'dd/MM/yyyy' }}</span>
+                <div class="document-actions" (click)="$event.stopPropagation()">
+                  <p-button
+                    icon="fa-duotone fa-solid fa-ellipsis-vertical"
+                    rounded
+                    text
+                    severity="secondary"
+                    size="small"
+                    (click)="onContextMenu($event, file.id, 'file', file.name); docContextMenu.show($event)" />
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (filteredFolders().length === 0 && filteredFiles().length === 0) {
+        <div class="empty-state">
+          <i class="fa-duotone fa-solid fa-folder-open"></i>
+          <p>Aucun document trouvé</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Dialogs -->
+<app-create-folder-dialog
+  #createFolderDialog
+  (folderCreated)="onFolderCreated($event)" />
+
+<app-upload-files-dialog
+  #uploadFilesDialog
+  (filesUploaded)="onFilesUploaded($event)" />
+
+<app-import-url-dialog
+  #importUrlDialog
+  (urlImported)="onUrlImported($event)" />
+
+<app-move-document-dialog
+  #moveDocumentDialog
+  (documentMoved)="onDocumentMoved($event)" />
+
+<app-clone-document-dialog
+  #cloneDocumentDialog
+  (documentCloned)="onDocumentCloned($event)" />
+
+<app-delete-document-dialog
+  #deleteDocumentDialog
+  (documentDeleted)="onDocumentDeleted($event)" />
+
+<!-- Context Menu -->
+<p-contextMenu #docContextMenu [model]="contextMenuItems()" />

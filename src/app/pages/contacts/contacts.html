@@ -1,0 +1,10 @@
+<app-header-page title="Contacts" subtitle="Gérez votre annuaire de contacts." />
+<app-header-tabs [tabs]="tabs" />
+
+<div class="page-content">
+  @switch (activeTab()) {
+    @case ('directory') {
+      <app-directory-tab />
+    }
+  }
+</div>

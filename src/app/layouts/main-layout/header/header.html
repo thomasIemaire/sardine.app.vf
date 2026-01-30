@@ -1,0 +1,51 @@
+<header class="header-container">
+    <aside>
+        <p-button
+            icon="fa-duotone fa-regular fa-chevron-left"
+            rounded
+            text
+            severity="secondary"
+            size="small"
+            [class.collapsed]="sidebarCollapsed()"
+            (click)="toggleSidebar()">
+        </p-button>
+        <p-divider layout="vertical"></p-divider>
+        <p-breadcrumb [model]="items()"></p-breadcrumb>
+    </aside>
+    <aside>
+        <p-button label="Thomas Lemaire" icon="fa-duotone fa-solid fa-user" text severity="secondary" size="small"></p-button>
+        <p-divider layout="vertical"></p-divider>
+        <div class="actions-group">
+            <p-button icon="fa-duotone fa-solid fa-bell" rounded severity="secondary" size="small" (click)="openNotifications()"></p-button>
+            <p-button icon="fa-duotone fa-solid fa-gear fa-fw" rounded severity="secondary" size="small" (click)="openSettings()"></p-button>
+            <p-button icon="fa-duotone fa-solid fa-arrow-right-from-bracket" rounded severity="secondary" size="small"></p-button>
+        </div>
+    </aside>
+</header>
+
+<p-drawer [(visible)]="notificationsVisible" position="right" header="Notifications" appendTo="body">
+    <p>Aucune notification pour le moment.</p>
+</p-drawer>
+
+<p-drawer [(visible)]="settingsVisible" position="right" header="Paramètres" appendTo="body">
+    <div class="settings-item">
+        <label>Mode</label>
+        <p-selectbutton
+            [options]="themeModeOptions"
+            [ngModel]="themeService.themeMode()"
+            (ngModelChange)="onThemeModeChange($event)"
+            [allowEmpty]="false"
+            size="small">
+        </p-selectbutton>
+    </div>
+    <div class="settings-item">
+        <label>Affichage</label>
+        <p-selectbutton
+            [options]="displayModeOptions"
+            [ngModel]="themeService.displayMode()"
+            (ngModelChange)="onDisplayModeChange($event)"
+            [allowEmpty]="false"
+            size="small">
+        </p-selectbutton>
+    </div>
+</p-drawer>

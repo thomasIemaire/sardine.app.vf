@@ -1,0 +1,13 @@
+<app-header-page title="Automatisation" subtitle="Gérez vos agents et flows d'automatisation." />
+<app-header-tabs [tabs]="tabs" />
+
+<div class="page-content">
+  @switch (activeTab()) {
+    @case ('agents') {
+      <app-agents-tab />
+    }
+    @case ('flows') {
+      <app-flows-tab />
+    }
+  }
+</div>

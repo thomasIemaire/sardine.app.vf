@@ -1,0 +1,31 @@
+<div class="login">
+  <h2 class="login-title">Connexion</h2>
+
+  <form class="login-form" (ngSubmit)="login()">
+    <app-input
+      id="email"
+      type="email"
+      label="Email"
+      placeholder="votre@email.com"
+      [(value)]="email" />
+
+    <app-input
+      id="password"
+      type="password"
+      label="Mot de passe"
+      placeholder="••••••••"
+      [(value)]="password" />
+
+    <app-button
+      type="submit"
+      variant="primary"
+      [loading]="loading()">
+      Se connecter
+    </app-button>
+  </form>
+
+  <p class="login-footer">
+    Pas encore de compte ?
+    <a routerLink="/auth/register">Créer un compte</a>
+  </p>
+</div>

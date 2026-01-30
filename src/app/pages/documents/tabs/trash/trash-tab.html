@@ -1,0 +1,217 @@
+<div class="trash-tab">
+  <!-- Info banner -->
+  <div class="trash-info-banner">
+    <i class="fa-duotone fa-solid fa-circle-info"></i>
+    <span>Les éléments dans la corbeille seront supprimés définitivement après 30 jours.</span>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="trash-toolbar">
+    <div class="toolbar-left">
+      <p-iconfield iconPosition="left">
+        <p-inputicon styleClass="fa-duotone fa-solid fa-magnifying-glass" />
+        <input
+          type="text"
+          pInputText
+          placeholder="Rechercher"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchChange($event)"
+          pSize="small" />
+      </p-iconfield>
+
+      <p-select
+        [options]="filterOptions"
+        [ngModel]="filterType()"
+        (ngModelChange)="onFilterChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        size="small" />
+
+      <p-button
+        [label]="displayMode() === 'table' ? 'Vue galerie' : 'Vue tableau'"
+        [icon]="displayMode() === 'table' ? 'fa-duotone fa-solid fa-grid-2' : 'fa-duotone fa-solid fa-table'"
+        size="small"
+        severity="secondary"
+        text
+        (click)="toggleDisplayMode()" />
+    </div>
+
+    <div class="toolbar-right">
+      @if (selectedCount() > 0) {
+        <span class="selection-count">{{ selectedCount() }} sélectionné{{ selectedCount() > 1 ? 's' : '' }}</span>
+        <p-button
+          label="Restaurer"
+          icon="fa-duotone fa-solid fa-trash-arrow-up"
+          size="small"
+          severity="secondary"
+          outlined
+          [disabled]="selectedCount() !== 1"
+          (click)="restoreSelected()" />
+        <p-button
+          label="Supprimer"
+          icon="fa-duotone fa-solid fa-circle-xmark"
+          size="small"
+          severity="danger"
+          outlined
+          (click)="openPermanentDeleteSelected()" />
+      }
+      <p-button
+        label="Vider la corbeille"
+        icon="fa-duotone fa-solid fa-trash-can"
+        size="small"
+        severity="danger"
+        [disabled]="totalCount() === 0"
+        (click)="openEmptyTrashDialog()" />
+    </div>
+  </div>
+
+  <!-- Content -->
+  @if (filteredItems().length > 0) {
+    @if (displayMode() === 'card') {
+      <!-- Card View -->
+      <div class="trash-grid">
+        @for (item of filteredItems(); track item.id) {
+          <div
+            class="trash-card"
+            [class.selected]="isSelected(item.id)"
+            (click)="toggleItemSelection(item.id)"
+            (contextmenu)="onContextMenu($event, item); trashContextMenu.show($event)">
+            <div class="card-checkbox" (click)="$event.stopPropagation()">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="isSelected(item.id)"
+                (ngModelChange)="toggleItemSelection(item.id)" />
+            </div>
+            <div class="card-icon" [style.background-color]="getItemIconColor(item) + '20'">
+              <i [class]="getItemIcon(item)" [style.color]="getItemIconColor(item)"></i>
+            </div>
+            <div class="card-info">
+              <span class="card-name" [title]="item.name">{{ item.name }}</span>
+              <span class="card-path" [title]="item.originalPath">{{ item.originalPath }}</span>
+            </div>
+            <div class="card-meta">
+              <span class="deleted-date">Supprimé le {{ item.deletedAt | date:'dd/MM/yyyy' }}</span>
+              <span class="remaining-time" [class]="getRemainingClass(item.deletedAt)">
+                <i class="fa-duotone fa-solid fa-clock"></i>
+                {{ getRemainingLabel(item.deletedAt) }}
+              </span>
+            </div>
+            <div class="card-actions" (click)="$event.stopPropagation()">
+              <p-button
+                icon="fa-duotone fa-solid fa-trash-arrow-up"
+                rounded
+                text
+                severity="success"
+                size="small"
+                pTooltip="Restaurer"
+                (click)="openRestoreDialog(item)" />
+              <p-button
+                icon="fa-duotone fa-solid fa-circle-xmark"
+                rounded
+                text
+                severity="danger"
+                size="small"
+                pTooltip="Supprimer définitivement"
+                (click)="openPermanentDeleteDialog(item)" />
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Table View -->
+      <div class="trash-table">
+        <div class="table-header">
+          <div class="header-checkbox">
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="allSelected()"
+              (ngModelChange)="toggleSelectAll()" />
+          </div>
+          <div class="header-name">Nom</div>
+          <div class="header-path">Emplacement d'origine</div>
+          <div class="header-deleted">Date de suppression</div>
+          <div class="header-remaining">Temps restant</div>
+          <div class="header-actions">Actions</div>
+        </div>
+        <div class="table-body">
+          @for (item of filteredItems(); track item.id) {
+            <div
+              class="table-row"
+              [class.selected]="isSelected(item.id)"
+              (click)="toggleItemSelection(item.id)"
+              (contextmenu)="onContextMenu($event, item); trashContextMenu.show($event)">
+              <div class="row-checkbox" (click)="$event.stopPropagation()">
+                <p-checkbox
+                  [binary]="true"
+                  [ngModel]="isSelected(item.id)"
+                  (ngModelChange)="toggleItemSelection(item.id)" />
+              </div>
+              <div class="row-name">
+                <div class="item-icon" [style.background-color]="getItemIconColor(item) + '20'">
+                  <i [class]="getItemIcon(item)" [style.color]="getItemIconColor(item)"></i>
+                </div>
+                <div class="item-details">
+                  <span class="item-name">{{ item.name }}</span>
+                  @if (item.type === 'file' && item.size) {
+                    <span class="item-size">{{ formatFileSize(item.size) }}</span>
+                  } @else if (item.type === 'folder') {
+                    <span class="item-type">Dossier</span>
+                  }
+                </div>
+              </div>
+              <div class="row-path">{{ item.originalPath }}</div>
+              <div class="row-deleted">{{ item.deletedAt | date:'dd/MM/yyyy' }}</div>
+              <div class="row-remaining">
+                <span class="remaining-badge" [class]="getRemainingClass(item.deletedAt)">
+                  {{ getRemainingLabel(item.deletedAt) }}
+                </span>
+              </div>
+              <div class="row-actions" (click)="$event.stopPropagation()">
+                <p-button
+                  icon="fa-duotone fa-solid fa-trash-arrow-up"
+                  rounded
+                  text
+                  severity="success"
+                  size="small"
+                  pTooltip="Restaurer"
+                  (click)="openRestoreDialog(item)" />
+                <p-button
+                  icon="fa-duotone fa-solid fa-circle-xmark"
+                  rounded
+                  text
+                  severity="danger"
+                  size="small"
+                  pTooltip="Supprimer définitivement"
+                  (click)="openPermanentDeleteDialog(item)" />
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <i class="fa-duotone fa-solid fa-trash-can"></i>
+      @if (totalCount() === 0) {
+        <h3>La corbeille est vide</h3>
+        <p>Les éléments supprimés apparaîtront ici</p>
+      } @else {
+        <h3>Aucun résultat</h3>
+        <p>Aucun élément ne correspond à votre recherche</p>
+      }
+    </div>
+  }
+</div>
+
+<!-- Dialogs -->
+<app-restore-document-dialog
+  #restoreDocumentDialog
+  (documentRestored)="onDocumentRestored($event)" />
+
+<app-permanent-delete-dialog
+  #permanentDeleteDialog
+  (permanentlyDeleted)="onPermanentlyDeleted($event)" />
+
+<!-- Context Menu -->
+<p-contextMenu #trashContextMenu [model]="contextMenuItems()" />

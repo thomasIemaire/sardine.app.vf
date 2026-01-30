@@ -1,0 +1,87 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  [style]="{ width: '520px' }"
+  styleClass="dialog-upload-files">
+  <ng-template #header>
+    <div class="dialog-header">
+      <div class="dialog-icon upload">
+        <i class="fa-duotone fa-solid fa-cloud-arrow-up"></i>
+      </div>
+      <div class="dialog-title-wrapper">
+        <h3 class="dialog-title">Ajouter des fichiers</h3>
+        <p class="dialog-subtitle">Glissez-déposez vos fichiers ou parcourez votre ordinateur</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="dialog-content">
+    <div
+      class="dropzone"
+      [class.dragging]="isDragging()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)">
+      <input
+        type="file"
+        #fileInput
+        [accept]="acceptedFormats"
+        multiple
+        hidden
+        (change)="onFileSelect($event)" />
+
+      <div class="dropzone-content">
+        <div class="dropzone-icon">
+          <i class="fa-duotone fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <p class="dropzone-text">
+          <span class="dropzone-link" (click)="fileInput.click()">Cliquez pour parcourir</span>
+          ou glissez-déposez vos fichiers ici
+        </p>
+        <p class="dropzone-formats">
+          Formats acceptés : Images (JPG, PNG, GIF, WebP), PDF, Vidéos (MP4, MOV, AVI, WebM)<br />
+          Taille maximale : 100 Mo par fichier
+        </p>
+      </div>
+    </div>
+
+    @if (selectedFiles().length > 0) {
+      <div class="files-list">
+        @for (file of selectedFiles(); track file.name; let i = $index) {
+          <div class="file-item">
+            <div class="file-icon">
+              <i [class]="getFileIcon(file.type)"></i>
+            </div>
+            <div class="file-details">
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-size">{{ formatFileSize(file.size) }}</span>
+            </div>
+            <button class="file-remove" (click)="removeFile(i)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="dialog-footer">
+      <p-button
+        label="Annuler"
+        severity="secondary"
+        size="small"
+        text
+        (click)="close()" />
+      <p-button
+        [label]="selectedFiles().length > 1 ? 'Ajouter les fichiers' : 'Ajouter le fichier'"
+        size="small"
+        [disabled]="!hasFiles"
+        [loading]="isUploading()"
+        (click)="onSubmit()" />
+    </div>
+  </ng-template>
+</p-dialog>

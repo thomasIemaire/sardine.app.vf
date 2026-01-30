@@ -1,0 +1,82 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  [style]="{ width: '450px' }"
+  styleClass="dialog-restore-document">
+  <ng-template #header>
+    <div class="dialog-header">
+      <div class="dialog-icon restore">
+        <i class="fa-duotone fa-solid fa-trash-arrow-up"></i>
+      </div>
+      <div class="dialog-title-wrapper">
+        <h3 class="dialog-title">Restaurer</h3>
+        <p class="dialog-subtitle">{{ documentName() }}</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="dialog-content">
+    <div class="original-location">
+      <span class="label">Emplacement d'origine :</span>
+      <span class="path">{{ originalPath() || 'Racine' }}</span>
+    </div>
+
+    <div class="restore-options">
+      <p-button
+        label="Restaurer à l'emplacement d'origine"
+        icon="fa-duotone fa-solid fa-rotate-left"
+        severity="secondary"
+        size="small"
+        [outlined]="true"
+        (click)="restoreToOriginal()" />
+    </div>
+
+    <div class="separator">
+      <span>ou choisir un nouvel emplacement</span>
+    </div>
+
+    <div class="folder-tree-container">
+      <p-tree
+        [value]="folderTree()"
+        selectionMode="single"
+        [selection]="selectedNode()"
+        (onNodeSelect)="onNodeSelect($event)"
+        scrollHeight="200px" />
+
+      @if (folderTree().length === 0) {
+        <div class="empty-tree">
+          <i class="fa-duotone fa-solid fa-folder-open"></i>
+          <span>Aucun dossier disponible</span>
+        </div>
+      }
+    </div>
+
+    @if (selectedNode()) {
+      <div class="selected-destination">
+        <span class="label">Destination :</span>
+        <span class="path">{{ selectedPath() }}</span>
+      </div>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="dialog-footer">
+      <p-button
+        label="Annuler"
+        severity="secondary"
+        size="small"
+        text
+        (click)="close()" />
+      <p-button
+        label="Restaurer ici"
+        icon="fa-duotone fa-solid fa-check"
+        size="small"
+        [loading]="isRestoring()"
+        [disabled]="!selectedNode()"
+        (click)="onSubmit()" />
+    </div>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,97 @@
+.member-card,
+.team-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1rem 0;
+  }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-color);
+  }
+
+  .card-description {
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .card-content {
+    padding: 0.5rem 0;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-color-secondary);
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .card-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+
+  .card-date {
+    font-size: 0.8rem;
+  }
+}
+
+.member-card {
+  .member-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--surface-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color-secondary);
+    font-size: 1.25rem;
+  }
+
+  .member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .card-email {
+    font-size: 0.85rem;
+    color: var(--text-color-secondary);
+  }
+
+  .card-header {
+    justify-content: flex-start;
+  }
+}
+
+.team-card {
+  cursor: pointer;
+
+  .card-header {
+    justify-content: space-between;
+  }
+}

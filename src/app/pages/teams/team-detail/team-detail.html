@@ -1,0 +1,13 @@
+<app-header-page [title]="'Équipe #' + teamId()" subtitle="Gérez les membres et les droits de cette équipe." />
+<app-header-tabs [tabs]="tabs" [subTabs]="currentSubTabs()" />
+
+<div class="page-content">
+  @switch (activeTab()) {
+    @case ('members') {
+      <app-members-tab [teamId]="teamId() ?? null" [viewMode]="activeSubTab()" />
+    }
+    @case ('rights') {
+      <app-rights-tab />
+    }
+  }
+</div>

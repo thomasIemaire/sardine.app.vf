@@ -1,0 +1,72 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  [style]="{ width: '450px' }"
+  styleClass="dialog-move-document">
+  <ng-template #header>
+    <div class="dialog-header">
+      <div class="dialog-icon move">
+        <i class="fa-duotone fa-solid fa-arrow-right-arrow-left"></i>
+      </div>
+      <div class="dialog-title-wrapper">
+        <h3 class="dialog-title">Déplacer</h3>
+        <p class="dialog-subtitle">{{ documentName() }}</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="dialog-content">
+    <p class="selection-label">Sélectionnez le dossier de destination :</p>
+
+    <div class="folder-tree-container">
+      <div
+        class="root-folder"
+        [class.selected]="isRootSelected"
+        (click)="selectRoot()">
+        <i class="fa-duotone fa-solid fa-house"></i>
+        <span>Racine (Documents)</span>
+      </div>
+
+      <p-tree
+        [value]="folderTree()"
+        selectionMode="single"
+        [selection]="selectedNode()"
+        (onNodeSelect)="onNodeSelect($event)"
+        (onNodeUnselect)="onNodeUnselect()"
+        [filter]="true"
+        filterPlaceholder="Rechercher un dossier..."
+        scrollHeight="250px"
+        styleClass="folder-tree" />
+    </div>
+
+    @if (hasSelection && !isRootSelected) {
+      <div class="selection-preview">
+        <span class="preview-label">Destination :</span>
+        <span class="preview-value">
+          <i class="fa-duotone fa-solid fa-folder"></i>
+          {{ selectedFolderName }}
+        </span>
+      </div>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="dialog-footer">
+      <p-button
+        label="Annuler"
+        severity="secondary"
+        size="small"
+        text
+        (click)="close()" />
+      <p-button
+        label="Déplacer"
+        size="small"
+        [disabled]="!hasSelection"
+        [loading]="isMoving()"
+        (click)="onSubmit()" />
+    </div>
+  </ng-template>
+</p-dialog>

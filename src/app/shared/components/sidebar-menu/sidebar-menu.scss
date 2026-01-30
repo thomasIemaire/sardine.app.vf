@@ -1,0 +1,18 @@
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+
+    &__label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--text-color-400);
+        padding: 0.5rem 1rem;
+        letter-spacing: 0.05em;
+    }
+
+    &__items {
+        display: flex;
+        flex-direction: column;
+    }
+}

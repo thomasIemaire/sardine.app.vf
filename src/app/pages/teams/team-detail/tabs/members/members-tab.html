@@ -1,0 +1,111 @@
+@if (viewMode() === 'users') {
+  <app-data-view
+    [data]="filteredMembers()"
+    [columns]="membersColumns"
+    searchPlaceholder="Rechercher un membre..."
+    emptyMessage="Aucun membre trouvé"
+    (searchChange)="onSearchChange($event)">
+
+    <ng-template #tableCell let-item let-column="column">
+      @switch (column.field) {
+        @case ('fullName') {
+          {{ item.firstName }} {{ item.lastName }}
+        }
+        @case ('role') {
+          <p-tag [value]="getRoleLabel(item.role)" [severity]="getRoleSeverity(item.role)" />
+        }
+        @case ('joinedAt') {
+          {{ item.joinedAt | date:'dd/MM/yyyy' }}
+        }
+        @default {
+          {{ item[column.field] }}
+        }
+      }
+    </ng-template>
+
+    <ng-template #tableActions let-item>
+      <p-button icon="fa-duotone fa-solid fa-pen" rounded text severity="secondary" size="small" />
+      <p-button icon="fa-duotone fa-solid fa-trash" rounded text severity="danger" size="small" />
+    </ng-template>
+
+    <ng-template #card let-member>
+      <p-card class="member-card">
+        <ng-template #header>
+          <div class="card-header">
+            <div class="member-avatar">
+              <i class="fa-duotone fa-solid fa-user"></i>
+            </div>
+            <div class="member-info">
+              <span class="card-title">{{ member.firstName }} {{ member.lastName }}</span>
+              <span class="card-email">{{ member.email }}</span>
+            </div>
+          </div>
+        </ng-template>
+        <div class="card-content">
+          <p-tag [value]="getRoleLabel(member.role)" [severity]="getRoleSeverity(member.role)" />
+        </div>
+        <ng-template #footer>
+          <div class="card-footer">
+            <span class="card-date">Ajouté le {{ member.joinedAt | date:'dd/MM/yyyy' }}</span>
+            <div class="card-actions">
+              <p-button icon="fa-duotone fa-solid fa-pen" rounded text severity="secondary" size="small" />
+              <p-button icon="fa-duotone fa-solid fa-trash" rounded text severity="danger" size="small" />
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </ng-template>
+
+    <p-button toolbar-actions label="Ajouter un membre" icon="fa-duotone fa-solid fa-plus" size="small" rounded />
+  </app-data-view>
+} @else {
+  <app-data-view
+    [data]="filteredTeams()"
+    [columns]="teamsColumns"
+    searchPlaceholder="Rechercher une équipe..."
+    emptyMessage="Aucune équipe trouvée"
+    (searchChange)="onSearchChange($event)">
+
+    <ng-template #tableCell let-item let-column="column">
+      {{ item[column.field] }}
+    </ng-template>
+
+    <ng-template #tableActions let-item>
+      <p-button
+        icon="fa-duotone fa-solid fa-eye"
+        [routerLink]="getTeamPath(item.id)"
+        rounded
+        text
+        severity="secondary"
+        size="small" />
+      <p-button icon="fa-duotone fa-solid fa-pen" rounded text severity="secondary" size="small" />
+      <p-button icon="fa-duotone fa-solid fa-trash" rounded text severity="danger" size="small" />
+    </ng-template>
+
+    <ng-template #card let-team>
+      <p-card class="team-card" [routerLink]="getTeamPath(team.id)">
+        <ng-template #header>
+          <div class="card-header">
+            <span class="card-title">{{ team.name }}</span>
+            <p-button icon="fa-duotone fa-solid fa-eye" rounded text severity="secondary" size="small" />
+          </div>
+        </ng-template>
+        <p class="card-description">{{ team.description }}</p>
+        <ng-template #footer>
+          <div class="card-footer">
+            <span class="card-stat">
+              <i class="fa-duotone fa-solid fa-users"></i>
+              {{ team.membersCount }} membres
+            </span>
+            <div class="card-actions">
+              <p-button icon="fa-duotone fa-solid fa-pen" rounded text severity="secondary" size="small" />
+              <p-button icon="fa-duotone fa-solid fa-trash" rounded text severity="danger" size="small" />
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </ng-template>
+
+    <p-button toolbar-actions label="Créer une équipe" icon="fa-duotone fa-solid fa-plus" size="small" rounded />
+  </app-data-view>
+}

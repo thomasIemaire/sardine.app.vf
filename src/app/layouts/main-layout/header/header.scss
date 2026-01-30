@@ -1,0 +1,42 @@
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  height: 46px;
+  width: 100%;
+  background-color: var(--background-color-0);
+  border-bottom: 1px solid var(--background-color-200);
+}
+
+aside {
+  display: flex;
+  align-items: center;
+}
+
+.actions-group {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+:host ::ng-deep p-button.collapsed .p-button-icon {
+  transform: rotateY(180deg);
+}
+
+:host ::ng-deep p-button .p-button-icon {
+  transition: transform 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--p-surface-200);
+
+  label {
+    font-weight: 500;
+  }
+}
