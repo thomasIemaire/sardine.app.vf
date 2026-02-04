@@ -1,7 +1,21 @@
 <div class="sidebar-wrapper">
     <app-brand class="sidebar-wrapper__brand" />
     <nav class="sidebar-wrapper__nav">
-        <!-- Navigation items -->
+        <app-navigation-menu>
+            <app-navigation-item label="Automatisation" icon="fa-solid fa-chart-diagram" routerLink="/automation" />
+        </app-navigation-menu>
+        <app-navigation-menu label="Gestion documentaire">
+            <app-navigation-item label="Documents" icon="fa-solid fa-folder-open" routerLink="/documents" />
+            <app-navigation-item label="Corbeille" icon="fa-solid fa-trash" routerLink="/trash" />
+        </app-navigation-menu>
+        <app-navigation-menu>
+            <app-navigation-item label="Organisation" icon="fa-solid fa-building" routerLink="/organization" />
+        </app-navigation-menu>
     </nav>
-    <app-context-selector class="sidebar-wrapper__context" />
+    <div class="sidebar-wrapper__footer">
+        <div class="divider">
+            <p-divider />
+        </div>
+        <app-context-selector />
+    </div>
 </div>
