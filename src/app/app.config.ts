@@ -1,4 +1,4 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
@@ -9,7 +9,6 @@ import { provideRouter, withComponentInputBinding, withViewTransitions } from '@
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 
-import { authInterceptor, errorInterceptor } from './core';
 import { routes } from './app.routes';
 import { defaultTheme } from './static/theme/default';
 
@@ -22,9 +21,7 @@ export const appConfig: ApplicationConfig = {
       withComponentInputBinding(),
       withViewTransitions()
     ),
-    provideHttpClient(
-      withInterceptors([authInterceptor, errorInterceptor])
-    ),
+    provideHttpClient(),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {

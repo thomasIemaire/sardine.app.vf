@@ -1,0 +1,35 @@
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: .125rem;
+
+    &__label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    &__required {
+        color: var(--red-500);
+        margin-left: 0.25rem;
+    }
+
+    &__content {
+        width: 100%;
+    }
+
+    &__error {
+        font-size: 0.75rem;
+        color: var(--red-500);
+    }
+
+    &.has-error {
+        ::ng-deep input {
+            border-color: var(--red-500);
+
+            &:focus {
+                box-shadow: 0 0 0 0.2rem rgba(var(--red-500-rgb), 0.25);
+            }
+        }
+    }
+}

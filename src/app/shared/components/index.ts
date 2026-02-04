@@ -1,13 +1,6 @@
-export * from './base-dialog/base-dialog';
-export * from './brand/brand';
-export * from './button/button';
-export * from './card-container/card-container';
-export * from './data-view/data-view';
-export * from './email-list-input/email-list-input';
-export * from './folder-tree-select/folder-tree-select';
-export * from './header-page/header-page';
-export * from './header-tabs/header-tabs';
-export * from './input/input';
-export * from './sidebar-menu/sidebar-menu';
-export * from './sidebar-menu-item/sidebar-menu-item';
-export * from './tabbed-page/tabbed-page';
+// Export shared components here
+export { BrandComponent } from './brand/brand';
+export { FieldComponent } from './field/field';
+export { FormComponent } from './form/form';
+export { PasswordFieldComponent } from './password-field/password-field';
+export { TextFieldComponent } from './text-field/text-field';

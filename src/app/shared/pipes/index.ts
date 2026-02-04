@@ -1,2 +1,4 @@
-export * from './date-format.pipe';
-export * from './truncate.pipe';
+// Export pipes here
+// Example: export { DateFormatPipe } from './date-format.pipe';
+
+export {};

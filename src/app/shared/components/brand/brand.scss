@@ -11,6 +11,7 @@
         font-size: calc(20px * var(--brand-scale));
         font-weight: 600;
         text-transform: lowercase;
+        /* (optionnel) corrige font-style */
         user-select: none;
 
         .brand__left-part {
@@ -20,7 +21,7 @@
         .brand__right-part {
             color: #fff;
             letter-spacing: calc(-2px * var(--brand-scale));
-            padding: calc(.1rem * var(--brand-scale)) calc(.875rem * var(--brand-scale)) calc(.1rem * var(--brand-scale)) calc(.5rem * var(--brand-scale));
+            padding: calc(.1rem * var(--brand-scale)) calc(.75rem * var(--brand-scale)) calc(.1rem * var(--brand-scale)) calc(.5rem * var(--brand-scale));
             background-color: var(--p-primary-500);
             border-radius: calc(2px * var(--brand-scale)) 0 calc(2px * var(--brand-scale)) calc(2px * var(--brand-scale));
             position: relative;
@@ -49,10 +50,6 @@
             }
         }
 
-        &.medium {
-            --brand-scale: 1.25;
-        }
-
         &.large {
             --brand-scale: 1.5;
         }
@@ -64,7 +61,7 @@
         --brand-corner: #7dc6f1;
     }
 
-    .dark-mode:root {
+    .app-dark:root {
         --brand-corner: #dc51d5;
     }
 }

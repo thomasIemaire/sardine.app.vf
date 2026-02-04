@@ -9,12 +9,12 @@ import { FormsModule } from "@angular/forms";
     <div class="brand__container">
         <div class="brand__wrapper" [ngClass]="size">
             <span class="brand__left-part">sen</span>
-            <span class="brand__right-part">ged</span>
+            <span class="brand__right-part">doc</span>
         </div>
     </div>
     `,
     styleUrls: ['./brand.scss']
 })
 export class BrandComponent {
-    @Input() size: 'small' | 'medium' | 'large' = 'medium';
+    @Input() size: 'small' | 'large' = 'small';
 }

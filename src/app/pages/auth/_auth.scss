@@ -1,0 +1,23 @@
+.auth-form-container {
+    width: 256px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+
+.auth-form-container app-form {
+    width: 100%;
+}
+
+.auth-account-question {
+    color: var(--p-text-muted-color);
+    font-size: .75rem;
+}
+
+.auth-account-question .link {
+    color: var(--p-primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}

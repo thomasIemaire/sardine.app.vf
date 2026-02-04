@@ -1,0 +1,16 @@
+<div class="field" [class.has-error]="error()">
+    @if (label()) {
+        <label class="field__label">
+            {{ label() }}
+            @if (required()) {
+                <span class="field__required">*</span>
+            }
+        </label>
+    }
+    <div class="field__content">
+        <ng-content />
+    </div>
+    @if (error()) {
+        <span class="field__error">{{ error() }}</span>
+    }
+</div>
