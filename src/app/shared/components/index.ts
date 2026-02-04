@@ -1,5 +1,6 @@
 // Export shared components here
 export { BrandComponent } from './brand/brand';
+export { ContextSelectorComponent } from './context-selector/context-selector';
 export { FieldComponent } from './field/field';
 export { FormComponent } from './form/form';
 export { PasswordFieldComponent } from './password-field/password-field';

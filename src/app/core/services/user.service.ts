@@ -18,6 +18,8 @@ export interface Context {
     organization: Organization | null;
 }
 
+const STORAGE_KEY = 'sardine_default_context';
+
 @Injectable({
     providedIn: 'root'
 })
@@ -43,7 +45,7 @@ export class UserService {
 
     login(email: string, password: string): boolean {
         if (email === 'thomas.lemaire+admin@sendoc.fr' && password === 'Sendoc25!') {
-            this.currentUser.set({
+            const user: User = {
                 id: '1',
                 email: 'thomas.lemaire+admin@sendoc.fr',
                 firstName: 'Thomas',
@@ -52,22 +54,45 @@ export class UserService {
                     { id: 'personal', name: 'Thomas Lemaire', isPersonal: true },
                     { id: 'sendoc', name: 'Sendoc', isPersonal: false }
                 ]
-            });
+            };
+            this.currentUser.set(user);
+            this.restoreDefaultContext(user);
             return true;
         }
         return false;
     }
 
-    selectContext(organization: Organization): void {
+    selectContext(organization: Organization, remember = false): void {
         this.currentContext.set({ organization });
+        if (remember) {
+            this.saveDefaultContext(organization.id);
+        }
     }
 
     clearContext(): void {
         this.currentContext.set({ organization: null });
     }
 
+    clearDefaultContext(): void {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+
     logout(): void {
         this.currentUser.set(null);
         this.currentContext.set({ organization: null });
+    }
+
+    private saveDefaultContext(organizationId: string): void {
+        localStorage.setItem(STORAGE_KEY, organizationId);
+    }
+
+    private restoreDefaultContext(user: User): void {
+        const savedOrgId = localStorage.getItem(STORAGE_KEY);
+        if (savedOrgId) {
+            const organization = user.organizations.find(org => org.id === savedOrgId);
+            if (organization) {
+                this.currentContext.set({ organization });
+            }
+        }
     }
 }

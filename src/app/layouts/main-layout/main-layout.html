@@ -5,10 +5,15 @@
     }
     @else{
     <aside class="main-layout__sidebar">
-        <!-- Sidebar content -->
+        <app-sidebar />
     </aside>
     <div class="main-layout__content">
-        <router-outlet />
+        <div class="main-layout__content__header">
+            <app-header />
+        </div>
+        <div class="main-layout__content__main">
+            <router-outlet />
+        </div>
     </div>
     }
 </div>

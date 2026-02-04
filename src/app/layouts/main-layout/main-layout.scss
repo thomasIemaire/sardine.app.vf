@@ -1,14 +1,25 @@
 .main-layout {
     display: flex;
     min-height: 100vh;
-
+    
     &__sidebar {
         width: 250px;
         border-right: 1px solid var(--surface-border);
     }
 
     &__content {
+        display: flex;
+        flex-direction: column;
         flex: 1;
-        padding: 1.5rem;
+
+        &__header {
+            height: 48px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        &__main {
+            flex: 1 1 auto;
+            overflow: auto;
+        }
     }
 }

@@ -1,0 +1,7 @@
+<div class="context-selector">
+    <div class="context-selector__picture">
+        <i class="fa-solid" [class.fa-user]="isPersonal()" [class.fa-users]="!isPersonal()"></i>
+    </div>
+    <div class="context-selector__name">{{ name() }}</div>
+    <i class="fa-solid fa-angles-up-down context-selector__carets"></i>
+</div>

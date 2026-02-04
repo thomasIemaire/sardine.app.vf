@@ -2,7 +2,7 @@ import { Component, computed, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ToggleSwitchModule } from "primeng/toggleswitch";
 import { Organization, UserService } from "@core/services";
-import { ContextItemComponent } from "../context-item/context-item";
+import { ContextItemComponent } from "./context-item/context-item";
 
 @Component({
     selector: "app-context-switcher",
@@ -18,6 +18,6 @@ export class ContextSwitcherComponent {
     stopAsking = false;
 
     onSelectOrganization(organization: Organization): void {
-        this.userService.selectContext(organization);
+        this.userService.selectContext(organization, this.stopAsking);
     }
 }
