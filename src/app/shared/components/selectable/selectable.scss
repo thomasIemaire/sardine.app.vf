@@ -2,6 +2,7 @@
     display: block;
     position: relative;
     cursor: pointer;
+    border-radius: var(--selectable-radius, 0);
 
     &::before {
         content: '';
