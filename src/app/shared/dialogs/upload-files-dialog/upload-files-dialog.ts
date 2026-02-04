@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, EventEmitter, Output, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
+import { BaseDialogComponent } from '../../components';
+import { formatFileSize } from '../../utils';
 
 export interface UploadedFile {
   file: File;
@@ -17,11 +17,7 @@ export interface UploadFilesResult {
 @Component({
   selector: 'app-upload-files-dialog',
   standalone: true,
-  imports: [
-    CommonModule,
-    ButtonModule,
-    DialogModule
-  ],
+  imports: [ButtonModule, BaseDialogComponent],
   templateUrl: './upload-files-dialog.html',
   styleUrl: './upload-files-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -37,6 +33,15 @@ export class UploadFilesDialogComponent {
   readonly acceptedFormats = 'image/jpeg,image/png,image/gif,image/webp,application/pdf,video/mp4,video/quicktime,video/x-msvideo,video/webm';
   readonly maxFileSize = 100 * 1024 * 1024; // 100 Mo
 
+  readonly hasFiles = computed(() => this.selectedFiles().length > 0);
+
+  readonly submitLabel = computed(() => {
+    const count = this.selectedFiles().length;
+    if (count === 0) return 'Importer';
+    if (count === 1) return 'Importer 1 fichier';
+    return `Importer ${count} fichiers`;
+  });
+
   open(): void {
     this.selectedFiles.set([]);
     this.visible.set(true);
@@ -45,10 +50,6 @@ export class UploadFilesDialogComponent {
   close(): void {
     this.visible.set(false);
     this.selectedFiles.set([]);
-  }
-
-  get hasFiles(): boolean {
-    return this.selectedFiles().length > 0;
   }
 
   onDragOver(event: DragEvent): void {
@@ -104,10 +105,8 @@ export class UploadFilesDialogComponent {
     this.selectedFiles.update(current => current.filter((_, i) => i !== index));
   }
 
-  formatFileSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' o';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+  formatSize(bytes: number): string {
+    return formatFileSize(bytes);
   }
 
   getFileIcon(type: string): string {
@@ -118,7 +117,7 @@ export class UploadFilesDialogComponent {
   }
 
   onSubmit(): void {
-    if (!this.hasFiles || this.isUploading()) return;
+    if (!this.hasFiles() || this.isUploading()) return;
 
     this.isUploading.set(true);
 

@@ -8,8 +8,10 @@
   <!-- Toolbar -->
   <div class="trash-toolbar">
     <div class="toolbar-left">
-      <p-iconfield iconPosition="left">
-        <p-inputicon styleClass="fa-duotone fa-solid fa-magnifying-glass" />
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="fa-duotone fa-solid fa-magnifying-glass"></i>
+        </p-inputgroup-addon>
         <input
           type="text"
           pInputText
@@ -17,7 +19,7 @@
           [ngModel]="searchQuery()"
           (ngModelChange)="onSearchChange($event)"
           pSize="small" />
-      </p-iconfield>
+      </p-inputgroup>
 
       <p-select
         [options]="filterOptions"
@@ -25,7 +27,8 @@
         (ngModelChange)="onFilterChange($event)"
         optionLabel="label"
         optionValue="value"
-        size="small" />
+        size="small"
+        appendTo="body"/>
 
       <p-button
         [label]="displayMode() === 'table' ? 'Vue galerie' : 'Vue tableau'"
@@ -66,107 +69,43 @@
   </div>
 
   <!-- Content -->
-  @if (filteredItems().length > 0) {
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="4" />
+    </div>
+  } @else if (filteredItems().length > 0) {
     @if (displayMode() === 'card') {
       <!-- Card View -->
       <div class="trash-grid">
-        @for (item of filteredItems(); track item.id) {
+        @for (item of filteredItems(); track item._id) {
           <div
             class="trash-card"
-            [class.selected]="isSelected(item.id)"
-            (click)="toggleItemSelection(item.id)"
-            (contextmenu)="onContextMenu($event, item); trashContextMenu.show($event)">
-            <div class="card-checkbox" (click)="$event.stopPropagation()">
-              <p-checkbox
-                [binary]="true"
-                [ngModel]="isSelected(item.id)"
-                (ngModelChange)="toggleItemSelection(item.id)" />
-            </div>
-            <div class="card-icon" [style.background-color]="getItemIconColor(item) + '20'">
-              <i [class]="getItemIcon(item)" [style.color]="getItemIconColor(item)"></i>
-            </div>
-            <div class="card-info">
-              <span class="card-name" [title]="item.name">{{ item.name }}</span>
-              <span class="card-path" [title]="item.originalPath">{{ item.originalPath }}</span>
-            </div>
-            <div class="card-meta">
-              <span class="deleted-date">Supprimé le {{ item.deletedAt | date:'dd/MM/yyyy' }}</span>
-              <span class="remaining-time" [class]="getRemainingClass(item.deletedAt)">
-                <i class="fa-duotone fa-solid fa-clock"></i>
-                {{ getRemainingLabel(item.deletedAt) }}
-              </span>
-            </div>
-            <div class="card-actions" (click)="$event.stopPropagation()">
-              <p-button
-                icon="fa-duotone fa-solid fa-trash-arrow-up"
-                rounded
-                text
-                severity="success"
-                size="small"
-                pTooltip="Restaurer"
-                (click)="openRestoreDialog(item)" />
-              <p-button
-                icon="fa-duotone fa-solid fa-circle-xmark"
-                rounded
-                text
-                severity="danger"
-                size="small"
-                pTooltip="Supprimer définitivement"
-                (click)="openPermanentDeleteDialog(item)" />
-            </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <!-- Table View -->
-      <div class="trash-table">
-        <div class="table-header">
-          <div class="header-checkbox">
-            <p-checkbox
-              [binary]="true"
-              [ngModel]="allSelected()"
-              (ngModelChange)="toggleSelectAll()" />
-          </div>
-          <div class="header-name">Nom</div>
-          <div class="header-path">Emplacement d'origine</div>
-          <div class="header-deleted">Date de suppression</div>
-          <div class="header-remaining">Temps restant</div>
-          <div class="header-actions">Actions</div>
-        </div>
-        <div class="table-body">
-          @for (item of filteredItems(); track item.id) {
+            [class.selected]="isSelected(item._id)"
+            (click)="toggleItemSelection(item._id)">
             <div
-              class="table-row"
-              [class.selected]="isSelected(item.id)"
-              (click)="toggleItemSelection(item.id)"
+              class="trash-card-inner"
               (contextmenu)="onContextMenu($event, item); trashContextMenu.show($event)">
-              <div class="row-checkbox" (click)="$event.stopPropagation()">
+              <div class="card-checkbox" (click)="$event.stopPropagation()">
                 <p-checkbox
                   [binary]="true"
-                  [ngModel]="isSelected(item.id)"
-                  (ngModelChange)="toggleItemSelection(item.id)" />
+                  [ngModel]="isSelected(item._id)"
+                  (ngModelChange)="toggleItemSelection(item._id)" />
               </div>
-              <div class="row-name">
-                <div class="item-icon" [style.background-color]="getItemIconColor(item) + '20'">
-                  <i [class]="getItemIcon(item)" [style.color]="getItemIconColor(item)"></i>
-                </div>
-                <div class="item-details">
-                  <span class="item-name">{{ item.name }}</span>
-                  @if (item.type === 'file' && item.size) {
-                    <span class="item-size">{{ formatFileSize(item.size) }}</span>
-                  } @else if (item.type === 'folder') {
-                    <span class="item-type">Dossier</span>
-                  }
-                </div>
+              <div class="card-icon" [style.background-color]="getItemIconColor(item) + '20'">
+                <i [class]="getItemIcon(item)" [style.color]="getItemIconColor(item)"></i>
               </div>
-              <div class="row-path">{{ item.originalPath }}</div>
-              <div class="row-deleted">{{ item.deletedAt | date:'dd/MM/yyyy' }}</div>
-              <div class="row-remaining">
-                <span class="remaining-badge" [class]="getRemainingClass(item.deletedAt)">
-                  {{ getRemainingLabel(item.deletedAt) }}
+              <div class="card-info">
+                <span class="card-name" [title]="item.itemName">{{ item.itemName }}</span>
+                <span class="card-path">{{ item.itemType === 'folder' ? 'Dossier' : 'Document' }}</span>
+              </div>
+              <div class="card-meta">
+                <span class="deleted-date">Supprimé le {{ item.deletedAt | date:'dd/MM/yyyy' }}</span>
+                <span class="remaining-time" [class]="getRemainingClass(item)">
+                  <i class="fa-duotone fa-solid fa-clock"></i>
+                  {{ getRemainingLabel(item) }}
                 </span>
               </div>
-              <div class="row-actions" (click)="$event.stopPropagation()">
+              <div class="card-actions" (click)="$event.stopPropagation()">
                 <p-button
                   icon="fa-duotone fa-solid fa-trash-arrow-up"
                   rounded
@@ -185,9 +124,79 @@
                   (click)="openPermanentDeleteDialog(item)" />
               </div>
             </div>
-          }
-        </div>
+          </div>
+        }
       </div>
+    } @else {
+      <!-- Table View -->
+      <table class="trash-table">
+        <thead>
+          <tr>
+            <th class="col-checkbox">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="allSelected()"
+                (ngModelChange)="toggleSelectAll()" />
+            </th>
+            <th class="col-name">Nom</th>
+            <th class="col-type">Type</th>
+            <th class="col-deleted">Date de suppression</th>
+            <th class="col-remaining">Temps restant</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredItems(); track item._id) {
+            <tr
+              class="trash-row"
+              [class.selected]="isSelected(item._id)"
+              (click)="toggleItemSelection(item._id)"
+              (contextmenu)="onContextMenu($event, item); trashContextMenu.show($event)">
+              <td class="col-checkbox" (click)="$event.stopPropagation()">
+                <p-checkbox
+                  [binary]="true"
+                  [ngModel]="isSelected(item._id)"
+                  (ngModelChange)="toggleItemSelection(item._id)" />
+              </td>
+              <td class="col-name">
+                <div class="item-info">
+                  <div class="item-icon" [style.background-color]="getItemIconColor(item) + '20'">
+                    <i [class]="getItemIcon(item)" [style.color]="getItemIconColor(item)"></i>
+                  </div>
+                  <div class="item-details">
+                    <span class="item-name">{{ item.itemName }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="col-type">{{ item.itemType === 'folder' ? 'Dossier' : 'Document' }}</td>
+              <td class="col-deleted">{{ item.deletedAt | date:'dd/MM/yyyy' }}</td>
+              <td class="col-remaining">
+                <span class="remaining-badge" [class]="getRemainingClass(item)">
+                  {{ getRemainingLabel(item) }}
+                </span>
+              </td>
+              <td class="col-actions" (click)="$event.stopPropagation()">
+                <p-button
+                  icon="fa-duotone fa-solid fa-trash-arrow-up"
+                  rounded
+                  text
+                  severity="success"
+                  size="small"
+                  pTooltip="Restaurer"
+                  (click)="openRestoreDialog(item)" />
+                <p-button
+                  icon="fa-duotone fa-solid fa-circle-xmark"
+                  rounded
+                  text
+                  severity="danger"
+                  size="small"
+                  pTooltip="Supprimer définitivement"
+                  (click)="openPermanentDeleteDialog(item)" />
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     }
   } @else {
     <!-- Empty State -->

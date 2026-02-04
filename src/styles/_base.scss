@@ -44,3 +44,8 @@ p-breadcrumb .p-breadcrumb {
     width: .5rem !important;
   }
 }
+
+// InputGroup addon padding alignment
+p-inputgroup-addon {
+  padding-inline: var(--p-inputtext-padding-x) !important;
+}

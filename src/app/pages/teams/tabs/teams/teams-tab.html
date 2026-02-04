@@ -1,51 +1,159 @@
-<app-data-view
-  [data]="filteredTeams()"
-  [columns]="columns"
-  searchPlaceholder="Rechercher une équipe..."
-  emptyMessage="Aucune équipe trouvée"
-  (searchChange)="onSearchChange($event)">
+<div class="teams-tab">
+  <div class="teams-toolbar">
+    <div class="toolbar-left">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="fa-duotone fa-solid fa-magnifying-glass"></i>
+        </p-inputgroup-addon>
+        <input
+          type="text"
+          pInputText
+          placeholder="Rechercher"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchChange($event)"
+          pSize="small" />
+      </p-inputgroup>
 
-  <ng-template #tableCell let-item let-column="column">
-    @switch (column.field) {
-      @case ('createdAt') {
-        {{ item.createdAt | date:'dd/MM/yyyy' }}
-      }
-      @default {
-        {{ item[column.field] }}
-      }
+      <p-divider layout="vertical" />
+
+      <p-select
+        [options]="filterOptions"
+        [ngModel]="filterType()"
+        (ngModelChange)="onFilterChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        size="small"
+        appendTo="body" />
+
+      <p-divider layout="vertical" />
+
+      <p-button
+        [label]="displayMode() === 'table' ? 'Vue galerie' : 'Vue tableau'"
+        [icon]="displayMode() === 'table' ? 'fa-duotone fa-solid fa-grid-2' : 'fa-duotone fa-solid fa-table'"
+        size="small"
+        severity="secondary"
+        text
+        (click)="toggleDisplayMode()" />
+    </div>
+
+    <div class="toolbar-right">
+      <p-button
+        label="Créer une équipe"
+        icon="fa-duotone fa-solid fa-plus"
+        size="small"
+        rounded
+        (click)="openCreateTeamDialog()" />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="4" />
+    </div>
+  } @else if (displayMode() === 'card') {
+    @if (filteredTeams().length > 0) {
+      <section class="teams-section">
+        <div class="section-header">
+          <h3 class="section-title">Équipes</h3>
+          <span class="section-count">{{ teamsCount() }} équipe{{ teamsCount() > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="teams-grid">
+          @for (team of filteredTeams(); track team._id) {
+            <app-card-container layout="column">
+              <a
+                class="card-link"
+                [routerLink]="['/teams', team._id]"
+                (contextmenu)="onContextMenu($event, team._id, team.name); teamContextMenu.show($event)">
+                <div class="card-header">
+                  <div class="card-icon" [style.background-color]="getTeamColor(team.name) + '20'">
+                    <i class="fa-duotone fa-solid fa-users" [style.color]="getTeamColor(team.name)"></i>
+                  </div>
+                  @if (team.myRole === 'admin') {
+                    <span class="owner-badge">
+                      <i class="fa-solid fa-crown"></i>
+                    </span>
+                  }
+                </div>
+                <div class="card-content">
+                  <span class="card-title">{{ team.name }}</span>
+                  <p class="card-description">{{ team.description || 'Aucune description' }}</p>
+                </div>
+                <div class="card-meta">
+                  <span class="card-count">{{ team.memberCount }} membre{{ team.memberCount > 1 ? 's' : '' }}</span>
+                </div>
+              </a>
+            </app-card-container>
+          }
+        </div>
+      </section>
+    } @else {
+      <div class="empty-state">
+        <i class="fa-duotone fa-solid fa-users"></i>
+        <p>Aucune équipe trouvée</p>
+      </div>
     }
-  </ng-template>
-
-  <ng-template #tableActions let-item>
-    <p-button
-      icon="fa-duotone fa-solid fa-eye"
-      [routerLink]="['/teams', item.id]"
-      rounded
-      text
-      severity="secondary"
-      size="small" />
-  </ng-template>
-
-  <ng-template #card let-team>
-    <p-card class="team-card" [routerLink]="['/teams', team.id]">
-      <ng-template #header>
-        <div class="card-header">
-          <span class="card-title">{{ team.name }}</span>
-          <p-button icon="fa-duotone fa-solid fa-eye" rounded text severity="secondary" size="small" />
+  } @else {
+    <div class="table-view">
+      @if (filteredTeams().length > 0) {
+        <table class="teams-table">
+          <thead>
+            <tr>
+              <th class="col-name">Nom</th>
+              <th class="col-description">Description</th>
+              <th class="col-members">Membres</th>
+              <th class="col-role">Rôle</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (team of filteredTeams(); track team._id) {
+              <tr
+                class="team-row"
+                [routerLink]="['/teams', team._id]"
+                (contextmenu)="onContextMenu($event, team._id, team.name); teamContextMenu.show($event)">
+                <td class="col-name">
+                  <div class="team-info-cell">
+                    <div class="team-icon" [style.background-color]="getTeamColor(team.name) + '20'">
+                      <i class="fa-duotone fa-solid fa-users" [style.color]="getTeamColor(team.name)"></i>
+                    </div>
+                    <span class="team-name">{{ team.name }}</span>
+                  </div>
+                </td>
+                <td class="col-description">{{ team.description || '-' }}</td>
+                <td class="col-members">{{ team.memberCount }}</td>
+                <td class="col-role">
+                  @if (team.myRole === 'admin') {
+                    <span class="role-badge owner">Administrateur</span>
+                  } @else {
+                    <span class="role-badge member">Membre</span>
+                  }
+                </td>
+                <td class="col-actions" (click)="$event.stopPropagation()">
+                  <p-button
+                    icon="fa-duotone fa-solid fa-ellipsis-vertical"
+                    rounded
+                    text
+                    severity="secondary"
+                    size="small"
+                    (click)="onContextMenu($event, team._id, team.name); teamContextMenu.show($event)" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <div class="empty-state">
+          <i class="fa-duotone fa-solid fa-users"></i>
+          <p>Aucune équipe trouvée</p>
         </div>
-      </ng-template>
-      <p class="card-description">{{ team.description }}</p>
-      <ng-template #footer>
-        <div class="card-footer">
-          <span class="card-stat">
-            <i class="fa-duotone fa-solid fa-users"></i>
-            {{ team.membersCount }} membres
-          </span>
-          <span class="card-date">{{ team.createdAt | date:'dd/MM/yyyy' }}</span>
-        </div>
-      </ng-template>
-    </p-card>
-  </ng-template>
+      }
+    </div>
+  }
+</div>
 
-  <p-button toolbar-actions label="Créer une équipe" icon="fa-duotone fa-solid fa-plus" size="small" rounded />
-</app-data-view>
+<app-create-team-dialog
+  #createTeamDialog
+  (teamCreated)="onTeamCreated($event)" />
+
+<!-- Context Menu -->
+<p-contextMenu #teamContextMenu [model]="contextMenuItems()" />

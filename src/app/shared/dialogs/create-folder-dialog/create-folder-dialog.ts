@@ -1,9 +1,7 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, EventEmitter, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { FloatLabelModule } from 'primeng/floatlabel';
+import { BaseDialogComponent } from '../../components';
 
 export interface FolderColor {
   name: string;
@@ -39,13 +37,7 @@ export interface CreateFolderResult {
 @Component({
   selector: 'app-create-folder-dialog',
   standalone: true,
-  imports: [
-    FormsModule,
-    ButtonModule,
-    DialogModule,
-    InputTextModule,
-    FloatLabelModule
-  ],
+  imports: [FormsModule, InputTextModule, BaseDialogComponent],
   templateUrl: './create-folder-dialog.html',
   styleUrl: './create-folder-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -55,10 +47,12 @@ export class CreateFolderDialogComponent {
 
   readonly visible = signal(false);
   readonly folderName = signal('');
-  readonly selectedColor = signal(FOLDER_COLORS[4].value); // Jaune par défaut
+  readonly selectedColor = signal(FOLDER_COLORS[4].value);
   readonly isSubmitting = signal(false);
 
   readonly colors = FOLDER_COLORS;
+
+  readonly isValid = computed(() => this.folderName().trim().length > 0);
 
   open(): void {
     this.folderName.set('');
@@ -79,12 +73,8 @@ export class CreateFolderDialogComponent {
     return this.selectedColor() === color;
   }
 
-  get isValid(): boolean {
-    return this.folderName().trim().length > 0;
-  }
-
   onSubmit(): void {
-    if (!this.isValid || this.isSubmitting()) return;
+    if (!this.isValid() || this.isSubmitting()) return;
 
     this.isSubmitting.set(true);
 

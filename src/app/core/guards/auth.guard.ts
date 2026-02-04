@@ -3,11 +3,13 @@ import { CanActivateFn, Router } from '@angular/router';
 
 import { StorageService } from '../services';
 
+const TOKEN_KEY = 'auth_token';
+
 export const authGuard: CanActivateFn = () => {
   const storage = inject(StorageService);
   const router = inject(Router);
 
-  const token = storage.get<string>('token');
+  const token = storage.get<string>(TOKEN_KEY);
 
   if (token) {
     return true;
@@ -20,7 +22,7 @@ export const guestGuard: CanActivateFn = () => {
   const storage = inject(StorageService);
   const router = inject(Router);
 
-  const token = storage.get<string>('token');
+  const token = storage.get<string>(TOKEN_KEY);
 
   if (!token) {
     return true;

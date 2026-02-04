@@ -1,15 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 
-import { HeaderPageComponent, HeaderTabsComponent, Tab } from '../../shared';
+import { TabbedPageComponent, PageTab } from '../../shared';
 import { TeamsTabComponent } from './tabs/teams/teams-tab';
 
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [HeaderPageComponent, HeaderTabsComponent, TeamsTabComponent],
+  imports: [TabbedPageComponent, TeamsTabComponent],
   templateUrl: './teams.html',
   styleUrl: './teams.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -17,19 +17,12 @@ import { TeamsTabComponent } from './tabs/teams/teams-tab';
 export class TeamsComponent {
   private readonly route = inject(ActivatedRoute);
 
-  readonly tabs: Tab[] = [
+  readonly tabs: PageTab[] = [
     { id: 'teams', label: 'Équipes' }
   ];
 
-  private readonly queryParams = toSignal(
-    this.route.queryParams.pipe(map(params => params['tabs'] as string | undefined))
+  readonly teamId = toSignal(
+    this.route.paramMap.pipe(map(params => params.get('id'))),
+    { initialValue: null }
   );
-
-  readonly activeTab = computed(() => {
-    const tabFromUrl = this.queryParams();
-    if (tabFromUrl && this.tabs.some(t => t.id === tabFromUrl)) {
-      return tabFromUrl;
-    }
-    return this.tabs[0]?.id;
-  });
 }

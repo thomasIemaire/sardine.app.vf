@@ -1,174 +1,53 @@
-::ng-deep .dialog-restore-document {
-  .p-dialog-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--surface-border);
-    gap: 1rem;
-  }
-
-  .p-dialog-content {
-    padding: 1.5rem;
-  }
-
-  .p-dialog-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--surface-border);
-  }
-}
-
-.dialog-header {
+.original-path-section {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
+  padding: 1rem;
+  background-color: var(--surface-ground);
+  border-radius: 8px;
 }
 
-.dialog-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+.original-path-info {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  gap: 0.75rem;
 
   i {
-    font-size: 1.5rem;
-  }
-
-  &.restore {
-    background-color: rgba(34, 197, 94, 0.15);
-
-    i {
-      color: #22c55e;
-    }
+    font-size: 1.25rem;
+    color: var(--p-text-muted-color);
   }
 }
 
-.dialog-title-wrapper {
+.path-details {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  min-width: 0;
+  gap: 0.125rem;
 }
 
-.dialog-title {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
+.path-label {
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color);
+}
+
+.path-value {
+  font-size: 0.875rem;
+  font-weight: 500;
   color: var(--text-color);
 }
 
-.dialog-subtitle {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--p-text-muted-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.original-location {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.75rem;
-  background: var(--surface-100);
-  border-radius: 8px;
-
-  .label {
-    font-size: 0.75rem;
-    color: var(--text-color-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .path {
-    font-size: 0.875rem;
-    color: var(--text-color);
-    font-weight: 500;
-  }
-}
-
-.restore-options {
-  display: flex;
-  justify-content: center;
-}
-
-.separator {
+.divider-text {
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: var(--text-color-secondary);
-  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.75rem;
 
   &::before,
   &::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: var(--surface-border);
+    background-color: var(--surface-border);
   }
-}
-
-.folder-tree-container {
-  border: 1px solid var(--surface-border);
-  border-radius: 8px;
-  overflow: hidden;
-  min-height: 200px;
-
-  ::ng-deep .p-tree {
-    border: none;
-    padding: 0.5rem;
-  }
-}
-
-.empty-tree {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 2rem;
-  color: var(--text-color-secondary);
-
-  i {
-    font-size: 2rem;
-    opacity: 0.5;
-  }
-
-  span {
-    font-size: 0.875rem;
-  }
-}
-
-.selected-destination {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(34, 197, 94, 0.1);
-  border-radius: 6px;
-  border: 1px solid rgba(34, 197, 94, 0.2);
-
-  .label {
-    font-size: 0.8rem;
-    color: var(--text-color-secondary);
-  }
-
-  .path {
-    font-size: 0.875rem;
-    color: #22c55e;
-    font-weight: 500;
-  }
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
 }

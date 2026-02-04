@@ -1,10 +1,13 @@
-<app-header-page title="Équipes" subtitle="Gérez vos équipes et collaborateurs." />
-<app-header-tabs [tabs]="tabs" />
+<app-tabbed-page
+  maintitle="Équipes"
+  subtitle="Gérez vos équipes et collaborateurs."
+  [tabs]="tabs"
+  #tabbedPage>
 
-<div class="page-content">
-  @switch (activeTab()) {
+  @switch (tabbedPage.activeTab()) {
     @case ('teams') {
-      <app-teams-tab />
+      <app-teams-tab [teamId]="teamId()" />
     }
   }
-</div>
+
+</app-tabbed-page>

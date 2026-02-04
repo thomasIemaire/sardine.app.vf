@@ -1,116 +1,32 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { SelectModule } from 'primeng/select';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MenuItem } from 'primeng/api';
-import { ThemeService, DisplayMode } from '../../../../core/services';
+import { ThemeService, DisplayMode, FoldersService, DocumentsService } from '../../../../core/services';
+import { TrashItemResponse } from '../../../../models';
 import {
   RestoreDocumentDialogComponent,
   RestoreDocumentResult,
   PermanentDeleteDialogComponent,
-  PermanentDeleteResult
+  PermanentDeleteResult,
+  getFileIcon,
+  getFileIconColor,
+  formatFileSize
 } from '../../../../shared';
 
-export interface TrashItem {
-  id: number;
-  name: string;
-  type: 'folder' | 'file';
-  fileType?: 'image' | 'pdf' | 'doc' | 'xls' | 'other';
-  color?: string;
-  size?: number;
-  deletedAt: Date;
-  originalPath: string;
-  originalParentId: number | null;
+// Extended trash item for UI
+interface TrashItemView extends TrashItemResponse {
+  fileType: 'folder' | 'image' | 'pdf' | 'doc' | 'xls' | 'other';
+  color: string;
 }
-
-// Mock data pour la corbeille
-const MOCK_TRASH_ITEMS: TrashItem[] = [
-  {
-    id: 101,
-    name: 'Ancien projet',
-    type: 'folder',
-    color: '#f472b6',
-    deletedAt: new Date('2026-01-28'),
-    originalPath: 'Projets',
-    originalParentId: 2
-  },
-  {
-    id: 102,
-    name: 'Brouillon-présentation.pptx',
-    type: 'file',
-    fileType: 'other',
-    size: 2500000,
-    deletedAt: new Date('2026-01-27'),
-    originalPath: 'Marketing / Visuels',
-    originalParentId: 12
-  },
-  {
-    id: 103,
-    name: 'Photo-équipe.jpg',
-    type: 'file',
-    fileType: 'image',
-    size: 1200000,
-    deletedAt: new Date('2026-01-25'),
-    originalPath: 'Ressources / Images',
-    originalParentId: 31
-  },
-  {
-    id: 104,
-    name: 'Notes-réunion.docx',
-    type: 'file',
-    fileType: 'doc',
-    size: 45000,
-    deletedAt: new Date('2026-01-20'),
-    originalPath: 'Administration',
-    originalParentId: 4
-  },
-  {
-    id: 105,
-    name: 'Rapport-2024.pdf',
-    type: 'file',
-    fileType: 'pdf',
-    size: 3500000,
-    deletedAt: new Date('2026-01-15'),
-    originalPath: 'Administration / Contrats',
-    originalParentId: 41
-  },
-  {
-    id: 106,
-    name: 'Archives 2023',
-    type: 'folder',
-    color: '#a78bfa',
-    deletedAt: new Date('2026-01-10'),
-    originalPath: 'Projets',
-    originalParentId: 2
-  },
-  {
-    id: 107,
-    name: 'Budget-prévisionnel.xlsx',
-    type: 'file',
-    fileType: 'xls',
-    size: 89000,
-    deletedAt: new Date('2026-01-05'),
-    originalPath: 'Marketing',
-    originalParentId: 1
-  }
-];
-
-// Mock folders pour le tree de restauration
-const MOCK_FOLDERS = [
-  { id: 1, name: 'Marketing', parentId: null, color: '#f472b6' },
-  { id: 2, name: 'Projets', parentId: null, color: '#a78bfa' },
-  { id: 3, name: 'Ressources', parentId: null, color: '#4ade80' },
-  { id: 4, name: 'Administration', parentId: null, color: '#22d3ee' },
-  { id: 12, name: 'Visuels', parentId: 1, color: '#f472b6' },
-  { id: 31, name: 'Images', parentId: 3, color: '#4ade80' },
-  { id: 41, name: 'Contrats', parentId: 4, color: '#22d3ee' }
-];
 
 type FilterType = 'all' | 'folders' | 'files';
 
@@ -122,12 +38,13 @@ type FilterType = 'all' | 'folders' | 'files';
     DatePipe,
     FormsModule,
     ButtonModule,
+    InputGroupModule,
+    InputGroupAddonModule,
     InputTextModule,
-    IconFieldModule,
-    InputIconModule,
     SelectModule,
     ContextMenuModule,
     CheckboxModule,
+    ProgressSpinnerModule,
     RestoreDocumentDialogComponent,
     PermanentDeleteDialogComponent
   ],
@@ -137,6 +54,8 @@ type FilterType = 'all' | 'folders' | 'files';
 })
 export class TrashTabComponent {
   private readonly themeService = inject(ThemeService);
+  private readonly foldersService = inject(FoldersService);
+  private readonly documentsService = inject(DocumentsService);
 
   // Dialog references
   readonly restoreDocumentDialog = viewChild<RestoreDocumentDialogComponent>('restoreDocumentDialog');
@@ -145,13 +64,17 @@ export class TrashTabComponent {
   // Context menu
   readonly contextMenuItems = signal<MenuItem[]>([]);
 
+  // Input
+  readonly spaceId = input.required<string>();
+
   // State
   readonly searchQuery = signal('');
   readonly filterType = signal<FilterType>('all');
   readonly displayMode = this.themeService.displayMode;
-  readonly selectedItems = signal<Set<number>>(new Set());
+  readonly selectedItems = signal<Set<string>>(new Set());
+  readonly loading = signal(false);
 
-  private readonly trashItems = signal<TrashItem[]>(MOCK_TRASH_ITEMS);
+  private readonly trashItems = signal<TrashItemView[]>([]);
 
   readonly filterOptions = [
     { label: 'Tous', value: 'all' },
@@ -159,28 +82,80 @@ export class TrashTabComponent {
     { label: 'Fichiers', value: 'files' }
   ];
 
+  constructor() {
+    effect(() => {
+      const space = this.spaceId();
+      if (space) {
+        this.loadTrashItems(space);
+      }
+    }, { allowSignalWrites: true });
+  }
+
+  private loadTrashItems(spaceId: string): void {
+    this.loading.set(true);
+    this.foldersService.getTrash(spaceId).subscribe({
+      next: (items) => {
+        this.trashItems.set(items.map(item => this.mapTrashItem(item)));
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading trash items:', error);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  private mapTrashItem(item: TrashItemResponse): TrashItemView {
+    return {
+      ...item,
+      fileType: item.itemType === 'folder' ? 'folder' : this.getDocType(item.itemName),
+      color: this.getItemColor(item.itemName)
+    };
+  }
+
+  private getDocType(name: string): 'image' | 'pdf' | 'doc' | 'xls' | 'other' {
+    const ext = name.split('.').pop()?.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '')) return 'image';
+    if (ext === 'pdf') return 'pdf';
+    if (['xls', 'xlsx', 'csv'].includes(ext || '')) return 'xls';
+    if (['doc', 'docx', 'txt', 'rtf'].includes(ext || '')) return 'doc';
+    return 'other';
+  }
+
+  private getItemColor(name: string): string {
+    const colors = ['#f472b6', '#a78bfa', '#4ade80', '#22d3ee', '#fb923c', '#8b5cf6'];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  }
+
   // Computed
   readonly filteredItems = computed(() => {
     let items = this.trashItems();
 
     // Filter by type
     if (this.filterType() === 'folders') {
-      items = items.filter(item => item.type === 'folder');
+      items = items.filter(item => item.itemType === 'folder');
     } else if (this.filterType() === 'files') {
-      items = items.filter(item => item.type === 'file');
+      items = items.filter(item => item.itemType === 'reference');
     }
 
     // Filter by search query
     const query = this.searchQuery().toLowerCase().trim();
     if (query) {
       items = items.filter(item =>
-        item.name.toLowerCase().includes(query) ||
-        item.originalPath.toLowerCase().includes(query)
+        item.itemName.toLowerCase().includes(query)
       );
     }
 
     // Sort by deletion date (most recent first)
-    return items.sort((a, b) => b.deletedAt.getTime() - a.deletedAt.getTime());
+    return items.sort((a, b) => {
+      const dateA = a.deletedAt ? new Date(a.deletedAt).getTime() : 0;
+      const dateB = b.deletedAt ? new Date(b.deletedAt).getTime() : 0;
+      return dateB - dateA;
+    });
   });
 
   readonly totalCount = computed(() => this.trashItems().length);
@@ -188,7 +163,7 @@ export class TrashTabComponent {
   readonly selectedCount = computed(() => this.selectedItems().size);
   readonly allSelected = computed(() =>
     this.filteredItems().length > 0 &&
-    this.filteredItems().every(item => this.selectedItems().has(item.id))
+    this.filteredItems().every(item => this.selectedItems().has(item._id))
   );
 
   // Methods
@@ -210,13 +185,13 @@ export class TrashTabComponent {
     if (this.allSelected()) {
       this.selectedItems.set(new Set());
     } else {
-      const newSet = new Set<number>();
-      this.filteredItems().forEach(item => newSet.add(item.id));
+      const newSet = new Set<string>();
+      this.filteredItems().forEach(item => newSet.add(item._id));
       this.selectedItems.set(newSet);
     }
   }
 
-  toggleItemSelection(id: number): void {
+  toggleItemSelection(id: string): void {
     this.selectedItems.update(set => {
       const newSet = new Set(set);
       if (newSet.has(id)) {
@@ -228,69 +203,66 @@ export class TrashTabComponent {
     });
   }
 
-  isSelected(id: number): boolean {
+  isSelected(id: string): boolean {
     return this.selectedItems().has(id);
   }
 
-  // Time remaining
-  getDaysRemaining(deletedAt: Date): number {
+  // Time remaining - use expiresAt from API or calculate from deletedAt
+  getDaysRemaining(item: TrashItemView): number {
+    if (item.expiresAt) {
+      const now = new Date();
+      const expirationDate = new Date(item.expiresAt);
+      const remainingMs = expirationDate.getTime() - now.getTime();
+      return Math.max(0, Math.ceil(remainingMs / (24 * 60 * 60 * 1000)));
+    }
+    if (!item.deletedAt) return 30;
     const now = new Date();
-    const deleteDate = new Date(deletedAt);
+    const deleteDate = new Date(item.deletedAt);
     const expirationDate = new Date(deleteDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
     const remainingMs = expirationDate.getTime() - now.getTime();
     return Math.max(0, Math.ceil(remainingMs / (24 * 60 * 60 * 1000)));
   }
 
-  getRemainingLabel(deletedAt: Date): string {
-    const days = this.getDaysRemaining(deletedAt);
+  getRemainingLabel(item: TrashItemView): string {
+    const days = this.getDaysRemaining(item);
     if (days === 0) return 'Expire aujourd\'hui';
     if (days === 1) return '1 jour restant';
     return `${days} jours restants`;
   }
 
-  getRemainingClass(deletedAt: Date): string {
-    const days = this.getDaysRemaining(deletedAt);
+  getRemainingClass(item: TrashItemView): string {
+    const days = this.getDaysRemaining(item);
     if (days <= 3) return 'danger';
     if (days <= 7) return 'warning';
     return 'normal';
   }
 
   // Icons
-  getItemIcon(item: TrashItem): string {
-    if (item.type === 'folder') {
+  getItemIcon(item: TrashItemView): string {
+    if (item.itemType === 'folder') {
       return 'fa-duotone fa-solid fa-folder';
     }
-    switch (item.fileType) {
-      case 'image': return 'fa-duotone fa-solid fa-file-image';
-      case 'pdf': return 'fa-duotone fa-solid fa-file-pdf';
-      case 'doc': return 'fa-duotone fa-solid fa-file-word';
-      case 'xls': return 'fa-duotone fa-solid fa-file-excel';
-      default: return 'fa-duotone fa-solid fa-file';
-    }
+    // Filter out 'folder' as it's not a valid FileType
+    const fileType = item.fileType === 'folder' ? 'other' : item.fileType;
+    return getFileIcon(fileType);
   }
 
-  getItemIconColor(item: TrashItem): string {
-    if (item.type === 'folder') {
+  getItemIconColor(item: TrashItemView): string {
+    if (item.itemType === 'folder') {
       return item.color || '#6b7280';
     }
-    switch (item.fileType) {
-      case 'image': return '#8b5cf6';
-      case 'pdf': return '#ef4444';
-      case 'doc': return '#3b82f6';
-      case 'xls': return '#22c55e';
-      default: return '#6b7280';
-    }
+    // Filter out 'folder' as it's not a valid FileType
+    const fileType = item.fileType === 'folder' ? 'other' : item.fileType;
+    return getFileIconColor(fileType);
   }
 
-  formatFileSize(bytes?: number): string {
+  formatSize(bytes?: number): string {
     if (!bytes) return '';
-    if (bytes < 1024) return bytes + ' o';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+    return formatFileSize(bytes);
   }
 
   // Context menu
-  buildContextMenu(item: TrashItem): MenuItem[] {
+  buildContextMenu(item: TrashItemView): MenuItem[] {
     return [
       {
         label: 'Restaurer',
@@ -306,47 +278,60 @@ export class TrashTabComponent {
     ];
   }
 
-  onContextMenu(event: MouseEvent, item: TrashItem): void {
+  onContextMenu(event: MouseEvent, item: TrashItemView): void {
     event.preventDefault();
     this.contextMenuItems.set(this.buildContextMenu(item));
   }
 
   // Restore dialog
-  openRestoreDialog(item: TrashItem): void {
+  openRestoreDialog(item: TrashItemView): void {
+    // For restore, we use the itemId (actual folder/reference ID) not the trash item ID
     this.restoreDocumentDialog()?.open(
-      item.id,
-      item.type,
-      item.name,
-      item.originalPath,
-      MOCK_FOLDERS
+      item.itemId,
+      item.itemType === 'folder' ? 'folder' : 'file',
+      item.itemName,
+      item.originalParentName ?? '',
+      [] // We don't need folder tree for simple restore
     );
   }
 
   onDocumentRestored(result: RestoreDocumentResult): void {
-    this.trashItems.update(items =>
-      items.filter(item => item.id !== result.documentId)
-    );
-    this.selectedItems.update(set => {
-      const newSet = new Set(set);
-      newSet.delete(result.documentId);
-      return newSet;
-    });
+    const item = this.trashItems().find(i => i.itemId === result.documentId);
+    if (!item) return;
+
+    // Call API to restore
+    if (item.itemType === 'folder') {
+      this.foldersService.restoreFolder(item.itemId).subscribe({
+        next: () => this.loadTrashItems(this.spaceId()),
+        error: (error) => console.error('Error restoring folder:', error)
+      });
+    } else {
+      // Restore reference
+      this.documentsService.restoreReference(item.itemId).subscribe({
+        next: () => this.loadTrashItems(this.spaceId()),
+        error: (error) => console.error('Error restoring reference:', error)
+      });
+    }
   }
 
   // Permanent delete dialog
-  openPermanentDeleteDialog(item: TrashItem): void {
-    this.permanentDeleteDialog()?.openSingle(item.id, item.name);
+  openPermanentDeleteDialog(item: TrashItemView): void {
+    this.permanentDeleteDialog()?.openSingle(item.itemId, item.itemName);
   }
 
   openPermanentDeleteSelected(): void {
     const ids = Array.from(this.selectedItems());
     if (ids.length === 1) {
-      const item = this.trashItems().find(i => i.id === ids[0]);
+      const item = this.trashItems().find(i => i._id === ids[0]);
       if (item) {
-        this.permanentDeleteDialog()?.openSingle(item.id, item.name);
+        this.permanentDeleteDialog()?.openSingle(item.itemId, item.itemName);
       }
     } else {
-      this.permanentDeleteDialog()?.openMultiple(ids);
+      // For multiple items, get their itemIds
+      const itemIds = ids
+        .map(id => this.trashItems().find(i => i._id === id)?.itemId)
+        .filter((id): id is string => id !== undefined);
+      this.permanentDeleteDialog()?.openMultiple(itemIds);
     }
   }
 
@@ -356,17 +341,30 @@ export class TrashTabComponent {
 
   onPermanentlyDeleted(result: PermanentDeleteResult): void {
     if (result.deleteAll) {
-      this.trashItems.set([]);
-      this.selectedItems.set(new Set());
-    } else {
-      this.trashItems.update(items =>
-        items.filter(item => !result.documentIds.includes(item.id))
-      );
-      this.selectedItems.update(set => {
-        const newSet = new Set(set);
-        result.documentIds.forEach(id => newSet.delete(id));
-        return newSet;
+      // Call API to empty trash
+      this.foldersService.emptyTrash(this.spaceId()).subscribe({
+        next: () => {
+          this.trashItems.set([]);
+          this.selectedItems.set(new Set());
+        },
+        error: (error) => console.error('Error emptying trash:', error)
       });
+    } else if (result.documentIds && result.documentIds.length > 0) {
+      // Purge individual items
+      const item = this.trashItems().find(i => i.itemId === result.documentIds![0]);
+      if (item) {
+        if (item.itemType === 'folder') {
+          this.foldersService.purgeFolder(item.itemId).subscribe({
+            next: () => this.loadTrashItems(this.spaceId()),
+            error: (error) => console.error('Error purging folder:', error)
+          });
+        } else {
+          this.documentsService.purgeReference(item.itemId).subscribe({
+            next: () => this.loadTrashItems(this.spaceId()),
+            error: (error) => console.error('Error purging reference:', error)
+          });
+        }
+      }
     }
   }
 
@@ -374,11 +372,10 @@ export class TrashTabComponent {
   restoreSelected(): void {
     const selectedIds = Array.from(this.selectedItems());
     if (selectedIds.length === 1) {
-      const item = this.trashItems().find(i => i.id === selectedIds[0]);
+      const item = this.trashItems().find(i => i._id === selectedIds[0]);
       if (item) {
         this.openRestoreDialog(item);
       }
     }
-    // For multiple items, we could implement a batch restore dialog
   }
 }

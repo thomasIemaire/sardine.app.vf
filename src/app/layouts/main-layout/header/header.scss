@@ -18,6 +18,7 @@ aside {
   display: flex;
   align-items: center;
   gap: .5rem;
+  white-space: nowrap;
 }
 
 :host ::ng-deep p-button.collapsed .p-button-icon {
@@ -39,4 +40,110 @@ aside {
   label {
     font-weight: 500;
   }
+}
+
+// Notifications
+.notifications-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--text-color-secondary);
+
+  i {
+    font-size: 1.5rem;
+  }
+}
+
+.notifications-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--text-color-secondary);
+
+  i {
+    font-size: 2.5rem;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background-color: var(--surface-100);
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--surface-200);
+  }
+
+  &.invitation {
+    .notification-icon {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+  }
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+
+  .notification-title {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+  }
+
+  .notification-team {
+    margin: 0.25rem 0 0;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.95rem;
+  }
+
+  .notification-date {
+    margin: 0.25rem 0 0;
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+.notification-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
 }

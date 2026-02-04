@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, EventEmitter, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { BaseDialogComponent } from '../../components';
+import { isValidUrl } from '../../utils';
 
 export interface ImportUrlResult {
   url: string;
@@ -12,12 +12,7 @@ export interface ImportUrlResult {
 @Component({
   selector: 'app-import-url-dialog',
   standalone: true,
-  imports: [
-    FormsModule,
-    ButtonModule,
-    DialogModule,
-    InputTextModule
-  ],
+  imports: [FormsModule, InputTextModule, BaseDialogComponent],
   templateUrl: './import-url-dialog.html',
   styleUrl: './import-url-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -29,28 +24,17 @@ export class ImportUrlDialogComponent {
   readonly fileUrl = signal('');
   readonly fileName = signal('');
   readonly isImporting = signal(false);
-  readonly urlError = signal<string | null>(null);
 
-  readonly isValidUrl = computed(() => {
-    const url = this.fileUrl().trim();
-    if (!url) return false;
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  });
+  readonly urlIsValid = computed(() => isValidUrl(this.fileUrl()));
 
   readonly detectedFileName = computed(() => {
     const url = this.fileUrl().trim();
-    if (!url) return '';
+    if (!url || !this.urlIsValid()) return '';
     try {
       const urlObj = new URL(url);
       const path = urlObj.pathname;
       const segments = path.split('/');
-      const lastSegment = segments[segments.length - 1];
-      return lastSegment || '';
+      return segments[segments.length - 1] || '';
     } catch {
       return '';
     }
@@ -60,10 +44,13 @@ export class ImportUrlDialogComponent {
     return this.fileName().trim() || this.detectedFileName();
   });
 
+  readonly isValid = computed(() => {
+    return this.urlIsValid() && this.finalFileName().length > 0;
+  });
+
   open(): void {
     this.fileUrl.set('');
     this.fileName.set('');
-    this.urlError.set(null);
     this.visible.set(true);
   }
 
@@ -71,20 +58,10 @@ export class ImportUrlDialogComponent {
     this.visible.set(false);
     this.fileUrl.set('');
     this.fileName.set('');
-    this.urlError.set(null);
-  }
-
-  get isValid(): boolean {
-    return this.isValidUrl() && this.finalFileName().length > 0;
-  }
-
-  onUrlChange(value: string): void {
-    this.fileUrl.set(value);
-    this.urlError.set(null);
   }
 
   onSubmit(): void {
-    if (!this.isValid || this.isImporting()) return;
+    if (!this.isValid() || this.isImporting()) return;
 
     this.isImporting.set(true);
 

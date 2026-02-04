@@ -1,0 +1,62 @@
+<div class="email-list-input">
+  <div class="input-wrapper">
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="fa-duotone fa-solid fa-magnifying-glass"></i>
+      </p-inputgroup-addon>
+      <input
+        type="email"
+        pInputText
+        pSize="small"
+        [placeholder]="placeholder()"
+        [ngModel]="emailInput()"
+        (ngModelChange)="emailInput.set($event)"
+        (keydown)="onKeyDown($event)"
+        [class.p-invalid]="hasInvalidEmail()" />
+      @if (canAddEmail()) {
+        <p-inputgroup-addon>
+          <p-button
+            icon="fa-duotone fa-solid fa-plus"
+            size="small"
+            text
+            (click)="addMember()" />
+        </p-inputgroup-addon>
+      }
+    </p-inputgroup>
+    @if (hasInvalidEmail()) {
+      <small class="error-text">Adresse email invalide</small>
+    }
+  </div>
+
+  @if (members().length > 0) {
+    <div class="members-list">
+      @for (member of members(); track member.email) {
+        <div class="member-item">
+          <div class="member-avatar">
+            <i class="fa-duotone fa-solid fa-user"></i>
+          </div>
+          <div class="member-info">
+            <span class="member-email">{{ member.email }}</span>
+          </div>
+          @if (showRoles()) {
+            <p-select
+              [options]="roles"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="member.role"
+              (ngModelChange)="updateMemberRole(member.email, $event)"
+              size="small"
+              appendTo="body"
+              class="role-select" />
+          }
+          <p-button
+            icon="fa-duotone fa-solid fa-xmark"
+            size="small"
+            text
+            severity="secondary"
+            (click)="removeMember(member.email)" />
+        </div>
+      }
+    </div>
+  }
+</div>

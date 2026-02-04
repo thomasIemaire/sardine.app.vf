@@ -1,0 +1,67 @@
+.folder-tree-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.root-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: var(--surface-hover);
+  }
+
+  &.selected {
+    background-color: var(--p-primary-50);
+    border-color: var(--p-primary-color);
+  }
+
+  .root-icon {
+    font-size: 1rem;
+    color: var(--p-text-muted-color);
+  }
+
+  .root-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-color);
+  }
+}
+
+.folder-tree {
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+
+  ::ng-deep {
+    .p-tree {
+      border: none;
+      padding: 0.5rem;
+    }
+
+    .p-tree-node-content {
+      padding: 0.5rem;
+      border-radius: 6px;
+
+      &:hover {
+        background-color: var(--surface-hover);
+      }
+    }
+
+    .p-tree-node-icon {
+      color: #f59e0b;
+    }
+
+    .p-tree-node-label {
+      font-size: 0.875rem;
+    }
+  }
+}

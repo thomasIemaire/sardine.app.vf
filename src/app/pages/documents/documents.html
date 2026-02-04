@@ -1,13 +1,18 @@
-<app-header-page title="Documents" subtitle="Gérez vos documents et fichiers." />
-<app-header-tabs [tabs]="tabs" />
+<app-tabbed-page
+  maintitle="Documents"
+  subtitle="Gérez vos documents et fichiers."
+  [tabs]="tabs"
+  #tabbedPage>
 
-<div class="page-content">
-  @switch (activeTab()) {
-    @case ('folders') {
-      <app-folders-tab />
-    }
-    @case ('trash') {
-      <app-trash-tab />
+  @if (currentSpaceId(); as spaceId) {
+    @switch (tabbedPage.activeTab()) {
+      @case ('folders') {
+        <app-folders-tab [folderId]="folderId() ?? null" [spaceId]="spaceId" />
+      }
+      @case ('trash') {
+        <app-trash-tab [spaceId]="spaceId" />
+      }
     }
   }
-</div>
+
+</app-tabbed-page>

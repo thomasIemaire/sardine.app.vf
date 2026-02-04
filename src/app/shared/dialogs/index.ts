@@ -21,3 +21,12 @@ export type { RestoreDocumentResult } from './restore-document-dialog/restore-do
 
 export { PermanentDeleteDialogComponent } from './permanent-delete-dialog/permanent-delete-dialog';
 export type { PermanentDeleteResult } from './permanent-delete-dialog/permanent-delete-dialog';
+
+export { CreateTeamDialogComponent } from './create-team-dialog/create-team-dialog';
+export type { CreateTeamResult, TeamMemberInvite } from './create-team-dialog/create-team-dialog';
+
+export { AddMemberDialogComponent, MEMBER_ROLES } from './add-member-dialog/add-member-dialog';
+export type { AddMemberResult, MemberInvite, MemberRole, RoleOption } from './add-member-dialog/add-member-dialog';
+
+export { ShareDialogComponent } from './share-dialog/share-dialog';
+export type { ShareResult } from './share-dialog/share-dialog';

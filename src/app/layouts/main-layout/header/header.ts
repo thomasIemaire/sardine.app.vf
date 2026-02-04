@@ -1,15 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Divider } from "primeng/divider";
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { BadgeModule } from 'primeng/badge';
+import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { filter, map, startWith } from 'rxjs';
-import { SidebarService, ThemeService, ThemeMode, DisplayMode } from '../../../core/services';
+import { AuthService, SidebarService, ThemeService, ThemeMode, DisplayMode, TeamsService } from '../../../core/services';
+import { InvitationResponse } from '../../../models';
 
 interface RouteConfig {
   label: string;
@@ -89,17 +93,26 @@ const SUB_DETAIL_ROUTE_CONFIG: Record<string, SubDetailRouteConfig> = {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [ButtonModule, Divider, BreadcrumbModule, DrawerModule, SelectButtonModule, FormsModule],
+  imports: [CommonModule, ButtonModule, Divider, BreadcrumbModule, DrawerModule, SelectButtonModule, BadgeModule, TooltipModule, FormsModule],
   templateUrl: './header.html',
   styleUrl: './header.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly sidebarService = inject(SidebarService);
+  private readonly authService = inject(AuthService);
+  private readonly teamsService = inject(TeamsService);
   protected readonly themeService = inject(ThemeService);
 
   readonly sidebarCollapsed = this.sidebarService.collapsed;
+  readonly currentUser = this.authService.currentUser;
+
+  // Invitations
+  readonly invitations = signal<InvitationResponse[]>([]);
+  readonly pendingInvitations = computed(() => this.invitations().filter(i => i.status === 'pending'));
+  readonly invitationsCount = computed(() => this.pendingInvitations().length);
+  readonly loadingInvitations = signal(false);
 
   notificationsVisible = false;
   settingsVisible = false;
@@ -219,12 +232,49 @@ export class HeaderComponent {
     return items;
   });
 
+  ngOnInit(): void {
+    this.loadInvitations();
+  }
+
   toggleSidebar(): void {
     this.sidebarService.toggle();
   }
 
+  loadInvitations(): void {
+    this.loadingInvitations.set(true);
+    this.teamsService.listMyInvitations().subscribe({
+      next: (invitations) => {
+        this.invitations.set(invitations);
+        this.loadingInvitations.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading invitations:', error);
+        this.loadingInvitations.set(false);
+      }
+    });
+  }
+
   openNotifications(): void {
+    this.loadInvitations();
     this.notificationsVisible = true;
+  }
+
+  acceptInvitation(invitation: InvitationResponse): void {
+    this.teamsService.acceptInvitation(invitation._id).subscribe({
+      next: () => {
+        this.invitations.update(list => list.filter(i => i._id !== invitation._id));
+      },
+      error: (error) => console.error('Error accepting invitation:', error)
+    });
+  }
+
+  declineInvitation(invitation: InvitationResponse): void {
+    this.teamsService.declineInvitation(invitation._id).subscribe({
+      next: () => {
+        this.invitations.update(list => list.filter(i => i._id !== invitation._id));
+      },
+      error: (error) => console.error('Error declining invitation:', error)
+    });
   }
 
   openSettings(): void {
@@ -237,5 +287,9 @@ export class HeaderComponent {
 
   onDisplayModeChange(value: DisplayMode): void {
     this.themeService.setDisplayMode(value);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

@@ -1,0 +1,47 @@
+.tabbed-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.page-header {
+  padding: 1.5rem 2rem 1rem;
+
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .page-subtitle {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+.header-tabs {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 2rem 1rem;
+  border-bottom: 1px solid var(--surface-border);
+
+  .list-tabs {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+.page-content {
+  flex: 1;
+  overflow: auto;
+  padding: 1.5rem 0;
+}

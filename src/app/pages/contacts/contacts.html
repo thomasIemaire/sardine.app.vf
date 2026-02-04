@@ -1,10 +1,13 @@
-<app-header-page title="Contacts" subtitle="Gérez votre annuaire de contacts." />
-<app-header-tabs [tabs]="tabs" />
+<app-tabbed-page
+  maintitle="Contacts"
+  subtitle="Gérez votre annuaire de contacts."
+  [tabs]="tabs"
+  #tabbedPage>
 
-<div class="page-content">
-  @switch (activeTab()) {
+  @switch (tabbedPage.activeTab()) {
     @case ('directory') {
       <app-directory-tab />
     }
   }
-</div>
+
+</app-tabbed-page>

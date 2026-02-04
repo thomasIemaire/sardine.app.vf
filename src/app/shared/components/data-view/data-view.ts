@@ -11,11 +11,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { CardModule } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { ThemeService, DisplayMode } from '../../../core/services';
 
@@ -32,12 +32,12 @@ export interface DataViewColumn {
     CommonModule,
     FormsModule,
     ButtonModule,
-    InputTextModule,
-    TableModule,
-    IconFieldModule,
-    InputIconModule,
     CardModule,
-    Divider
+    Divider,
+    InputGroupModule,
+    InputGroupAddonModule,
+    InputTextModule,
+    TableModule
   ],
   templateUrl: './data-view.html',
   styleUrl: './data-view.scss',

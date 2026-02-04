@@ -1,0 +1,27 @@
+<div class="folder-tree-select">
+  @if (showRootOption()) {
+    <div
+      class="root-option"
+      [class.selected]="isRootSelected()"
+      (click)="selectRoot()">
+      @if (multiSelect()) {
+        <p-checkbox
+          [binary]="true"
+          [ngModel]="includeRoot()"
+          (ngModelChange)="includeRoot.set($event)" />
+      }
+      <i class="fa-duotone fa-solid fa-house root-icon"></i>
+      <span class="root-label">Racine</span>
+    </div>
+  }
+
+  <p-tree
+    [value]="folderTree()"
+    [selectionMode]="multiSelect() ? 'checkbox' : 'single'"
+    [selection]="multiSelect() ? selectedNodes() : selectedNode()"
+    (selectionChange)="onSelectionChange($event)"
+    (onNodeSelect)="onNodeSelect($event)"
+    (onNodeUnselect)="onNodeUnselect()"
+    [metaKeySelection]="false"
+    class="folder-tree" />
+</div>

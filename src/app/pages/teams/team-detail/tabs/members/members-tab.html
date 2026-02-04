@@ -1,111 +1,154 @@
-@if (viewMode() === 'users') {
-  <app-data-view
-    [data]="filteredMembers()"
-    [columns]="membersColumns"
-    searchPlaceholder="Rechercher un membre..."
-    emptyMessage="Aucun membre trouvé"
-    (searchChange)="onSearchChange($event)">
+<div class="members-tab">
+  <div class="members-toolbar">
+    <div class="toolbar-left">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="fa-duotone fa-solid fa-magnifying-glass"></i>
+        </p-inputgroup-addon>
+        <input
+          type="text"
+          pInputText
+          placeholder="Rechercher"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchChange($event)"
+          pSize="small" />
+      </p-inputgroup>
 
-    <ng-template #tableCell let-item let-column="column">
-      @switch (column.field) {
-        @case ('fullName') {
-          {{ item.firstName }} {{ item.lastName }}
-        }
-        @case ('role') {
-          <p-tag [value]="getRoleLabel(item.role)" [severity]="getRoleSeverity(item.role)" />
-        }
-        @case ('joinedAt') {
-          {{ item.joinedAt | date:'dd/MM/yyyy' }}
-        }
-        @default {
-          {{ item[column.field] }}
-        }
-      }
-    </ng-template>
+      <p-divider layout="vertical" />
 
-    <ng-template #tableActions let-item>
-      <p-button icon="fa-duotone fa-solid fa-pen" rounded text severity="secondary" size="small" />
-      <p-button icon="fa-duotone fa-solid fa-trash" rounded text severity="danger" size="small" />
-    </ng-template>
+      <p-select
+        [options]="filterOptions"
+        [ngModel]="filterType()"
+        (ngModelChange)="onFilterChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        size="small"
+        appendTo="body"/>
 
-    <ng-template #card let-member>
-      <p-card class="member-card">
-        <ng-template #header>
-          <div class="card-header">
-            <div class="member-avatar">
-              <i class="fa-duotone fa-solid fa-user"></i>
-            </div>
-            <div class="member-info">
-              <span class="card-title">{{ member.firstName }} {{ member.lastName }}</span>
-              <span class="card-email">{{ member.email }}</span>
-            </div>
-          </div>
-        </ng-template>
-        <div class="card-content">
-          <p-tag [value]="getRoleLabel(member.role)" [severity]="getRoleSeverity(member.role)" />
-        </div>
-        <ng-template #footer>
-          <div class="card-footer">
-            <span class="card-date">Ajouté le {{ member.joinedAt | date:'dd/MM/yyyy' }}</span>
-            <div class="card-actions">
-              <p-button icon="fa-duotone fa-solid fa-pen" rounded text severity="secondary" size="small" />
-              <p-button icon="fa-duotone fa-solid fa-trash" rounded text severity="danger" size="small" />
-            </div>
-          </div>
-        </ng-template>
-      </p-card>
-    </ng-template>
+      <p-divider layout="vertical" />
 
-    <p-button toolbar-actions label="Ajouter un membre" icon="fa-duotone fa-solid fa-plus" size="small" rounded />
-  </app-data-view>
-} @else {
-  <app-data-view
-    [data]="filteredTeams()"
-    [columns]="teamsColumns"
-    searchPlaceholder="Rechercher une équipe..."
-    emptyMessage="Aucune équipe trouvée"
-    (searchChange)="onSearchChange($event)">
-
-    <ng-template #tableCell let-item let-column="column">
-      {{ item[column.field] }}
-    </ng-template>
-
-    <ng-template #tableActions let-item>
       <p-button
-        icon="fa-duotone fa-solid fa-eye"
-        [routerLink]="getTeamPath(item.id)"
-        rounded
-        text
+        [label]="displayMode() === 'table' ? 'Vue galerie' : 'Vue tableau'"
+        [icon]="displayMode() === 'table' ? 'fa-duotone fa-solid fa-grid-2' : 'fa-duotone fa-solid fa-table'"
+        size="small"
         severity="secondary"
-        size="small" />
-      <p-button icon="fa-duotone fa-solid fa-pen" rounded text severity="secondary" size="small" />
-      <p-button icon="fa-duotone fa-solid fa-trash" rounded text severity="danger" size="small" />
-    </ng-template>
+        text
+        (click)="toggleDisplayMode()" />
+    </div>
 
-    <ng-template #card let-team>
-      <p-card class="team-card" [routerLink]="getTeamPath(team.id)">
-        <ng-template #header>
-          <div class="card-header">
-            <span class="card-title">{{ team.name }}</span>
-            <p-button icon="fa-duotone fa-solid fa-eye" rounded text severity="secondary" size="small" />
-          </div>
-        </ng-template>
-        <p class="card-description">{{ team.description }}</p>
-        <ng-template #footer>
-          <div class="card-footer">
-            <span class="card-stat">
-              <i class="fa-duotone fa-solid fa-users"></i>
-              {{ team.membersCount }} membres
-            </span>
-            <div class="card-actions">
-              <p-button icon="fa-duotone fa-solid fa-pen" rounded text severity="secondary" size="small" />
-              <p-button icon="fa-duotone fa-solid fa-trash" rounded text severity="danger" size="small" />
-            </div>
-          </div>
-        </ng-template>
-      </p-card>
-    </ng-template>
+    <div class="toolbar-right">
+      <p-button
+        label="Ajouter un membre"
+        icon="fa-duotone fa-solid fa-plus"
+        size="small"
+        rounded
+        (click)="openAddMemberDialog()" />
+    </div>
+  </div>
 
-    <p-button toolbar-actions label="Créer une équipe" icon="fa-duotone fa-solid fa-plus" size="small" rounded />
-  </app-data-view>
-}
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="4" />
+    </div>
+  } @else if (displayMode() === 'card') {
+    @if (filteredMembers().length > 0) {
+      <section class="members-section">
+        <div class="section-header">
+          <h3 class="section-title">Membres</h3>
+          <span class="section-count">{{ membersCount() }} membre{{ membersCount() > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="members-grid">
+          @for (member of filteredMembers(); track member.userId) {
+            <app-card-container
+              layout="column"
+              (contextmenu)="onMemberContextMenu($event, member); contextMenu.show($event)">
+              <div class="card-header">
+                <div class="card-icon member">
+                  <i class="fa-duotone fa-solid fa-user"></i>
+                </div>
+                @if (member.role === 'admin') {
+                  <div class="owner-badge">
+                    <i class="fa-solid fa-crown"></i>
+                  </div>
+                }
+              </div>
+              <div class="card-content">
+                <span class="card-title">{{ member.firstname }} {{ member.lastname }}</span>
+                <span class="card-meta">{{ member.email }}</span>
+              </div>
+              <div class="card-footer">
+                <p-tag [value]="getRoleLabel(member.role)" [severity]="getRoleSeverity(member.role)" />
+              </div>
+            </app-card-container>
+          }
+        </div>
+      </section>
+    } @else {
+      <div class="empty-state">
+        <i class="fa-duotone fa-solid fa-users"></i>
+        <p>Aucun membre trouvé</p>
+      </div>
+    }
+  } @else {
+    <div class="table-view">
+      @if (filteredMembers().length > 0) {
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th class="col-name">Nom</th>
+              <th class="col-email">Email</th>
+              <th class="col-role">Rôle</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (member of filteredMembers(); track member.userId) {
+              <tr
+                class="item-row member-row"
+                (contextmenu)="onMemberContextMenu($event, member); contextMenu.show($event)">
+                <td class="col-name">
+                  <div class="item-info">
+                    <div class="item-icon member">
+                      <i class="fa-duotone fa-solid fa-user"></i>
+                    </div>
+                    <span class="item-name">{{ member.firstname }} {{ member.lastname }}</span>
+                    @if (member.role === 'admin') {
+                      <div class="owner-badge-small">
+                        <i class="fa-solid fa-crown"></i>
+                      </div>
+                    }
+                  </div>
+                </td>
+                <td class="col-email">{{ member.email }}</td>
+                <td class="col-role">
+                  <p-tag [value]="getRoleLabel(member.role)" [severity]="getRoleSeverity(member.role)" />
+                </td>
+                <td class="col-actions" (click)="$event.stopPropagation()">
+                  <p-button
+                    icon="fa-duotone fa-solid fa-ellipsis-vertical"
+                    rounded
+                    text
+                    severity="secondary"
+                    size="small"
+                    (click)="onMemberContextMenu($event, member); contextMenu.show($event)" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <div class="empty-state">
+          <i class="fa-duotone fa-solid fa-users"></i>
+          <p>Aucun membre trouvé</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-add-member-dialog
+  #addMemberDialog
+  (memberAdded)="onMemberAdded($event)" />
+
+<!-- Context Menu -->
+<p-contextMenu #contextMenu [model]="contextMenuItems()" />

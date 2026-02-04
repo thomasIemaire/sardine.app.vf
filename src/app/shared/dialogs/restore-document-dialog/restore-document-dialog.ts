@@ -1,27 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, EventEmitter, Output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { TreeModule } from 'primeng/tree';
-import { TreeNode } from 'primeng/api';
+import { BaseDialogComponent } from '../../components';
+import { FolderTreeSelectComponent, FolderTreeItem } from '../../components/folder-tree-select/folder-tree-select';
+
+export type { FolderTreeItem };
 
 export interface RestoreDocumentResult {
-  documentId: number;
+  documentId: string;
   documentType: 'folder' | 'file';
-  destinationFolderId: number | null;
-}
-
-export interface FolderTreeItem {
-  id: number;
-  name: string;
-  parentId: number | null;
-  color?: string;
+  destinationFolderId: string | null;
 }
 
 @Component({
   selector: 'app-restore-document-dialog',
   standalone: true,
-  imports: [FormsModule, ButtonModule, DialogModule, TreeModule],
+  imports: [ButtonModule, BaseDialogComponent, FolderTreeSelectComponent],
   templateUrl: './restore-document-dialog.html',
   styleUrl: './restore-document-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -29,123 +22,62 @@ export interface FolderTreeItem {
 export class RestoreDocumentDialogComponent {
   @Output() readonly documentRestored = new EventEmitter<RestoreDocumentResult>();
 
+  readonly treeSelect = viewChild<FolderTreeSelectComponent>('treeSelect');
+
   readonly visible = signal(false);
-  readonly documentId = signal<number | null>(null);
+  readonly documentId = signal<string | null>(null);
   readonly documentType = signal<'folder' | 'file'>('file');
   readonly documentName = signal('');
   readonly originalPath = signal('');
+  readonly folders = signal<FolderTreeItem[]>([]);
   readonly isRestoring = signal(false);
 
-  readonly folderTree = signal<TreeNode[]>([]);
-  readonly selectedNode = signal<TreeNode | null>(null);
-
-  readonly selectedFolderId = computed(() => {
-    const node = this.selectedNode();
-    if (!node) return null;
-    return node.data?.id ?? null;
-  });
-
-  readonly selectedPath = computed(() => {
-    const node = this.selectedNode();
-    if (!node) return 'Racine';
-    return this.buildPath(node);
-  });
-
-  private buildPath(node: TreeNode): string {
-    const parts: string[] = [];
-    let current: TreeNode | undefined = node;
-    while (current) {
-      if (current.label) {
-        parts.unshift(current.label);
-      }
-      current = current.parent;
-    }
-    return parts.length > 0 ? parts.join(' / ') : 'Racine';
-  }
-
-  open(id: number, type: 'folder' | 'file', name: string, originalPath: string, folders: FolderTreeItem[]): void {
+  open(id: string, type: 'folder' | 'file', name: string, originalPath: string, allFolders: FolderTreeItem[]): void {
     this.documentId.set(id);
     this.documentType.set(type);
     this.documentName.set(name);
     this.originalPath.set(originalPath);
-    this.selectedNode.set(null);
-    this.folderTree.set(this.buildFolderTree(folders, type === 'folder' ? id : undefined));
+    this.folders.set(allFolders);
+    this.treeSelect()?.reset();
     this.visible.set(true);
   }
 
   close(): void {
     this.visible.set(false);
     this.documentId.set(null);
-    this.selectedNode.set(null);
+    this.treeSelect()?.reset();
   }
 
-  private buildFolderTree(folders: FolderTreeItem[], excludeFolderId?: number): TreeNode[] {
-    const nodeMap = new Map<number, TreeNode>();
-    const rootNodes: TreeNode[] = [];
-
-    // First pass: create all nodes
-    for (const folder of folders) {
-      if (folder.id === excludeFolderId) continue;
-
-      nodeMap.set(folder.id, {
-        key: String(folder.id),
-        label: folder.name,
-        data: { id: folder.id, color: folder.color },
-        icon: 'fa-duotone fa-solid fa-folder',
-        children: [],
-        expanded: true
-      });
-    }
-
-    // Second pass: build hierarchy
-    for (const folder of folders) {
-      if (folder.id === excludeFolderId) continue;
-
-      const node = nodeMap.get(folder.id);
-      if (!node) continue;
-
-      if (folder.parentId === null) {
-        rootNodes.push(node);
-      } else {
-        const parentNode = nodeMap.get(folder.parentId);
-        if (parentNode) {
-          parentNode.children = parentNode.children || [];
-          parentNode.children.push(node);
-          node.parent = parentNode;
-        } else {
-          // Parent was excluded or doesn't exist, add to root
-          rootNodes.push(node);
-        }
-      }
-    }
-
-    return rootNodes;
-  }
-
-  onNodeSelect(event: { node: TreeNode }): void {
-    this.selectedNode.set(event.node);
+  get excludeId(): string | null {
+    return this.documentType() === 'folder' ? this.documentId() : null;
   }
 
   restoreToOriginal(): void {
-    this.selectedNode.set(null);
-    this.onSubmit();
+    this.treeSelect()?.reset();
+    this.doRestore(null);
   }
 
   onSubmit(): void {
+    const tree = this.treeSelect();
+    if (!tree?.hasSelection()) return;
+
+    const ids = tree.getSelectedFolderIds();
+    this.doRestore(ids[0] ?? null);
+  }
+
+  private doRestore(destinationFolderId: string | null): void {
     const id = this.documentId();
-    if (id === null) return;
+    if (id === null || this.isRestoring()) return;
 
     this.isRestoring.set(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      this.documentRestored.emit({
-        documentId: id,
-        documentType: this.documentType(),
-        destinationFolderId: this.selectedFolderId()
-      });
-      this.isRestoring.set(false);
-      this.close();
-    }, 500);
+    this.documentRestored.emit({
+      documentId: id,
+      documentType: this.documentType(),
+      destinationFolderId
+    });
+
+    this.isRestoring.set(false);
+    this.close();
   }
 }

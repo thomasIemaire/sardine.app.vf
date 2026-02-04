@@ -1,108 +1,22 @@
-::ng-deep .dialog-delete-document {
-  .p-dialog-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--surface-border);
-    gap: 1rem;
-  }
-
-  .p-dialog-content {
-    padding: 1.5rem;
-  }
-
-  .p-dialog-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--surface-border);
-  }
-}
-
-.dialog-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.dialog-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  i {
-    font-size: 1.5rem;
-  }
-
-  &.delete {
-    background-color: rgba(239, 68, 68, 0.15);
-
-    i {
-      color: #ef4444;
-    }
-  }
-}
-
-.dialog-title-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 0;
-}
-
-.dialog-title {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.dialog-subtitle {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--p-text-muted-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.confirmation-text {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-color);
-}
-
-.warning-box {
+.warning-message {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  padding: 0.875rem;
+  padding: 1rem;
   background-color: rgba(239, 68, 68, 0.1);
   border-radius: 8px;
   border: 1px solid rgba(239, 68, 68, 0.2);
 
   i {
-    font-size: 1rem;
     color: #ef4444;
+    font-size: 1.25rem;
     flex-shrink: 0;
-    margin-top: 0.125rem;
   }
 
-  span {
-    font-size: 0.8rem;
-    color: #ef4444;
-    line-height: 1.4;
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-color);
+    line-height: 1.5;
   }
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
 }

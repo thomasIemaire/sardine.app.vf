@@ -1,0 +1,67 @@
+:host {
+  display: block;
+
+  &[draggable="true"] {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &.dragging {
+    opacity: 0.5;
+
+    .card-outer {
+      transform: scale(0.95);
+    }
+  }
+
+  &.drop-target {
+    .card-outer {
+      background-color: rgba(250, 204, 21, 0.2);
+    }
+
+    .card-inner {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 var(--gap-l) rgba(250, 204, 21, 0.3);
+    }
+  }
+}
+
+.card-outer {
+  padding: var(--padding-l);
+  border-radius: var(--radius-l);
+  background-color: var(--background-color-100);
+  transition: all 0.2s cubic-bezier(0.075, 0.82, 0.165, 1);
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  padding: var(--padding-l);
+  border-radius: var(--radius-m);
+  display: flex;
+  gap: var(--gap-l);
+  border: 1px solid var(--background-color-300);
+  background-color: var(--background-color-50);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.075, 0.82, 0.165, 1);
+
+  &:hover {
+    box-shadow: 0 0 0 var(--gap-l) var(--background-color-200);
+  }
+
+  &.layout-row {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &.layout-column {
+    flex-direction: column;
+  }
+}

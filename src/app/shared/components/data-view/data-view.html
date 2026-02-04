@@ -2,8 +2,10 @@
   <div class="data-view-toolbar">
     <div class="actions-group">
       @if (showSearch()) {
-        <p-iconfield iconPosition="left">
-          <p-inputicon styleClass="fa-duotone fa-solid fa-magnifying-glass" />
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="fa-duotone fa-solid fa-magnifying-glass"></i>
+          </p-inputgroup-addon>
           <input
             type="text"
             pInputText
@@ -11,7 +13,7 @@
             [ngModel]="searchQuery()"
             (ngModelChange)="onSearchChange($event)"
             pSize="small" />
-        </p-iconfield>
+        </p-inputgroup>
       }
       @if (showSearch() && showViewToggle()) {
         <p-divider layout="vertical" />

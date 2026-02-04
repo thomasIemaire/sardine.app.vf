@@ -1,18 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { Divider } from 'primeng/divider';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { MenuModule } from 'primeng/menu';
 import { ContextMenuModule } from 'primeng/contextmenu';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MenuItem } from 'primeng/api';
-import { ThemeService, DisplayMode } from '../../../../core/services';
+import { ThemeService, DisplayMode, FoldersService, DocumentsService } from '../../../../core/services';
+import { FolderListItem, DocumentReferenceInFolder, FolderContentResponse, FolderBreadcrumb } from '../../../../models';
 import {
+  CardContainerComponent,
   CreateFolderDialogComponent,
   CreateFolderResult,
   UploadFilesDialogComponent,
@@ -24,100 +27,23 @@ import {
   CloneDocumentDialogComponent,
   CloneDocumentResult,
   DeleteDocumentDialogComponent,
-  DeleteDocumentResult
+  DeleteDocumentResult,
+  ShareDialogComponent,
+  ShareResult,
+  getFileIcon,
+  getFileIconColor,
+  formatFileSize
 } from '../../../../shared';
 
-export interface Folder {
-  id: number;
-  name: string;
-  filesCount: number;
+// Extended folder for UI (with color)
+interface FolderView extends FolderListItem {
   color: string;
-  updatedAt: Date;
-  parentId: number | null;
 }
 
-export interface DocumentFile {
-  id: number;
-  name: string;
-  type: 'image' | 'pdf' | 'doc' | 'xls' | 'other';
-  thumbnailUrl?: string;
-  size: number;
-  updatedAt: Date;
-  folderId: number | null;
+// Extended document for UI
+interface DocumentView extends DocumentReferenceInFolder {
+  fileType: 'image' | 'pdf' | 'doc' | 'xls' | 'other';
 }
-
-// Hiérarchie des dossiers
-const MOCK_FOLDERS: Folder[] = [
-  // Dossiers racines (parentId = null)
-  { id: 1, name: 'Marketing', filesCount: 24, color: '#f472b6', updatedAt: new Date('2026-01-20'), parentId: null },
-  { id: 2, name: 'Projets', filesCount: 8, color: '#a78bfa', updatedAt: new Date('2026-01-18'), parentId: null },
-  { id: 3, name: 'Ressources', filesCount: 156, color: '#4ade80', updatedAt: new Date('2026-01-15'), parentId: null },
-  { id: 4, name: 'Administration', filesCount: 32, color: '#22d3ee', updatedAt: new Date('2026-01-24'), parentId: null },
-
-  // Sous-dossiers de Marketing (id: 1)
-  { id: 11, name: 'Campagnes 2025', filesCount: 12, color: '#f472b6', updatedAt: new Date('2026-01-19'), parentId: 1 },
-  { id: 12, name: 'Visuels', filesCount: 45, color: '#f472b6', updatedAt: new Date('2026-01-18'), parentId: 1 },
-  { id: 13, name: 'Templates', filesCount: 8, color: '#f472b6', updatedAt: new Date('2026-01-17'), parentId: 1 },
-
-  // Sous-dossiers de Campagnes 2025 (id: 11)
-  { id: 111, name: 'Q1', filesCount: 4, color: '#f472b6', updatedAt: new Date('2026-01-15'), parentId: 11 },
-  { id: 112, name: 'Q2', filesCount: 3, color: '#f472b6', updatedAt: new Date('2026-01-14'), parentId: 11 },
-  { id: 113, name: 'Q3', filesCount: 5, color: '#f472b6', updatedAt: new Date('2026-01-13'), parentId: 11 },
-
-  // Sous-dossiers de Projets (id: 2)
-  { id: 21, name: 'Projet Alpha', filesCount: 15, color: '#a78bfa', updatedAt: new Date('2026-01-16'), parentId: 2 },
-  { id: 22, name: 'Projet Beta', filesCount: 8, color: '#a78bfa', updatedAt: new Date('2026-01-15'), parentId: 2 },
-  { id: 23, name: 'Archives', filesCount: 42, color: '#a78bfa', updatedAt: new Date('2026-01-10'), parentId: 2 },
-
-  // Sous-dossiers de Projet Alpha (id: 21)
-  { id: 211, name: 'Specs', filesCount: 5, color: '#a78bfa', updatedAt: new Date('2026-01-14'), parentId: 21 },
-  { id: 212, name: 'Designs', filesCount: 10, color: '#a78bfa', updatedAt: new Date('2026-01-13'), parentId: 21 },
-
-  // Sous-dossiers de Ressources (id: 3)
-  { id: 31, name: 'Images', filesCount: 89, color: '#4ade80', updatedAt: new Date('2026-01-12'), parentId: 3 },
-  { id: 32, name: 'Documents', filesCount: 34, color: '#4ade80', updatedAt: new Date('2026-01-11'), parentId: 3 },
-  { id: 33, name: 'Vidéos', filesCount: 12, color: '#4ade80', updatedAt: new Date('2026-01-10'), parentId: 3 },
-
-  // Sous-dossiers de Administration (id: 4)
-  { id: 41, name: 'Contrats', filesCount: 18, color: '#22d3ee', updatedAt: new Date('2026-01-22'), parentId: 4 },
-  { id: 42, name: 'Factures', filesCount: 56, color: '#22d3ee', updatedAt: new Date('2026-01-21'), parentId: 4 },
-  { id: 43, name: 'RH', filesCount: 24, color: '#22d3ee', updatedAt: new Date('2026-01-20'), parentId: 4 },
-];
-
-// Fichiers avec leur dossier parent
-const MOCK_FILES: DocumentFile[] = [
-  // Fichiers à la racine (folderId = null)
-  { id: 1, name: 'Readme.txt', type: 'doc', size: 2500, updatedAt: new Date('2026-01-23'), folderId: null },
-
-  // Fichiers dans Marketing (id: 1)
-  { id: 2, name: 'Stratégie-2026.pdf', type: 'pdf', size: 1250000, updatedAt: new Date('2026-01-22'), folderId: 1 },
-  { id: 3, name: 'Budget-marketing.xlsx', type: 'xls', size: 45000, updatedAt: new Date('2026-01-21'), folderId: 1 },
-
-  // Fichiers dans Visuels (id: 12)
-  { id: 4, name: 'Logo-principal.png', type: 'image', thumbnailUrl: 'https://picsum.photos/seed/1/200/150', size: 245000, updatedAt: new Date('2026-01-20'), folderId: 12 },
-  { id: 5, name: 'Banner-web.jpg', type: 'image', thumbnailUrl: 'https://picsum.photos/seed/2/200/150', size: 890000, updatedAt: new Date('2026-01-19'), folderId: 12 },
-  { id: 6, name: 'Icon-set.png', type: 'image', thumbnailUrl: 'https://picsum.photos/seed/3/200/150', size: 156000, updatedAt: new Date('2026-01-18'), folderId: 12 },
-
-  // Fichiers dans Campagnes Q1 (id: 111)
-  { id: 7, name: 'Campagne-janvier.pdf', type: 'pdf', size: 3200000, updatedAt: new Date('2026-01-17'), folderId: 111 },
-  { id: 8, name: 'Résultats-Q1.xlsx', type: 'xls', size: 78000, updatedAt: new Date('2026-01-16'), folderId: 111 },
-
-  // Fichiers dans Projet Alpha (id: 21)
-  { id: 9, name: 'Brief-projet.docx', type: 'doc', size: 28000, updatedAt: new Date('2026-01-15'), folderId: 21 },
-  { id: 10, name: 'Planning.xlsx', type: 'xls', size: 35000, updatedAt: new Date('2026-01-14'), folderId: 21 },
-
-  // Fichiers dans Specs (id: 211)
-  { id: 11, name: 'Specs-techniques.pdf', type: 'pdf', size: 2100000, updatedAt: new Date('2026-01-13'), folderId: 211 },
-  { id: 12, name: 'API-documentation.pdf', type: 'pdf', size: 1800000, updatedAt: new Date('2026-01-12'), folderId: 211 },
-
-  // Fichiers dans Designs (id: 212)
-  { id: 13, name: 'Maquette-v1.png', type: 'image', thumbnailUrl: 'https://picsum.photos/seed/4/200/150', size: 1200000, updatedAt: new Date('2026-01-11'), folderId: 212 },
-  { id: 14, name: 'Maquette-v2.png', type: 'image', thumbnailUrl: 'https://picsum.photos/seed/5/200/150', size: 1350000, updatedAt: new Date('2026-01-10'), folderId: 212 },
-
-  // Fichiers dans Contrats (id: 41)
-  { id: 15, name: 'Contrat-fournisseur.pdf', type: 'pdf', size: 450000, updatedAt: new Date('2026-01-09'), folderId: 41 },
-  { id: 16, name: 'Contrat-client-A.pdf', type: 'pdf', size: 380000, updatedAt: new Date('2026-01-08'), folderId: 41 },
-];
 
 type FilterType = 'all' | 'folders' | 'files';
 
@@ -130,19 +56,22 @@ type FilterType = 'all' | 'folders' | 'files';
     FormsModule,
     RouterLink,
     ButtonModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
     Divider,
+    InputGroupModule,
+    InputGroupAddonModule,
+    InputTextModule,
     SelectModule,
     MenuModule,
     ContextMenuModule,
+    ProgressSpinnerModule,
+    CardContainerComponent,
     CreateFolderDialogComponent,
     UploadFilesDialogComponent,
     ImportUrlDialogComponent,
     MoveDocumentDialogComponent,
     CloneDocumentDialogComponent,
-    DeleteDocumentDialogComponent
+    DeleteDocumentDialogComponent,
+    ShareDialogComponent
   ],
   templateUrl: './folders-tab.html',
   styleUrl: './folders-tab.scss',
@@ -150,6 +79,8 @@ type FilterType = 'all' | 'folders' | 'files';
 })
 export class FoldersTabComponent {
   private readonly themeService = inject(ThemeService);
+  private readonly foldersService = inject(FoldersService);
+  private readonly documentsService = inject(DocumentsService);
 
   // Dialog references
   readonly createFolderDialog = viewChild<CreateFolderDialogComponent>('createFolderDialog');
@@ -158,21 +89,26 @@ export class FoldersTabComponent {
   readonly moveDocumentDialog = viewChild<MoveDocumentDialogComponent>('moveDocumentDialog');
   readonly cloneDocumentDialog = viewChild<CloneDocumentDialogComponent>('cloneDocumentDialog');
   readonly deleteDocumentDialog = viewChild<DeleteDocumentDialogComponent>('deleteDocumentDialog');
-
-  // Drag & drop state
-  readonly draggedItem = signal<{ id: number; type: 'folder' | 'file'; name: string } | null>(null);
-  readonly dropTargetId = signal<number | null>(null);
+  readonly shareDialog = viewChild<ShareDialogComponent>('shareDialog');
 
   // Context menu
   readonly contextMenuItems = signal<MenuItem[]>([]);
 
+  // Inputs
   readonly folderId = input<string | null>(null);
+  readonly spaceId = input.required<string>();
+
   readonly searchQuery = signal('');
   readonly filterType = signal<FilterType>('all');
   readonly displayMode = this.themeService.displayMode;
+  readonly loading = signal(false);
 
-  private readonly allFolders = signal<Folder[]>(MOCK_FOLDERS);
-  private readonly allFiles = signal<DocumentFile[]>(MOCK_FILES);
+  private readonly childFolders = signal<FolderView[]>([]);
+  private readonly folderFiles = signal<DocumentView[]>([]);
+  private readonly currentFolderData = signal<FolderContentResponse | null>(null);
+
+  // Breadcrumb from API
+  readonly breadcrumb = signal<FolderBreadcrumb[]>([]);
 
   readonly filterOptions = [
     { label: 'Tous', value: 'all' },
@@ -185,41 +121,145 @@ export class FoldersTabComponent {
     { label: 'Importer depuis URL', icon: 'fa-duotone fa-solid fa-link', command: () => this.openImportUrlDialog() }
   ];
 
-  // Dossier actuel
-  readonly currentFolder = computed(() => {
-    const id = Number(this.folderId());
-    if (!id) return null;
-    return this.allFolders().find(f => f.id === id) ?? null;
-  });
+  // Drag & drop state
+  readonly draggedItem = signal<{ id: string; type: 'folder' | 'file'; name: string; documentId?: string } | null>(null);
+  readonly dropTargetId = signal<string | null>(null);
 
-  // Dossiers enfants du dossier actuel
-  readonly childFolders = computed(() => {
-    const currentId = this.folderId() ? Number(this.folderId()) : null;
-    return this.allFolders().filter(f => f.parentId === currentId);
-  });
+  constructor() {
+    // Load content when folderId or spaceId changes
+    effect(() => {
+      const id = this.folderId();
+      const space = this.spaceId();
+      if (space) {
+        this.loadContent(id, space);
+      }
+    }, { allowSignalWrites: true });
+  }
 
-  // Fichiers du dossier actuel
-  readonly folderFiles = computed(() => {
-    const currentId = this.folderId() ? Number(this.folderId()) : null;
-    return this.allFiles().filter(f => f.folderId === currentId);
-  });
+  private loadContent(folderId: string | null, spaceId: string): void {
+    this.loading.set(true);
 
-  // Fil d'Ariane (breadcrumb)
-  readonly breadcrumb = computed(() => {
-    const path: Folder[] = [];
-    let currentId = this.folderId() ? Number(this.folderId()) : null;
+    if (folderId) {
+      // Load folder content by folder ID
+      this.foldersService.getFolderContent(folderId).subscribe({
+        next: (content) => {
+          this.currentFolderData.set(content);
+          this.childFolders.set(content.subfolders.map(f => this.mapFolder(f)));
+          this.folderFiles.set(content.documents.map(d => this.mapDocument(d)));
+          this.breadcrumb.set(content.breadcrumb);
+          this.loading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading folder content:', error);
+          this.loading.set(false);
+        }
+      });
+    } else {
+      // Load root folder content for this space
+      this.foldersService.getRootFolder(spaceId).subscribe({
+        next: (rootFolder) => {
+          // Now load the content of the root folder
+          this.foldersService.getFolderContent(rootFolder._id).subscribe({
+            next: (content) => {
+              this.currentFolderData.set(content);
+              this.childFolders.set(content.subfolders.map(f => this.mapFolder(f)));
+              this.folderFiles.set(content.documents.map(d => this.mapDocument(d)));
+              this.breadcrumb.set([]); // Root has no breadcrumb
+              this.loading.set(false);
+            },
+            error: (error) => {
+              console.error('Error loading root folder content:', error);
+              this.loading.set(false);
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Error getting root folder:', error);
+          this.loading.set(false);
+        }
+      });
+    }
+  }
 
-    while (currentId) {
-      const folder = this.allFolders().find(f => f.id === currentId);
-      if (folder) {
-        path.unshift(folder);
-        currentId = folder.parentId;
-      } else {
-        break;
+  private mapFolder(folder: FolderListItem): FolderView {
+    return {
+      ...folder,
+      color: folder.color || this.getFolderColor(folder.name)
+    };
+  }
+
+  private mapDocument(doc: DocumentReferenceInFolder): DocumentView {
+    return {
+      ...doc,
+      fileType: this.getDocType(doc.mimeType, doc.name)
+    };
+  }
+
+  private getDocType(mimeType: string | null | undefined, name: string): 'image' | 'pdf' | 'doc' | 'xls' | 'other' {
+    if (mimeType) {
+      if (mimeType.startsWith('image/')) return 'image';
+      if (mimeType === 'application/pdf') return 'pdf';
+      if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return 'xls';
+      if (mimeType.includes('document') || mimeType.includes('word')) return 'doc';
+    }
+    const ext = name.split('.').pop()?.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '')) return 'image';
+    if (ext === 'pdf') return 'pdf';
+    if (['xls', 'xlsx', 'csv'].includes(ext || '')) return 'xls';
+    if (['doc', 'docx', 'txt', 'rtf'].includes(ext || '')) return 'doc';
+    return 'other';
+  }
+
+  private getFolderColor(name: string): string {
+    const colors = ['#f472b6', '#a78bfa', '#4ade80', '#22d3ee', '#fb923c', '#8b5cf6'];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  }
+
+  // Build folder tree from current content and breadcrumb
+  private buildFolderTree(): { id: string; name: string; parentId: string | null; color: string }[] {
+    const currentContent = this.currentFolderData();
+    if (!currentContent) return [];
+
+    const folders: { id: string; name: string; parentId: string | null; color: string }[] = [];
+
+    // Add current folder
+    folders.push({
+      id: currentContent.folder._id,
+      name: currentContent.folder.name,
+      parentId: currentContent.folder.parentId ?? null,
+      color: this.getFolderColor(currentContent.folder.name)
+    });
+
+    // Add breadcrumb folders (parents)
+    for (const crumb of this.breadcrumb()) {
+      if (!folders.some(f => f.id === crumb.id)) {
+        folders.push({
+          id: crumb.id,
+          name: crumb.name,
+          parentId: null, // We don't have parent info from breadcrumb
+          color: this.getFolderColor(crumb.name)
+        });
       }
     }
-    return path;
-  });
+
+    // Add subfolders
+    for (const sub of currentContent.subfolders) {
+      if (!folders.some(f => f.id === sub._id)) {
+        folders.push({
+          id: sub._id,
+          name: sub.name,
+          parentId: sub.parentId ?? currentContent.folder._id,
+          color: this.getFolderColor(sub.name)
+        });
+      }
+    }
+
+    return folders;
+  }
 
   readonly filteredFolders = computed(() => {
     if (this.filterType() === 'files') return [];
@@ -241,7 +281,7 @@ export class FoldersTabComponent {
     );
   });
 
-  getFolderPath(folderId: number): string {
+  getFolderPath(folderId: string): string {
     return `/documents/folders/${folderId}`;
   }
 
@@ -261,30 +301,13 @@ export class FoldersTabComponent {
     this.themeService.setDisplayMode(newMode);
   }
 
-  getFileIcon(type: DocumentFile['type']): string {
-    switch (type) {
-      case 'image': return 'fa-duotone fa-solid fa-file-image';
-      case 'pdf': return 'fa-duotone fa-solid fa-file-pdf';
-      case 'doc': return 'fa-duotone fa-solid fa-file-word';
-      case 'xls': return 'fa-duotone fa-solid fa-file-excel';
-      default: return 'fa-duotone fa-solid fa-file';
-    }
-  }
+  readonly getFileIcon = getFileIcon;
+  readonly getFileIconColor = getFileIconColor;
+  readonly formatFileSize = formatFileSize;
 
-  getFileIconColor(type: DocumentFile['type']): string {
-    switch (type) {
-      case 'image': return '#8b5cf6';
-      case 'pdf': return '#ef4444';
-      case 'doc': return '#3b82f6';
-      case 'xls': return '#22c55e';
-      default: return '#6b7280';
-    }
-  }
-
-  formatFileSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' o';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+  // Get current folder ID (from input or from loaded root folder)
+  private getCurrentFolderId(): string | null {
+    return this.folderId() ?? this.currentFolderData()?.folder._id ?? null;
   }
 
   // Dialog methods
@@ -301,195 +324,193 @@ export class FoldersTabComponent {
   }
 
   onFolderCreated(result: CreateFolderResult): void {
-    const currentParentId = this.folderId() ? Number(this.folderId()) : null;
-    const newFolder: Folder = {
-      id: Date.now(),
+    const currentParentId = this.getCurrentFolderId();
+    this.foldersService.createFolder(this.spaceId(), {
       name: result.name,
-      filesCount: 0,
-      color: result.color,
-      updatedAt: new Date(),
       parentId: currentParentId
-    };
-    this.allFolders.update(folders => [...folders, newFolder]);
+    }).subscribe({
+      next: () => this.loadContent(this.folderId(), this.spaceId()),
+      error: (error) => console.error('Error creating folder:', error)
+    });
   }
 
   onFilesUploaded(result: UploadFilesResult): void {
-    const currentFolderId = this.folderId() ? Number(this.folderId()) : null;
-    const newFiles: DocumentFile[] = result.files.map((file, index) => ({
-      id: Date.now() + index,
-      name: file.name,
-      type: this.getFileTypeFromMime(file.type),
-      size: file.size,
-      updatedAt: new Date(),
-      folderId: currentFolderId
-    }));
-    this.allFiles.update(files => [...files, ...newFiles]);
+    const currentFolderId = this.getCurrentFolderId();
+    if (!currentFolderId) {
+      console.error('No folder ID available for upload');
+      return;
+    }
+
+    // Upload each file
+    for (const uploadedFile of result.files) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        this.documentsService.importDocument({
+          name: uploadedFile.name,
+          folderId: currentFolderId,
+          mimeType: uploadedFile.type,
+          size: uploadedFile.size,
+          content: base64
+        }).subscribe({
+          next: () => this.loadContent(this.folderId(), this.spaceId()),
+          error: (error) => console.error('Error uploading file:', error)
+        });
+      };
+      reader.readAsDataURL(uploadedFile.file);
+    }
   }
 
   onUrlImported(result: ImportUrlResult): void {
-    const currentFolderId = this.folderId() ? Number(this.folderId()) : null;
-    const newFile: DocumentFile = {
-      id: Date.now(),
+    const currentFolderId = this.getCurrentFolderId();
+    if (!currentFolderId) {
+      console.error('No folder ID available for import');
+      return;
+    }
+
+    this.documentsService.importDocument({
       name: result.fileName,
-      type: this.getFileTypeFromName(result.fileName),
-      size: 0,
-      updatedAt: new Date(),
       folderId: currentFolderId
-    };
-    this.allFiles.update(files => [...files, newFile]);
-  }
-
-  private getFileTypeFromMime(mimeType: string): DocumentFile['type'] {
-    if (mimeType.startsWith('image/')) return 'image';
-    if (mimeType === 'application/pdf') return 'pdf';
-    if (mimeType.includes('word') || mimeType.includes('document')) return 'doc';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'xls';
-    return 'other';
-  }
-
-  private getFileTypeFromName(fileName: string): DocumentFile['type'] {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext ?? '')) return 'image';
-    if (ext === 'pdf') return 'pdf';
-    if (['doc', 'docx'].includes(ext ?? '')) return 'doc';
-    if (['xls', 'xlsx'].includes(ext ?? '')) return 'xls';
-    return 'other';
+    }).subscribe({
+      next: () => this.loadContent(this.folderId(), this.spaceId()),
+      error: (error) => console.error('Error importing URL:', error)
+    });
   }
 
   // Context menu methods
-  buildContextMenu(id: number, type: 'folder' | 'file', name: string): MenuItem[] {
+  buildContextMenu(id: string, type: 'folder' | 'file', name: string, documentId?: string): MenuItem[] {
     return [
+      {
+        label: 'Partager',
+        icon: 'fa-duotone fa-solid fa-share-nodes',
+        command: () => this.openShareDialog(id, type, name, documentId)
+      },
+      { separator: true },
       {
         label: 'Déplacer',
         icon: 'fa-duotone fa-solid fa-arrow-right-arrow-left',
-        command: () => this.openMoveDialog(id, type, name)
+        command: () => this.openMoveDialog(id, type, name, documentId)
       },
       {
         label: 'Cloner',
         icon: 'fa-duotone fa-solid fa-copy',
-        command: () => this.openCloneDialog(id, type, name)
+        command: () => this.openCloneDialog(id, type, name, documentId),
+        visible: type === 'file' // Only files can be cloned
       },
       { separator: true },
       {
         label: 'Supprimer',
         icon: 'fa-duotone fa-solid fa-trash',
-        command: () => this.openDeleteDialog(id, type, name)
+        command: () => this.openDeleteDialog(id, type, name, documentId)
       }
     ];
   }
 
-  onContextMenu(event: MouseEvent, id: number, type: 'folder' | 'file', name: string): void {
+  onContextMenu(event: MouseEvent, id: string, type: 'folder' | 'file', name: string, documentId?: string): void {
     event.preventDefault();
-    this.contextMenuItems.set(this.buildContextMenu(id, type, name));
+    this.contextMenuItems.set(this.buildContextMenu(id, type, name, documentId));
   }
 
-  // Move dialog
-  openMoveDialog(id: number, type: 'folder' | 'file', name: string): void {
-    const folders = this.allFolders().map(f => ({
-      id: f.id,
-      name: f.name,
-      parentId: f.parentId,
-      color: f.color
-    }));
-    this.moveDocumentDialog()?.open(id, type, name, folders);
+  // Move dialog - for files, we use reference ID
+  openMoveDialog(id: string, type: 'folder' | 'file', name: string, _documentId?: string): void {
+    const sourceFolderId = this.getCurrentFolderId();
+    const folderTree = this.buildFolderTree();
+    this.moveDocumentDialog()?.open(id, type, name, sourceFolderId, folderTree);
   }
 
   onDocumentMoved(result: MoveDocumentResult): void {
     if (result.documentType === 'folder') {
-      this.allFolders.update(folders =>
-        folders.map(f =>
-          f.id === result.documentId
-            ? { ...f, parentId: result.destinationFolderId, updatedAt: new Date() }
-            : f
-        )
-      );
+      // Move folder using moveFolder API
+      this.foldersService.moveFolder(result.documentId, {
+        targetParentId: result.targetFolderId
+      }).subscribe({
+        next: () => this.loadContent(this.folderId(), this.spaceId()),
+        error: (error) => console.error('Error moving folder:', error)
+      });
     } else {
-      this.allFiles.update(files =>
-        files.map(f =>
-          f.id === result.documentId
-            ? { ...f, folderId: result.destinationFolderId, updatedAt: new Date() }
-            : f
-        )
-      );
+      // Move reference using moveReference API
+      this.documentsService.moveReference(result.documentId, {
+        targetFolderId: result.targetFolderId!
+      }).subscribe({
+        next: () => this.loadContent(this.folderId(), this.spaceId()),
+        error: (error) => console.error('Error moving reference:', error)
+      });
     }
   }
 
-  // Clone dialog
-  openCloneDialog(id: number, type: 'folder' | 'file', name: string): void {
-    const folders = this.allFolders().map(f => ({
-      id: f.id,
-      name: f.name,
-      parentId: f.parentId,
-      color: f.color
-    }));
-    this.cloneDocumentDialog()?.open(id, type, name, folders);
+  // Clone dialog - only for files, uses document ID
+  openCloneDialog(id: string, type: 'folder' | 'file', name: string, documentId?: string): void {
+    if (type === 'folder') return; // Folders can't be cloned
+
+    // For clone, we need the documentId, not the reference id
+    const docId = documentId || id;
+    if (!docId) {
+      console.error('No document ID available for clone');
+      return;
+    }
+
+    const folderTree = this.buildFolderTree();
+    this.cloneDocumentDialog()?.open(docId, type, name, folderTree);
   }
 
   onDocumentCloned(result: CloneDocumentResult): void {
-    if (result.documentType === 'folder') {
-      const originalFolder = this.allFolders().find(f => f.id === result.documentId);
-      if (originalFolder) {
-        const newFolders = result.destinationFolderIds.map((destId, index) => ({
-          ...originalFolder,
-          id: Date.now() + index,
-          parentId: destId,
-          name: `${originalFolder.name} (copie)`,
-          updatedAt: new Date()
-        }));
-        this.allFolders.update(folders => [...folders, ...newFolders]);
-      }
+    if (result.documentType === 'folder') return; // Folders can't be cloned
+
+    // Clone references to multiple folders
+    this.documentsService.cloneReferences(result.documentId, {
+      folderIds: result.destinationFolderIds.filter((id): id is string => id !== null)
+    }).subscribe({
+      next: () => this.loadContent(this.folderId(), this.spaceId()),
+      error: (error) => console.error('Error cloning document:', error)
+    });
+  }
+
+  // Delete
+  private deleteItem(id: string, type: 'folder' | 'file'): void {
+    if (type === 'folder') {
+      this.foldersService.deleteFolder(id).subscribe({
+        next: () => this.loadContent(this.folderId(), this.spaceId()),
+        error: (error) => console.error('Error deleting folder:', error)
+      });
     } else {
-      const originalFile = this.allFiles().find(f => f.id === result.documentId);
-      if (originalFile) {
-        const newFiles = result.destinationFolderIds.map((destId, index) => ({
-          ...originalFile,
-          id: Date.now() + index,
-          folderId: destId,
-          name: `${originalFile.name.replace(/(\.[^.]+)$/, ' (copie)$1')}`,
-          updatedAt: new Date()
-        }));
-        this.allFiles.update(files => [...files, ...newFiles]);
-      }
+      // id is the reference ID
+      this.documentsService.trashReference(id).subscribe({
+        next: () => this.loadContent(this.folderId(), this.spaceId()),
+        error: (error) => console.error('Error trashing reference:', error)
+      });
     }
   }
 
-  // Delete dialog
-  openDeleteDialog(id: number, type: 'folder' | 'file', name: string): void {
+  openDeleteDialog(id: string, type: 'folder' | 'file', name: string, _documentId?: string): void {
     this.deleteDocumentDialog()?.open(id, type, name);
   }
 
   onDocumentDeleted(result: DeleteDocumentResult): void {
-    if (result.documentType === 'folder') {
-      // Recursively delete folder and all its contents
-      const folderIdsToDelete = this.getFolderAndDescendantIds(result.documentId);
-      this.allFolders.update(folders =>
-        folders.filter(f => !folderIdsToDelete.includes(f.id))
-      );
-      this.allFiles.update(files =>
-        files.filter(f => !folderIdsToDelete.includes(f.folderId ?? -1))
-      );
+    this.deleteItem(result.documentId, result.documentType);
+  }
+
+  // Share dialog
+  openShareDialog(id: string, type: 'folder' | 'file', name: string, documentId?: string): void {
+    if (type === 'folder') {
+      this.shareDialog()?.open(id, 'folder', name);
     } else {
-      this.allFiles.update(files =>
-        files.filter(f => f.id !== result.documentId)
-      );
+      // For files, we share the document itself (not the reference)
+      const docId = documentId || id;
+      this.shareDialog()?.open(docId, 'document', name);
     }
   }
 
-  private getFolderAndDescendantIds(folderId: number): number[] {
-    const ids = [folderId];
-    const children = this.allFolders().filter(f => f.parentId === folderId);
-    for (const child of children) {
-      ids.push(...this.getFolderAndDescendantIds(child.id));
-    }
-    return ids;
+  onPermissionsChanged(_result: ShareResult): void {
+    // Permissions changed, could refresh or show notification
+    // For now, no action needed as permissions don't affect the folder listing
   }
 
-  // Drag & Drop methods
-  onDragStart(event: DragEvent, id: number, type: 'folder' | 'file', name: string): void {
-    this.draggedItem.set({ id, type, name });
+  // Drag & drop methods
+  onDragStart(event: DragEvent, id: string, type: 'folder' | 'file', name: string, documentId?: string): void {
+    this.draggedItem.set({ id, type, name, documentId });
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', JSON.stringify({ id, type, name }));
+      event.dataTransfer.setData('text/plain', id);
     }
   }
 
@@ -498,16 +519,14 @@ export class FoldersTabComponent {
     this.dropTargetId.set(null);
   }
 
-  onDragOver(event: DragEvent, targetFolderId: number): void {
-    event.preventDefault();
+  onDragOver(event: DragEvent, targetFolderId: string): void {
     const dragged = this.draggedItem();
     if (!dragged) return;
 
-    // Prevent dropping folder into itself or its descendants
-    if (dragged.type === 'folder' && this.isDescendantOf(targetFolderId, dragged.id)) {
-      return;
-    }
+    // Can't drop a folder into itself or into a file
+    if (dragged.type === 'folder' && dragged.id === targetFolderId) return;
 
+    event.preventDefault();
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'move';
     }
@@ -518,50 +537,71 @@ export class FoldersTabComponent {
     this.dropTargetId.set(null);
   }
 
-  onDrop(event: DragEvent, targetFolderId: number): void {
+  onDrop(event: DragEvent, targetFolderId: string): void {
     event.preventDefault();
     const dragged = this.draggedItem();
-
     if (!dragged) return;
 
-    // Prevent dropping folder into itself or its descendants
-    if (dragged.type === 'folder' && this.isDescendantOf(targetFolderId, dragged.id)) {
-      this.draggedItem.set(null);
-      this.dropTargetId.set(null);
+    // Can't drop a folder into itself
+    if (dragged.type === 'folder' && dragged.id === targetFolderId) {
+      this.onDragEnd();
       return;
     }
 
     // Move the item
     if (dragged.type === 'folder') {
-      this.allFolders.update(folders =>
-        folders.map(f =>
-          f.id === dragged.id
-            ? { ...f, parentId: targetFolderId, updatedAt: new Date() }
-            : f
-        )
-      );
+      // Move folder
+      this.foldersService.moveFolder(dragged.id, {
+        targetParentId: targetFolderId
+      }).subscribe({
+        next: () => this.loadContent(this.folderId(), this.spaceId()),
+        error: (error) => console.error('Error moving folder:', error)
+      });
     } else {
-      this.allFiles.update(files =>
-        files.map(f =>
-          f.id === dragged.id
-            ? { ...f, folderId: targetFolderId, updatedAt: new Date() }
-            : f
-        )
-      );
+      // Move reference (dragged.id is the reference ID)
+      this.documentsService.moveReference(dragged.id, {
+        targetFolderId: targetFolderId
+      }).subscribe({
+        next: () => this.loadContent(this.folderId(), this.spaceId()),
+        error: (error) => console.error('Error moving reference:', error)
+      });
     }
 
-    this.draggedItem.set(null);
-    this.dropTargetId.set(null);
+    this.onDragEnd();
   }
 
-  private isDescendantOf(potentialDescendant: number, ancestorId: number): boolean {
-    if (potentialDescendant === ancestorId) return true;
-    const folder = this.allFolders().find(f => f.id === potentialDescendant);
-    if (!folder || folder.parentId === null) return false;
-    return this.isDescendantOf(folder.parentId, ancestorId);
+  onDropToRoot(event: DragEvent): void {
+    event.preventDefault();
+    const dragged = this.draggedItem();
+    if (!dragged) return;
+
+    const rootFolderId = this.currentFolderData()?.folder._id;
+    if (!rootFolderId) {
+      this.onDragEnd();
+      return;
+    }
+
+    // Move to root folder
+    if (dragged.type === 'file') {
+      this.documentsService.moveReference(dragged.id, {
+        targetFolderId: rootFolderId
+      }).subscribe({
+        next: () => this.loadContent(this.folderId(), this.spaceId()),
+        error: (error) => console.error('Error moving reference to root:', error)
+      });
+    } else {
+      this.foldersService.moveFolder(dragged.id, {
+        targetParentId: null
+      }).subscribe({
+        next: () => this.loadContent(this.folderId(), this.spaceId()),
+        error: (error) => console.error('Error moving folder to root:', error)
+      });
+    }
+
+    this.onDragEnd();
   }
 
-  isDropTarget(folderId: number): boolean {
+  isDropTarget(folderId: string): boolean {
     return this.dropTargetId() === folderId;
   }
 }

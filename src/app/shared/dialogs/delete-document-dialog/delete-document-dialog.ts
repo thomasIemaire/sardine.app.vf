@@ -1,19 +1,15 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
+import { ChangeDetectionStrategy, Component, computed, EventEmitter, Output, signal } from '@angular/core';
+import { BaseDialogComponent } from '../../components';
 
 export interface DeleteDocumentResult {
-  documentId: number;
+  documentId: string;
   documentType: 'folder' | 'file';
 }
 
 @Component({
   selector: 'app-delete-document-dialog',
   standalone: true,
-  imports: [
-    ButtonModule,
-    DialogModule
-  ],
+  imports: [BaseDialogComponent],
   templateUrl: './delete-document-dialog.html',
   styleUrl: './delete-document-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -22,12 +18,21 @@ export class DeleteDocumentDialogComponent {
   @Output() readonly documentDeleted = new EventEmitter<DeleteDocumentResult>();
 
   readonly visible = signal(false);
-  readonly documentId = signal<number | null>(null);
+  readonly documentId = signal<string | null>(null);
   readonly documentType = signal<'folder' | 'file'>('file');
   readonly documentName = signal('');
   readonly isDeleting = signal(false);
 
-  open(documentId: number, documentType: 'folder' | 'file', documentName: string): void {
+  readonly subtitle = computed(() => `Supprimer "${this.documentName()}"`);
+
+  readonly warningMessage = computed(() => {
+    if (this.documentType() === 'folder') {
+      return 'Cette action supprimera également tous les fichiers et sous-dossiers contenus dans ce dossier.';
+    }
+    return 'L\'élément sera déplacé vers la corbeille.';
+  });
+
+  open(documentId: string, documentType: 'folder' | 'file', documentName: string): void {
     this.documentId.set(documentId);
     this.documentType.set(documentType);
     this.documentName.set(documentName);
@@ -37,17 +42,6 @@ export class DeleteDocumentDialogComponent {
   close(): void {
     this.visible.set(false);
     this.documentId.set(null);
-  }
-
-  get typeLabel(): string {
-    return this.documentType() === 'folder' ? 'ce dossier' : 'ce fichier';
-  }
-
-  get warningMessage(): string {
-    if (this.documentType() === 'folder') {
-      return 'Cette action supprimera également tous les fichiers et sous-dossiers contenus dans ce dossier.';
-    }
-    return 'Cette action est irréversible.';
   }
 
   onSubmit(): void {

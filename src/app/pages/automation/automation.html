@@ -1,8 +1,10 @@
-<app-header-page title="Automatisation" subtitle="Gérez vos agents et flows d'automatisation." />
-<app-header-tabs [tabs]="tabs" />
+<app-tabbed-page
+  maintitle="Automatisation"
+  subtitle="Gérez vos agents et flows d'automatisation."
+  [tabs]="tabs"
+  #tabbedPage>
 
-<div class="page-content">
-  @switch (activeTab()) {
+  @switch (tabbedPage.activeTab()) {
     @case ('agents') {
       <app-agents-tab />
     }
@@ -10,4 +12,5 @@
       <app-flows-tab />
     }
   }
-</div>
+
+</app-tabbed-page>

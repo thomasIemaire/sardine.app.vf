@@ -1,3 +1,5 @@
+import { UserRole } from './auth.model';
+
 export interface User {
   id: string;
   email: string;
@@ -8,8 +10,6 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
 }
-
-export type UserRole = 'admin' | 'user' | 'guest';
 
 export interface UserCredentials {
   email: string;
