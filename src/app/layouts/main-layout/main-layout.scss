@@ -1,0 +1,15 @@
+.main-layout {
+    display: flex;
+    min-height: 100vh;
+
+    &__sidebar {
+        width: 250px;
+        background-color: var(--p-surface-100);
+        border-right: 1px solid var(--p-surface-200);
+    }
+
+    &__content {
+        flex: 1;
+        padding: 1.5rem;
+    }
+}

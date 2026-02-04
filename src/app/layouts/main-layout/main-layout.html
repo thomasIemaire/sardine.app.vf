@@ -1,0 +1,14 @@
+<div class="main-layout">
+    @if (userHasOrganizations() && !userHasContext())
+    {
+    <app-context-switcher />
+    }
+    @else{
+    <aside class="main-layout__sidebar">
+        <!-- Sidebar content -->
+    </aside>
+    <div class="main-layout__content">
+        <router-outlet />
+    </div>
+    }
+</div>

@@ -1,5 +1,6 @@
 @use 'variables' as *;
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import "primeicons/primeicons.css";
 
 * {
@@ -42,5 +43,16 @@ p-breadcrumb .p-breadcrumb {
   .p-icon {
     height: .5rem !important;
     width: .5rem !important;
+  }
+}
+
+.selectable-element {
+  box-shadow: 0 0 0 .2rem var(--background-color-100);
+  outline: 0px solid transparent;
+  transition: outline .075s cubic-bezier(0.075, 0.82, 0.165, 1);
+  cursor: pointer;
+
+  &:hover {
+    outline: .2rem solid var(--background-color-300);
   }
 }

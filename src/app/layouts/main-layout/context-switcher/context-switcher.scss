@@ -1,0 +1,46 @@
+.context-switcher-container {
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    padding: 3rem;
+}
+
+.stop-ask-wrapper {
+    position: absolute;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .75rem;
+    font-weight: 500;
+    color: var(--p-text-muted-color);
+}
+
+.context-switcher-wrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-switcher {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.form-switcher .form-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.form-switcher .contexts-group {
+    display: flex;
+    gap: 1.5rem;
+}
