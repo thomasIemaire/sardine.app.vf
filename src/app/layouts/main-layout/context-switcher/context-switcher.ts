@@ -1,26 +1,23 @@
-import { Component } from "@angular/core";
-import { ContextItem, ContextItemComponent } from "../context-item/context-item";
-import { CommonModule } from "@angular/common";
-import { ToggleSwitchModule } from "primeng/toggleswitch";
+import { Component, computed, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { ToggleSwitchModule } from "primeng/toggleswitch";
+import { Organization, UserService } from "@core/services";
+import { ContextItemComponent } from "../context-item/context-item";
 
 @Component({
     selector: "app-context-switcher",
-    imports: [CommonModule, FormsModule, ContextItemComponent, ToggleSwitchModule],
+    imports: [FormsModule, ContextItemComponent, ToggleSwitchModule],
     templateUrl: "./context-switcher.html",
     styleUrls: ["./context-switcher.scss"]
 })
 export class ContextSwitcherComponent {
-    contexts: ContextItem[] = [
-        {
-            organization: false,
-            label: "Personnel"
-        },
-        {
-            organization: true,
-            label: "Société A"
-        },
-    ]
+    private userService = inject(UserService);
 
-    stopAsking: boolean = false;
+    organizations = computed(() => this.userService.user()?.organizations ?? []);
+
+    stopAsking = false;
+
+    onSelectOrganization(organization: Organization): void {
+        this.userService.selectContext(organization);
+    }
 }

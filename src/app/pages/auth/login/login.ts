@@ -1,6 +1,7 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
+import { UserService } from "@core/services";
 import { BrandComponent, FieldComponent, FormComponent, PasswordFieldComponent, TextFieldComponent } from "@shared/components";
 
 @Component({
@@ -10,10 +11,18 @@ import { BrandComponent, FieldComponent, FormComponent, PasswordFieldComponent, 
     styleUrls: ["./login.scss"],
 })
 export class LoginComponent {
+    private userService = inject(UserService);
+    private router = inject(Router);
+
     email = '';
     password = '';
+    error = '';
 
     onLogin(): void {
-        console.log('Login:', this.email, this.password);
+        if (this.userService.login(this.email, this.password)) {
+            this.router.navigate(['/']);
+        } else {
+            this.error = 'Email ou mot de passe incorrect';
+        }
     }
 }

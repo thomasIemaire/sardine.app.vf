@@ -1,8 +1,8 @@
-<div class="context-item-wrapper">
+<div class="context-item-wrapper" (click)="onSelect()">
     <app-selectable borderRadius="100%">
         <div class="context-item-picture">
-            <i class="fa-solid" [class]="context().organization ? 'fa-users' : 'fa-user'"></i>
+            <i class="fa-solid" [class]="organization().isPersonal ? 'fa-user' : 'fa-users'"></i>
         </div>
     </app-selectable>
-    <div class="context-item-name">{{ context().label }}</div>
+    <div class="context-item-name">{{ organization().name }}</div>
 </div>

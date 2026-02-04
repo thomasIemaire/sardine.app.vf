@@ -1,10 +1,6 @@
-import { Component, input } from "@angular/core";
+import { Component, input, output } from "@angular/core";
+import { Organization } from "@core/services";
 import { SelectableComponent } from "@shared/components";
-
-export interface ContextItem {
-    organization: boolean;
-    label: string;
-}
 
 @Component({
     selector: "app-context-item",
@@ -13,5 +9,11 @@ export interface ContextItem {
     styleUrls: ["./context-item.scss"],
 })
 export class ContextItemComponent {
-    context = input.required<ContextItem>();
+    organization = input.required<Organization>();
+
+    select = output<Organization>();
+
+    onSelect(): void {
+        this.select.emit(this.organization());
+    }
 }

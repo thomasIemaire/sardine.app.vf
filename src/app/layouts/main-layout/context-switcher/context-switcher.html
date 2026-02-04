@@ -3,7 +3,9 @@
         <div class="form-switcher">
             <div class="form-title">Quelle organisation souhaitez-vous utiliser ?</div>
             <div class="contexts-group">
-                <app-context-item *ngFor="let context of contexts" [context]="context" />
+                @for (org of organizations(); track org.id) {
+                    <app-context-item [organization]="org" (select)="onSelectOrganization($event)" />
+                }
             </div>
         </div>
     </div>

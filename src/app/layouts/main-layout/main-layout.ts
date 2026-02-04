@@ -1,5 +1,6 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
+import { UserService } from "@core/services";
 import { ContextSwitcherComponent } from "./context-switcher/context-switcher";
 
 @Component({
@@ -9,11 +10,13 @@ import { ContextSwitcherComponent } from "./context-switcher/context-switcher";
     styleUrls: ["./main-layout.scss"],
 })
 export class MainLayoutComponent {
-    public userHasOrganizations(): boolean {
-        return true;
+    private userService = inject(UserService);
+
+    userHasOrganizations(): boolean {
+        return this.userService.hasOrganizations();
     }
 
-    public userHasContext(): boolean {
-        return false;
+    userHasContext(): boolean {
+        return this.userService.hasContext();
     }
 }
