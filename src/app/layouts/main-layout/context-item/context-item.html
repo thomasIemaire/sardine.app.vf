@@ -1,6 +1,8 @@
 <div class="context-item-wrapper">
-    <div class="context-item-picture selectable-element">
-        <i [class]="context().organization ? 'fa-duotone fa-solid fa-users' : 'fa-duotone fa-solid fa-user'"></i>
-    </div>
+    <app-selectable borderRadius="100%">
+        <div class="context-item-picture">
+            <i class="fa-solid" [class]="context().organization ? 'fa-users' : 'fa-user'"></i>
+        </div>
+    </app-selectable>
     <div class="context-item-name">{{ context().label }}</div>
 </div>

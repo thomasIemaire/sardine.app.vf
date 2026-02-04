@@ -1,0 +1,24 @@
+:host {
+    display: block;
+    position: relative;
+    cursor: pointer;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: -0.2rem;
+        border-radius: var(--selectable-radius, 0);
+        background: var(--background-color-100);
+        opacity: 1;
+        z-index: -1;
+        transition: background .75s cubic-bezier(0.075, 0.82, 0.165, 1);
+    }
+
+    &:hover::before {
+        background: var(--background-color-300);
+    }
+
+    &.selected::before {
+        background: var(--p-primary-100);
+    }
+}

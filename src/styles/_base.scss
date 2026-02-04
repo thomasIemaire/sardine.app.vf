@@ -45,14 +45,3 @@ p-breadcrumb .p-breadcrumb {
     width: .5rem !important;
   }
 }
-
-.selectable-element {
-  box-shadow: 0 0 0 .2rem var(--background-color-100);
-  outline: 0px solid transparent;
-  transition: outline .075s cubic-bezier(0.075, 0.82, 0.165, 1);
-  cursor: pointer;
-
-  &:hover {
-    outline: .2rem solid var(--background-color-300);
-  }
-}

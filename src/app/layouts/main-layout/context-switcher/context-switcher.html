@@ -3,11 +3,11 @@
         <div class="form-switcher">
             <div class="form-title">Quelle organisation souhaitez-vous utiliser ?</div>
             <div class="contexts-group">
-                <app-context-item *ngFor="let context of contexts" [context]="context"></app-context-item>
+                <app-context-item *ngFor="let context of contexts" [context]="context" />
             </div>
         </div>
     </div>
     <div class="stop-ask-wrapper">
-        Ne plus afficher cet écran ? <p-toggle-switch [(ngModel)]="stopAsking"></p-toggle-switch>
+        Ne plus afficher cet écran ? <p-toggle-switch [(ngModel)]="stopAsking" />
     </div>
 </div>

@@ -1,4 +1,5 @@
 import { Component, input } from "@angular/core";
+import { SelectableComponent } from "@shared/components";
 
 export interface ContextItem {
     organization: boolean;
@@ -7,6 +8,7 @@ export interface ContextItem {
 
 @Component({
     selector: "app-context-item",
+    imports: [SelectableComponent],
     templateUrl: "./context-item.html",
     styleUrls: ["./context-item.scss"],
 })
