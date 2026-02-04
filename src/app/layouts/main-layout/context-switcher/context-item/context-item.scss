@@ -20,8 +20,28 @@
     color: var(--background-color-500);
 }
 
-.context-item-name {
-    font-size: .75rem;
-    font-weight: 600;
-    user-select: none;
+.context-item {
+    &_names {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        line-height: 1.2;
+    }
+
+    &__name {
+        font-size: .75rem;
+        font-weight: 600;
+        user-select: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+    }
+
+    &__holding {
+        font-size: .625rem;
+        color: var(--p-text-muted-color);
+        user-select: none;
+        text-align: center;
+    }
 }

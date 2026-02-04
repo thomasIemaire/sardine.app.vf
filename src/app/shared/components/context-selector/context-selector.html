@@ -2,6 +2,11 @@
     <div class="context-selector__picture">
         <i class="fa-solid" [class.fa-user]="isPersonal()" [class.fa-users]="!isPersonal()"></i>
     </div>
-    <div class="context-selector__name">{{ name() }}</div>
+    <div class="context-selector__names">
+        <span class="context-selector__name">{{ name() }}</span>
+        @if (holdingName()) {
+            <span class="context-selector__holding">{{ holdingName() }}</span>
+        }
+    </div>
     <i class="fa-solid fa-angles-up-down context-selector__carets"></i>
 </div>

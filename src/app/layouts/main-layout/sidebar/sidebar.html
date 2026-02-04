@@ -12,10 +12,33 @@
             <app-navigation-item label="Organisation" icon="fa-solid fa-building" routerLink="/organization" />
         </app-navigation-menu>
     </nav>
-    <div class="sidebar-wrapper__footer">
-        <div class="divider">
+    <div class="sidebar-wrapper__footer" [class.sidebar-wrapper__footer--expanded]="expanded()">
+        <div class="sidebar-wrapper__footer__divider">
             <p-divider />
         </div>
-        <app-context-selector />
+        <div class="sidebar-wrapper__footer__context-list">
+            <div>
+                <div class="sidebar-wrapper__footer__context-option" (click)="openContextSwitcher()">
+                    <div class="sidebar-wrapper__footer__context-option__picture">
+                        <i class="fa-solid fa-grid-2"></i>
+                    </div>
+                    <div class="sidebar-wrapper__footer__context-option__names">
+                        <span class="sidebar-wrapper__footer__context-option__name">Toutes les organisations</span>
+                    </div>
+                </div>
+                @for (org of organizations(); track org.id) {
+                <div class="sidebar-wrapper__footer__context-option" (click)="selectOrganization(org)">
+                    <div class="sidebar-wrapper__footer__context-option__picture">
+                        <i class="fa-solid" [class.fa-user]="org.isPersonal" [class.fa-users]="!org.isPersonal"></i>
+                    </div>
+                    <div class="sidebar-wrapper__footer__context-option__names">
+                        <span class="sidebar-wrapper__footer__context-option__name">{{ org.name }}</span>
+                        <span class="sidebar-wrapper__footer__context-option__holding">{{ org.holdingName }}</span>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        <app-context-selector (click)="toggleContextPanel()" />
     </div>
 </div>

@@ -12,4 +12,5 @@ export class ContextSelectorComponent {
     currentOrganization = computed(() => this.userService.context().organization);
     isPersonal = computed(() => this.currentOrganization()?.isPersonal ?? false);
     name = computed(() => this.currentOrganization()?.name ?? '');
+    holdingName = computed(() => this.currentOrganization()?.holdingName ?? '');
 }

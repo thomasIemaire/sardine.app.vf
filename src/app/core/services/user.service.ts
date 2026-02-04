@@ -4,6 +4,7 @@ export interface Organization {
     id: string;
     name: string;
     isPersonal: boolean;
+    holdingName?: string;
 }
 
 export interface User {
@@ -52,7 +53,9 @@ export class UserService {
                 lastName: 'Lemaire',
                 organizations: [
                     { id: 'personal', name: 'Thomas Lemaire', isPersonal: true },
-                    { id: 'sendoc', name: 'Sendoc', isPersonal: false }
+                    { id: 'sendoc', name: 'Sendoc', isPersonal: false },
+                    { id: 'terre_du_sud', name: 'Terre du Sud', isPersonal: false },
+                    { id: 'trhea', name: 'TRhéa', isPersonal: false, holdingName: 'Groupe Sendoc' },
                 ]
             };
             this.currentUser.set(user);

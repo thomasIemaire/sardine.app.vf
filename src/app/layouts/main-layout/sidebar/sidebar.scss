@@ -6,7 +6,6 @@
     justify-content: space-between;
     gap: 2rem;
 
-
     &__brand {
         width: 100%;
         display: flex;
@@ -22,8 +21,79 @@
     }
 
     &__footer {
-        .divider {
+        &__divider {
             padding: 0 1rem;
+        }
+
+        &__context-list {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.25s ease;
+            overflow: hidden;
+
+            > * {
+                overflow: hidden;
+            }
+        }
+
+        &__context-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.875rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: background-color 0.15s ease, opacity 0.5s ease;
+
+            &:hover {
+                background-color: var(--background-color-100);
+            }
+
+            &__picture {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: var(--background-color-200);
+                flex-shrink: 0;
+
+                i {
+                    font-size: 0.625rem;
+                    color: var(--background-color-500);
+                }
+            }
+
+            &__names {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                line-height: 1.2;
+            }
+
+            &__name {
+                font-size: 0.75rem;
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            &__holding {
+                font-size: 0.625rem;
+                color: var(--p-text-muted-color);
+            }
+        }
+
+        &--expanded {
+            .sidebar-wrapper__footer__context-list {
+                grid-template-rows: 1fr;
+            }
+
+            .sidebar-wrapper__footer__context-option {
+                opacity: 1;
+            }
         }
     }
 }
