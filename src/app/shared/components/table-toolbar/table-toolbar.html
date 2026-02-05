@@ -1,0 +1,9 @@
+<div class="table-toolbar__wrapper">
+    <div class="table-toolbar__wrapper__left">
+        <input *ngIf="searchField()" pInputText [value]="value" [placeholder]="searchFieldPlaceholder()" pSize="small" rounded />
+    </div>
+    <div class="table-toolbar__wrapper__right">
+        <p-button *ngFor="let action of actions()" [label]="action.label" [icon]="action.icon"
+            (onClick)="action.onClick()" size="small" rounded></p-button>
+    </div>
+</div>

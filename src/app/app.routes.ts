@@ -17,13 +17,26 @@ export const routes: Routes = [
                 data: { breadcrumb: 'Automatisation' },
                 children: [
                     {
-                        path: '',
-                        loadComponent: () => import('./pages/automation/automation').then(m => m.AutomationComponent),
-                    },
-                    {
                         path: 'docs',
                         loadComponent: () => import('./pages/automation/docs/docs').then(m => m.AutomationDocsComponent),
                         data: { breadcrumb: 'Documentation' },
+                    },
+                    {
+                        path: '',
+                        loadComponent: () => import('./pages/automation/automation').then(m => m.AutomationComponent),
+                        children: [
+                            { path: '', redirectTo: 'agents', pathMatch: 'full' },
+                            {
+                                path: 'agents',
+                                loadComponent: () => import('./pages/automation/agents/agents').then(m => m.AgentsComponent),
+                                data: { breadcrumb: 'Agents' },
+                            },
+                            {
+                                path: 'flows',
+                                loadComponent: () => import('./pages/automation/flows/flows').then(m => m.FlowsComponent),
+                                data: { breadcrumb: 'Flows' },
+                            },
+                        ],
                     },
                 ],
             },

@@ -1,11 +1,11 @@
 import { Component } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, RouterOutlet } from "@angular/router";
 import { PageHeaderComponent, PageHeaderTab } from "@shared/components";
 import { PageComponent } from "../page";
 
 @Component({
     selector: "app-automation",
-    imports: [PageComponent, PageHeaderComponent],
+    imports: [PageComponent, PageHeaderComponent, RouterOutlet],
     templateUrl: "./automation.html",
     styleUrls: ["./automation.scss"],
 })

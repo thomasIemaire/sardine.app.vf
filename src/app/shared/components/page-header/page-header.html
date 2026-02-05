@@ -8,8 +8,10 @@
                 }
                 <span class="page-header__title">{{ label() }}</span>
             </div>
-            <p-button *ngIf="secondaryAction()" [label]="secondaryAction()?.label" [icon]="secondaryAction()?.icon" severity="secondary"
-                text rounded size="small" (onClick)="secondaryAction()?.command()" />
+            @if (secondaryAction()) {
+                <p-button [label]="secondaryAction()!.label" [icon]="secondaryAction()!.icon" severity="secondary"
+                    text rounded size="small" (onClick)="secondaryAction()!.command()" />
+            }
         </div>
         @if (description()) {
             <span class="page-header__description">{{ description() }}</span>

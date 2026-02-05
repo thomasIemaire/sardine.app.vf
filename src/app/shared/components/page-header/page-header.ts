@@ -1,7 +1,8 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject, input, OnInit, signal } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Component, inject, input } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { ButtonModule } from "primeng/button";
+import { filter, map, startWith } from "rxjs";
 
 export interface PageHeaderTab {
     id: string;
@@ -16,11 +17,11 @@ export interface PageHeaderSecondaryAction {
 
 @Component({
     selector: "app-page-header",
-    imports: [CommonModule, ButtonModule],
+    imports: [ButtonModule],
     templateUrl: "./page-header.html",
     styleUrls: ["./page-header.scss"],
 })
-export class PageHeaderComponent implements OnInit {
+export class PageHeaderComponent {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
 
@@ -30,30 +31,20 @@ export class PageHeaderComponent implements OnInit {
     secondaryAction = input<PageHeaderSecondaryAction>();
     backAction = input<() => void>();
 
-    activeTab = signal<string>('');
-
-    ngOnInit(): void {
-        this.route.queryParams.subscribe(params => {
-            const tabId = params['tab'];
-            const tabsList = this.tabs();
-            if (tabId && tabsList?.some(t => t.id === tabId)) {
-                this.activeTab.set(tabId);
-            } else if (tabsList?.length) {
-                this.activeTab.set(tabsList[0].id);
-            }
-        });
-    }
+    private activeChildPath = toSignal(
+        this.router.events.pipe(
+            filter(event => event instanceof NavigationEnd),
+            startWith(null),
+            map(() => this.route.firstChild?.snapshot?.url?.[0]?.path ?? '')
+        ),
+        { initialValue: '' }
+    );
 
     selectTab(tab: PageHeaderTab): void {
-        this.activeTab.set(tab.id);
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { tab: tab.id },
-            queryParamsHandling: 'merge',
-        });
+        this.router.navigate([tab.id], { relativeTo: this.route });
     }
 
     isActive(tab: PageHeaderTab): boolean {
-        return this.activeTab() === tab.id;
+        return this.activeChildPath() === tab.id;
     }
 }
