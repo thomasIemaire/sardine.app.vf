@@ -1,6 +1,7 @@
 <div class="header-wrapper">
     <div class="header-wrapper__left">
-        <p-button icon="fa-jelly-fill fa-regular fa-sidebar" size="small" severity="secondary" text rounded />
+        <p-button [icon]="sidebarService.collapsed() ? 'fa-jelly-fill fa-regular fa-sidebar' : 'fa-jelly fa-regular fa-sidebar'" size="small" severity="secondary" text rounded
+            (onClick)="sidebarService.toggle()" />
         <p-divider layout="vertical" />
         <p-breadcrumb [model]="breadcrumbs()" />
     </div>

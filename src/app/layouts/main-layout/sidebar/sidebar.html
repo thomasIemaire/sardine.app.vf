@@ -1,4 +1,11 @@
-<div class="sidebar-wrapper">
+@if (sidebarService.collapsed() && !autoOpened()) {
+    <div class="sidebar-trigger-wrapper">
+        <div class="sidebar-trigger" (mouseenter)="onTriggerEnter()"></div>
+        <div class="sidebar-trigger-hint"></div>
+    </div>
+}
+
+<div class="sidebar-wrapper" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
     <app-brand class="sidebar-wrapper__brand" />
     <nav class="sidebar-wrapper__nav">
         <app-navigation-menu>

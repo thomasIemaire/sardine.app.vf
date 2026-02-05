@@ -1,7 +1,7 @@
 import { Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
-import { UserService } from "@core/services";
+import { SidebarService, UserService } from "@core/services";
 import { MenuItem } from "primeng/api";
 import { BreadcrumbModule } from "primeng/breadcrumb";
 import { ButtonModule } from "primeng/button";
@@ -18,6 +18,7 @@ export class HeaderComponent {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private userService = inject(UserService);
+    protected sidebarService = inject(SidebarService);
 
     userName = computed(() => {
         const user = this.userService.user();
@@ -46,7 +47,7 @@ export class HeaderComponent {
         for (const child of route.children) {
             const path = child.snapshot.url.map(s => s.path).join('/');
             const currentUrl = path ? `${url}/${path}` : url;
-            const label = child.snapshot.data['breadcrumb'];
+            const label = child.snapshot.routeConfig?.data?.['breadcrumb'];
 
             if (label) {
                 items.push({ label, routerLink: currentUrl || '/' });

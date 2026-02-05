@@ -4,7 +4,7 @@
     <app-context-switcher />
     }
     @else{
-    <aside class="main-layout__sidebar">
+    <aside class="main-layout__sidebar" [class.main-layout__sidebar--collapsed]="sidebarService.collapsed()">
         <app-sidebar />
     </aside>
     <div class="main-layout__content">

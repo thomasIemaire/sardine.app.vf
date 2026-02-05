@@ -1,4 +1,6 @@
 .page-header {
+    width: 100%;
+
     &__wrapper {
         padding: 1.5rem 2rem;
         display: flex;
@@ -6,11 +8,24 @@
         gap: 1.25rem;
     }
 
+    &__secondary-action {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
     &__titles {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
         line-height: 1.375;
+    }
+
+    &__title-group {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
     }
 
     &__title {

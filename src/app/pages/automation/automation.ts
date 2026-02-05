@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { Router } from "@angular/router";
 import { PageHeaderComponent, PageHeaderTab } from "@shared/components";
 import { PageComponent } from "../page";
 
@@ -9,8 +10,14 @@ import { PageComponent } from "../page";
     styleUrls: ["./automation.scss"],
 })
 export class AutomationComponent {
+    constructor(private router: Router) {}
+
     tabs: PageHeaderTab[] = [
-        { id: 'flows', label: 'Flows' },
         { id: 'agents', label: 'Agents' },
+        { id: 'flows', label: 'Flows' },
     ];
+
+    openDocumentation = (): void => {
+        this.router.navigate(['/automation/docs']);
+    }
 }

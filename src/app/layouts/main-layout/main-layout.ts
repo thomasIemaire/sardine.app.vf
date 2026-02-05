@@ -1,6 +1,6 @@
 import { Component, inject } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
-import { UserService } from "@core/services";
+import { SidebarService, UserService } from "@core/services";
 import { ContextSwitcherComponent } from "./context-switcher/context-switcher";
 import { SidebarComponent } from "./sidebar/sidebar";
 import { HeaderComponent } from "./header/header";
@@ -13,6 +13,7 @@ import { HeaderComponent } from "./header/header";
 })
 export class MainLayoutComponent {
     private userService = inject(UserService);
+    protected sidebarService = inject(SidebarService);
 
     userHasOrganizations(): boolean {
         return this.userService.hasOrganizations();

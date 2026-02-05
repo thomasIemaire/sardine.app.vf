@@ -1,6 +1,16 @@
 <div class="page-header__wrapper">
     <div class="page-header__titles">
-        <span class="page-header__title">{{ label() }}</span>
+        <div class="page-header__secondary-action">
+            <div class="page-header__title-group">
+                @if (backAction()) {
+                    <p-button icon="fa-regular fa-angle-left" severity="secondary" text rounded
+                        size="small" (onClick)="backAction()!()" />
+                }
+                <span class="page-header__title">{{ label() }}</span>
+            </div>
+            <p-button *ngIf="secondaryAction()" [label]="secondaryAction()?.label" [icon]="secondaryAction()?.icon" severity="secondary"
+                text rounded size="small" (onClick)="secondaryAction()?.command()" />
+        </div>
         @if (description()) {
             <span class="page-header__description">{{ description() }}</span>
         }

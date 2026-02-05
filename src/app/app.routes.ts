@@ -14,8 +14,18 @@ export const routes: Routes = [
             },
             {
                 path: 'automation',
-                loadComponent: () => import('./pages/automation/automation').then(m => m.AutomationComponent),
                 data: { breadcrumb: 'Automatisation' },
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./pages/automation/automation').then(m => m.AutomationComponent),
+                    },
+                    {
+                        path: 'docs',
+                        loadComponent: () => import('./pages/automation/docs/docs').then(m => m.AutomationDocsComponent),
+                        data: { breadcrumb: 'Documentation' },
+                    },
+                ],
             },
         ],
     },

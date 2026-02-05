@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, inject, input, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ButtonModule } from "primeng/button";
@@ -7,9 +8,15 @@ export interface PageHeaderTab {
     label: string;
 }
 
+export interface PageHeaderSecondaryAction {
+    icon: string;
+    label: string;
+    command: () => void;
+}
+
 @Component({
     selector: "app-page-header",
-    imports: [ButtonModule],
+    imports: [CommonModule, ButtonModule],
     templateUrl: "./page-header.html",
     styleUrls: ["./page-header.scss"],
 })
@@ -20,6 +27,8 @@ export class PageHeaderComponent implements OnInit {
     label = input.required<string>();
     description = input<string>();
     tabs = input<PageHeaderTab[]>();
+    secondaryAction = input<PageHeaderSecondaryAction>();
+    backAction = input<() => void>();
 
     activeTab = signal<string>('');
 

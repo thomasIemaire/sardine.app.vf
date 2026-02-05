@@ -17,6 +17,7 @@ import { Component } from "@angular/core";
     .page {
         &__container {
             height: 100%;
+            overflow-y: hidden;
         }
 
         &__wrapper {
@@ -30,7 +31,9 @@ import { Component } from "@angular/core";
         }
 
         &__body {
-            flex: 1;
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding: 2rem 0;
         }
     }
     `],

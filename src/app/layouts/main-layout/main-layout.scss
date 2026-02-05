@@ -1,25 +1,37 @@
 .main-layout {
     display: flex;
-    min-height: 100vh;
-    
+    height: 100vh;
+    overflow: hidden;
+
     &__sidebar {
         width: 250px;
+        flex-shrink: 0;
         border-right: 1px solid var(--surface-border);
+        transition: width 0.2s ease;
+        overflow: hidden;
+
+        &--collapsed {
+            width: 0;
+            border-right: none;
+        }
     }
 
     &__content {
         display: flex;
         flex-direction: column;
         flex: 1;
+        min-height: 0;
 
         &__header {
             height: 48px;
+            flex-shrink: 0;
             border-bottom: 1px solid var(--surface-border);
         }
 
         &__main {
             flex: 1 1 auto;
-            overflow: auto;
+            min-height: 0;
+            overflow: hidden;
         }
     }
 }

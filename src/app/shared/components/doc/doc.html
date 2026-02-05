@@ -1,0 +1,56 @@
+<div class="doc">
+    <div class="doc__main">
+        <div class="doc__header">
+            <div class="doc__title-row">
+                <h1 class="doc__title">{{ content().title }}</h1>
+                @if (content().badge) {
+                    <p-badge [value]="content().badge!" />
+                }
+            </div>
+            @if (content().description) {
+                <p class="doc__description">{{ content().description }}</p>
+            }
+        </div>
+
+        <div class="doc__content">
+            @for (section of content().sections; track section.id) {
+                <div class="doc__section" [id]="section.id">
+                    <h2 class="doc__section-title">{{ section.title }}</h2>
+                    @for (block of section.contents; track $index) {
+                        @switch (block.type) {
+                            @case ('text') {
+                                <p class="doc__text">{{ block.value }}</p>
+                            }
+                            @case ('list') {
+                                <ul class="doc__list">
+                                    @for (item of $any(block.value); track $index) {
+                                        <li class="doc__list-item">{{ item }}</li>
+                                    }
+                                </ul>
+                            }
+                            @case ('image') {
+                                <div class="doc__image-wrapper">
+                                    <img class="doc__image" [src]="block.value" [alt]="section.title" />
+                                </div>
+                            }
+                        }
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (displayTableOfContents() && content().sections.length) {
+        <nav class="doc__toc">
+            <span class="doc__toc-title">Sur cette page</span>
+            <ul class="doc__toc-list">
+                @for (section of content().sections; track section.id) {
+                    <li class="doc__toc-item" [class.doc__toc-item--active]="activeSection() === section.id"
+                        (click)="scrollToSection(section.id)">
+                        {{ section.title }}
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

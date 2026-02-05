@@ -14,12 +14,12 @@
     }
 
     &--active {
-        background-color: var(--primary-color);
-        color: var(--primary-color-text);
+        background-color: var(--primary-color-100);
+        color: var(--primary-color-500);
 
         &:hover {
-            background-color: var(--primary-color);
-            color: var(--primary-color-text);
+            background-color: var(--primary-color-200);
+            color: var(--primary-color-600);
         }
     }
 
