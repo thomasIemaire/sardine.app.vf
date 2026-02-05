@@ -7,6 +7,9 @@
                     <app-context-item [organization]="org" (select)="onSelectOrganization($event)" />
                 }
             </div>
+            <div class="form-search" *ngIf="organizations().length > 5">
+                <input type="text" placeholder="Rechercher une organisation..." />
+            </div>
         </div>
     </div>
     <div class="stop-ask-wrapper">

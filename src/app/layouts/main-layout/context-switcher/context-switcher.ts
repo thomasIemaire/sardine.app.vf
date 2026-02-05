@@ -3,10 +3,11 @@ import { FormsModule } from "@angular/forms";
 import { ToggleSwitchModule } from "primeng/toggleswitch";
 import { Organization, UserService } from "@core/services";
 import { ContextItemComponent } from "./context-item/context-item";
+import { CommonModule } from "@angular/common";
 
 @Component({
     selector: "app-context-switcher",
-    imports: [FormsModule, ContextItemComponent, ToggleSwitchModule],
+    imports: [CommonModule, FormsModule, ContextItemComponent, ToggleSwitchModule],
     templateUrl: "./context-switcher.html",
     styleUrls: ["./context-switcher.scss"]
 })

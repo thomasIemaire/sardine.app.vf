@@ -40,6 +40,21 @@
     font-weight: 600;
 }
 
+.form-switcher .form-search {
+    width: 256px;
+
+    input {
+        text-align: center;
+        width: fit-content;
+        border: none;
+        border-bottom: 1px solid var(--surface-border);
+        outline: none;
+        width: 100%;
+        padding: .75rem 1rem;
+        font-size: .875rem;
+    }
+}
+
 .form-switcher .contexts-group {
     display: flex;
     gap: 1.5rem;
