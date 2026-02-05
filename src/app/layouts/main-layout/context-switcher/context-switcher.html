@@ -6,7 +6,7 @@
                 @for (org of displayedOrganizations(); track org.id) {
                     <app-context-item [organization]="org" (select)="onSelectOrganization($event)" />
                 }
-                @if (hasOverflow() && !searchQuery()) {
+                @if (hasOverflow()) {
                     <div class="context-item-overflow">
                         <div class="context-item-overflow__picture">
                             <span>+{{ remainingCount() }}</span>
@@ -14,7 +14,7 @@
                     </div>
                 }
             </div>
-            @if (hasOverflow()) {
+            @if (showSearch()) {
                 <div class="form-search">
                     <input type="text" placeholder="Rechercher une organisation..." [value]="searchQuery()" (input)="onSearchInput($event)" />
                 </div>

@@ -11,16 +11,15 @@ import { ContextItemComponent } from "./context-item/context-item";
     styleUrls: ["./context-switcher.scss"]
 })
 export class ContextSwitcherComponent {
+    readonly MAX_DISPLAYED = 4;
+
     private userService = inject(UserService);
 
     organizations = computed(() => this.userService.user()?.organizations ?? []);
     searchQuery = signal('');
     stopAsking = false;
 
-    hasOverflow = computed(() => this.organizations().length > 5);
-    remainingCount = computed(() => this.organizations().length - 5);
-
-    displayedOrganizations = computed(() => {
+    private filteredOrganizations = computed(() => {
         const query = this.searchQuery().toLowerCase().trim();
         const orgs = this.organizations();
 
@@ -31,8 +30,13 @@ export class ContextSwitcherComponent {
             );
         }
 
-        return orgs.slice(0, 5);
+        return orgs;
     });
+
+    showSearch = computed(() => this.organizations().length > this.MAX_DISPLAYED);
+    hasOverflow = computed(() => this.filteredOrganizations().length > this.MAX_DISPLAYED);
+    remainingCount = computed(() => this.filteredOrganizations().length - this.MAX_DISPLAYED);
+    displayedOrganizations = computed(() => this.filteredOrganizations().slice(0, this.MAX_DISPLAYED));
 
     onSelectOrganization(organization: Organization): void {
         this.userService.selectContext(organization, this.stopAsking);
