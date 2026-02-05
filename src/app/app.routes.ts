@@ -10,6 +10,12 @@ export const routes: Routes = [
             {
                 path: '',
                 loadComponent: () => import('./pages/home/home').then(m => m.HomeComponent),
+                data: { breadcrumb: 'Accueil' },
+            },
+            {
+                path: 'automation',
+                loadComponent: () => import('./pages/automation/automation').then(m => m.AutomationComponent),
+                data: { breadcrumb: 'Automatisation' },
             },
         ],
     },

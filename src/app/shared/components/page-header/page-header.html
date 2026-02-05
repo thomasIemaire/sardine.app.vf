@@ -1,10 +1,16 @@
 <div class="page-header__wrapper">
     <div class="page-header__titles">
         <span class="page-header__title">{{ label() }}</span>
-        <span class="page-header__description" *ngIf="description()">{{ description() }}</span>
+        @if (description()) {
+            <span class="page-header__description">{{ description() }}</span>
+        }
     </div>
-    <div class="page-header__tabs">
-        <p-button *ngFor="let tab of tabs()" [label]="tab.label" severity="secondary" rounded
-            size="small"></p-button>
-    </div>
+    @if (tabs()?.length) {
+        <div class="page-header__tabs">
+            @for (tab of tabs(); track tab.id) {
+                <p-button [label]="tab.label" [severity]="isActive(tab) ? 'primary' : 'secondary'" rounded
+                    size="small" (onClick)="selectTab(tab)" />
+            }
+        </div>
+    }
 </div>
