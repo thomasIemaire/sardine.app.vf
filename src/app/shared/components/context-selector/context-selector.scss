@@ -32,6 +32,7 @@
         flex-direction: column;
         overflow: hidden;
         line-height: 1.2;
+        user-select: none;
     }
 
     &__name {

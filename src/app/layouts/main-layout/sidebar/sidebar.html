@@ -5,11 +5,12 @@
             <app-navigation-item label="Automatisation" icon="fa-solid fa-chart-diagram" routerLink="/automation" />
         </app-navigation-menu>
         <app-navigation-menu label="Gestion documentaire">
-            <app-navigation-item label="Documents" icon="fa-solid fa-folder-open" routerLink="/documents" />
-            <app-navigation-item label="Corbeille" icon="fa-solid fa-trash" routerLink="/trash" />
+            <app-navigation-item label="Documents" icon="fa-jelly-fill fa-solid fa-folder" routerLink="/documents" />
+            <app-navigation-item label="Corbeille" icon="fa-jelly-fill fa-solid fa-trash" routerLink="/trash" />
         </app-navigation-menu>
-        <app-navigation-menu>
-            <app-navigation-item label="Organisation" icon="fa-solid fa-building" routerLink="/organization" />
+        <app-navigation-menu label="Espace personnel">
+            <app-navigation-item label="Organisation" icon="fa-jelly-fill fa-solid fa-building" routerLink="/organization" />
+            <app-navigation-item label="Paramètres" icon="fa-jelly-fill fa-solid fa-cog" routerLink="/settings" />
         </app-navigation-menu>
     </nav>
     <div class="sidebar-wrapper__footer" [class.sidebar-wrapper__footer--expanded]="expanded()">
@@ -20,7 +21,7 @@
             <div>
                 <div class="sidebar-wrapper__footer__context-option" (click)="openContextSwitcher()">
                     <div class="sidebar-wrapper__footer__context-option__picture">
-                        <i class="fa-solid fa-grid-2"></i>
+                        <i class="fa-jelly-fill fa-solid fa-grid"></i>
                     </div>
                     <div class="sidebar-wrapper__footer__context-option__names">
                         <span class="sidebar-wrapper__footer__context-option__name">Toutes les organisations</span>
@@ -29,7 +30,7 @@
                 @for (org of organizations(); track org.id) {
                 <div class="sidebar-wrapper__footer__context-option" (click)="selectOrganization(org)">
                     <div class="sidebar-wrapper__footer__context-option__picture">
-                        <i class="fa-solid" [class.fa-user]="org.isPersonal" [class.fa-users]="!org.isPersonal"></i>
+                        <i class="fa-jelly-fill fa-solid" [class.fa-user]="org.isPersonal" [class.fa-users]="!org.isPersonal"></i>
                     </div>
                     <div class="sidebar-wrapper__footer__context-option__names">
                         <span class="sidebar-wrapper__footer__context-option__name">{{ org.name }}</span>

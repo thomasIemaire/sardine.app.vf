@@ -1,0 +1,10 @@
+<div class="page-header__wrapper">
+    <div class="page-header__titles">
+        <span class="page-header__title">{{ label() }}</span>
+        <span class="page-header__description" *ngIf="description()">{{ description() }}</span>
+    </div>
+    <div class="page-header__tabs">
+        <p-button *ngFor="let tab of tabs()" [label]="tab.label" severity="secondary" rounded
+            size="small"></p-button>
+    </div>
+</div>

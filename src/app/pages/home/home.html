@@ -1,4 +1,10 @@
-<div class="app-container">
-    <h1>Sardine App</h1>
-    <p>Application prête. Configurez vos routes dans <code>app.routes.ts</code>.</p>
-</div>
+<app-page>
+    <app-page-header pageHeader label="Automatisation" description="Gérez vos automatisations pour optimiser votre gestion" [tabs]="[
+        { id: 'agents', label: 'Agents' },
+        { id: 'flows', label: 'Flows' },
+    ]" />
+    <div class="app-container">
+        <h1>Sardine App</h1>
+        <p>Application prête. Configurez vos routes dans <code>app.routes.ts</code>.</p>
+    </div>
+</app-page>
