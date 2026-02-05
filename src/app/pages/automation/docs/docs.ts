@@ -30,6 +30,10 @@ export class AutomationDocsComponent {
                         type: 'text',
                         value: 'Les flows sont exécutés de gauche à droite, en suivant les connexions entre les nœuds. Un flow commence toujours par un nœud de déclenchement (Trigger) et peut se terminer par une ou plusieurs actions.'
                     },
+                    {
+                        type: 'image',
+                        value: 'https://placehold.co/800x400/e2e8f0/64748b?text=Aper%C3%A7u+de+l%27%C3%A9diteur+de+flows'
+                    },
                 ]
             },
             {
