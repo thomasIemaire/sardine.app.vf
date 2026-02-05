@@ -22,7 +22,7 @@ export class SidebarComponent implements OnDestroy {
     expanded = signal(false);
     organizations = computed(() => {
         const currentId = this.userService.context().organization?.id;
-        return (this.userService.user()?.organizations ?? []).filter(org => org.id !== currentId);
+        return (this.userService.user()?.organizations ?? []).filter(org => org.id !== currentId).slice(0, 3);
     });
 
     onTriggerEnter(): void {

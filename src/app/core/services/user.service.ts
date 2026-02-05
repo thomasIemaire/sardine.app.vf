@@ -56,6 +56,8 @@ export class UserService {
                     { id: 'sendoc', name: 'Sendoc', isPersonal: false },
                     { id: 'terre_du_sud', name: 'Terre du Sud', isPersonal: false },
                     { id: 'trhea', name: 'TRhéa', isPersonal: false, holdingName: 'Groupe Sendoc' },
+                    { id: 'otre', name: 'OTRE', isPersonal: false, holdingName: 'Groupe Sendoc' },
+                    { id: 'edylink', name: 'Edylink', isPersonal: false, holdingName: 'Groupe Sendoc' },
                 ]
             };
             this.currentUser.set(user);

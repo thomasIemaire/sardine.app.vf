@@ -3,13 +3,22 @@
         <div class="form-switcher">
             <div class="form-title">Quelle organisation souhaitez-vous utiliser ?</div>
             <div class="contexts-group">
-                @for (org of organizations(); track org.id) {
+                @for (org of displayedOrganizations(); track org.id) {
                     <app-context-item [organization]="org" (select)="onSelectOrganization($event)" />
                 }
+                @if (hasOverflow() && !searchQuery()) {
+                    <div class="context-item-overflow">
+                        <div class="context-item-overflow__picture">
+                            <span>+{{ remainingCount() }}</span>
+                        </div>
+                    </div>
+                }
             </div>
-            <div class="form-search" *ngIf="organizations().length > 5">
-                <input type="text" placeholder="Rechercher une organisation..." />
-            </div>
+            @if (hasOverflow()) {
+                <div class="form-search">
+                    <input type="text" placeholder="Rechercher une organisation..." [value]="searchQuery()" (input)="onSearchInput($event)" />
+                </div>
+            }
         </div>
     </div>
     <div class="stop-ask-wrapper">
