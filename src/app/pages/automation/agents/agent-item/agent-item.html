@@ -2,7 +2,8 @@
     <div class="agent-item__wrapper">
         <div class="agent-item__header">
             <div class="agent-item__header__left">
-                <app-pulsing-dot [active]="agent().status === 'active'" />
+                <app-pulsing-dot [active]="agent().status !== 'inactive'"
+                    [color]="agent().status === 'active' ? 'var(--p-green-500)' : agent().status === 'error' ? 'var(--p-red-500)' : 'var(--p-gray-400)'" />
                 <div class="agent-item__header__name">{{ agent().name }}</div>
                 <div class="agent-item__header__reference">{{ agent().reference }}</div>
             </div>

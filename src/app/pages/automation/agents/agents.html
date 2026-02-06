@@ -34,7 +34,9 @@
             </ng-template>
             <ng-template #body let-agent>
                 <tr>
-                    <td><app-pulsing-dot [active]="agent.status === 'active'" /></td>
+                    <td><app-pulsing-dot [active]="agent.status !== 'inactive'"
+                            [color]="agent.status === 'active' ? 'var(--p-green-500)' : agent.status === 'error' ? 'var(--p-red-500)' : 'var(--p-gray-400)'" />
+                    </td>
                     <td>{{ agent.name }}</td>
                     <td>{{ agent.reference }}</td>
                     <td>{{ agent.version }}</td>

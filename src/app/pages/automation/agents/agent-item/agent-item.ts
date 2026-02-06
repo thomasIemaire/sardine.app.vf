@@ -15,7 +15,7 @@ export interface AgentItem {
     reference: string;
     version: string;
     description: string;
-    status: "active" | "inactive";
+    status: "active" | "inactive" | "error";
     createdBy: CreatedBy;
     createdAt: Date;
 }

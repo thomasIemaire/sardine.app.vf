@@ -22,7 +22,8 @@ export class AgentsComponent {
     statusOptions = [
         { label: 'Tous', value: null },
         { label: 'Actif', value: 'active' },
-        { label: 'Inactif', value: 'inactive' }
+        { label: 'Inactif', value: 'inactive' },
+        { label: 'Erreur', value: 'error' }
     ];
     selectedStatus: { label: string; value: string | null } | null = null;
 
@@ -78,6 +79,20 @@ export class AgentsComponent {
             createdBy: {
                 id: "2",
                 name: "Jane Doe",
+                context: "sardine"
+            },
+            createdAt: new Date()
+        },
+        {
+            id: "3",
+            name: "Agent 3",
+            reference: "agent-3",
+            version: "1.0.0",
+            description: "Description de l'agent 3",
+            status: "error",
+            createdBy: {
+                id: "1",
+                name: "John Doe",
                 context: "sardine"
             },
             createdAt: new Date()

@@ -33,7 +33,7 @@ import { Component } from "@angular/core";
         &__body {
             flex: 1 1 auto;
             overflow-y: auto;
-            padding: 2rem 0;
+            padding: 1.5rem 0;
         }
     }
     `],
