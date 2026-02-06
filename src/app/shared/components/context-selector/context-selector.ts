@@ -13,4 +13,5 @@ export class ContextSelectorComponent {
     isPersonal = computed(() => this.currentOrganization()?.isPersonal ?? false);
     name = computed(() => this.currentOrganization()?.name ?? '');
     holdingName = computed(() => this.currentOrganization()?.holdingName ?? '');
+    distributionName = computed(() => this.currentOrganization()?.distributionName ?? '');
 }

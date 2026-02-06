@@ -5,6 +5,7 @@ export interface Organization {
     name: string;
     isPersonal: boolean;
     holdingName?: string;
+    distributionName?: string;
 }
 
 export interface User {
@@ -54,10 +55,10 @@ export class UserService {
                 organizations: [
                     { id: 'personal', name: 'Thomas Lemaire', isPersonal: true },
                     { id: 'sendoc', name: 'Sendoc', isPersonal: false },
-                    { id: 'terre_du_sud', name: 'Terre du Sud', isPersonal: false },
-                    { id: 'trhea', name: 'TRhéa', isPersonal: false },
-                    { id: 'otre', name: 'OTRE', isPersonal: false, holdingName: 'Groupe Sendoc' },
-                    { id: 'edylink', name: 'Edylink', isPersonal: false, holdingName: 'Groupe Sendoc' },
+                    { id: 'terre_du_sud', name: 'Terre du Sud', isPersonal: false, distributionName: 'Sendoc' },
+                    { id: 'trhea', name: 'TRhéa', isPersonal: false, distributionName: 'Sendoc' },
+                    { id: 'otre', name: 'OTRE', isPersonal: false, distributionName: 'Sendoc' },
+                    { id: 'edylink', name: 'Edylink', isPersonal: false, holdingName: 'Sendoc', distributionName: 'Sendoc' },
                 ]
             };
             this.currentUser.set(user);

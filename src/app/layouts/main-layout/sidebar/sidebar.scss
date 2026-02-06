@@ -112,9 +112,12 @@
                 text-overflow: ellipsis;
             }
 
-            &__holding {
+            &__subname {
                 font-size: 0.625rem;
                 color: var(--p-text-muted-color);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
 

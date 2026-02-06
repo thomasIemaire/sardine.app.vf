@@ -6,6 +6,16 @@
     </app-selectable>
     <div class="context-item__names">
         <div class="context-item__name">{{ organization().name }}</div>
-        <div class="context-item__holding">{{ organization().holdingName }}</div>
+        <div class="context-item__subname">
+            @if (organization().distributionName) {
+            Client {{ organization().distributionName }}
+            }
+            @if (organization().distributionName && organization().holdingName) {
+            &
+            }
+            @if (organization().holdingName) {
+            Groupe {{ organization().holdingName }}
+            }
+        </div>
     </div>
 </div>

@@ -38,11 +38,15 @@
         text-align: center;
     }
 
-    &__holding {
+    &__subname {
+        max-width: calc(96px + 2 * .2rem);
         min-height: 15px;
         font-size: .625rem;
         color: var(--p-text-muted-color);
         user-select: none;
         text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }

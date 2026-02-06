@@ -4,9 +4,17 @@
     </div>
     <div class="context-selector__names">
         <span class="context-selector__name">{{ name() }}</span>
-        @if (holdingName()) {
-            <span class="context-selector__holding">{{ holdingName() }}</span>
-        }
+        <span class="context-selector__subname">
+            @if (distributionName()) {
+            Client {{ distributionName() }}
+            }
+            @if (distributionName() && holdingName()) {
+            &
+            }
+            @if (holdingName()) {
+            Groupe {{ holdingName() }}
+            }
+        </span>
     </div>
     <i class="fa-solid fa-angles-up-down context-selector__carets"></i>
 </div>

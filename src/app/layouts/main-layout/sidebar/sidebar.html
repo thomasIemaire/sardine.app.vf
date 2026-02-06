@@ -1,8 +1,8 @@
 @if (sidebarService.collapsed() && !autoOpened()) {
-    <div class="sidebar-trigger-wrapper">
-        <div class="sidebar-trigger" (mouseenter)="onTriggerEnter()"></div>
-        <div class="sidebar-trigger-hint"></div>
-    </div>
+<div class="sidebar-trigger-wrapper">
+    <div class="sidebar-trigger" (mouseenter)="onTriggerEnter()"></div>
+    <div class="sidebar-trigger-hint"></div>
+</div>
 }
 
 <div class="sidebar-wrapper" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
@@ -16,7 +16,8 @@
             <app-navigation-item label="Corbeille" icon="fa-jelly-fill fa-solid fa-trash" routerLink="/trash" />
         </app-navigation-menu>
         <app-navigation-menu label="Espace personnel">
-            <app-navigation-item label="Organisation" icon="fa-jelly-fill fa-solid fa-building" routerLink="/organization" />
+            <app-navigation-item label="Organisation" icon="fa-jelly-fill fa-solid fa-building"
+                routerLink="/organization" />
             <app-navigation-item label="Paramètres" icon="fa-jelly-fill fa-solid fa-cog" routerLink="/settings" />
         </app-navigation-menu>
     </nav>
@@ -37,11 +38,22 @@
                 @for (org of organizations(); track org.id) {
                 <div class="sidebar-wrapper__footer__context-option" (click)="selectOrganization(org)">
                     <div class="sidebar-wrapper__footer__context-option__picture">
-                        <i class="fa-jelly-fill fa-solid" [class.fa-user]="org.isPersonal" [class.fa-users]="!org.isPersonal"></i>
+                        <i class="fa-jelly-fill fa-solid" [class.fa-user]="org.isPersonal"
+                            [class.fa-users]="!org.isPersonal"></i>
                     </div>
                     <div class="sidebar-wrapper__footer__context-option__names">
                         <span class="sidebar-wrapper__footer__context-option__name">{{ org.name }}</span>
-                        <span class="sidebar-wrapper__footer__context-option__holding">{{ org.holdingName }}</span>
+                        <span class="sidebar-wrapper__footer__context-option__subname">
+                            @if (org.distributionName) {
+                            Client {{ org.distributionName }}
+                            }
+                            @if (org.distributionName && org.holdingName) {
+                            &
+                            }
+                            @if (org.holdingName) {
+                            Groupe {{ org.holdingName }}
+                            }
+                        </span>
                     </div>
                 </div>
                 }
