@@ -9,6 +9,7 @@ export { GridComponent } from './grid/grid';
 export { PageHeaderComponent } from './page-header/page-header';
 export type { PageHeaderTab } from './page-header/page-header';
 export { PasswordFieldComponent } from './password-field/password-field';
+export { PulsingDotComponent } from './pulsing-dot/pulsing-dot';
 export { SelectableComponent } from './selectable/selectable';
 export { TableToolbarComponent } from './table-toolbar/table-toolbar';
 export { TextFieldComponent } from './text-field/text-field';

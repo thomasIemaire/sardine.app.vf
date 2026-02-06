@@ -1,0 +1,30 @@
+<app-selectable borderRadius=".7rem" selectedColor="var(--background-color-200)">
+    <div class="agent-item__wrapper">
+        <div class="agent-item__header">
+            <div class="agent-item__header__left">
+                <app-pulsing-dot [active]="agent().status === 'active'" />
+                <div class="agent-item__header__name">{{ agent().name }}</div>
+                <div class="agent-item__header__reference">{{ agent().reference }}</div>
+            </div>
+            <div class="agent-item__header__right">
+                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary" (click)="$event.stopPropagation()"></p-button>
+            </div>
+        </div>
+        <div class="agent-item__body">
+            <div class="agent-item__body__description">
+                {{ agent().description }}
+            </div>
+        </div>
+        <div class="agent-item__footer">
+            <div class="agent-item__footer__created">
+                <div class="agent-item__footer__created__picture">
+
+                </div>
+                <div class="agent-item__footer__created__infos">
+                    <span class="created-by">{{ agent().createdBy.name }}</span>
+                    <span class="created-at">Créé le {{ agent().createdAt | date:'dd/MM/yyyy' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</app-selectable>

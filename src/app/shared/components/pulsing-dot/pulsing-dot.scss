@@ -1,0 +1,32 @@
+.dot {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--p-text-muted-color);
+
+    &.active {
+        background-color: var(--p-green-500);
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background-color: var(--p-green-500);
+            animation: ripple 2s ease-out infinite;
+        }
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}

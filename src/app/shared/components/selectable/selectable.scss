@@ -3,6 +3,7 @@
     position: relative;
     cursor: pointer;
     border-radius: var(--selectable-radius, 0);
+    transition: transform .1s ease-in-out;
 
     &::before {
         content: '';
@@ -16,10 +17,14 @@
     }
 
     &:hover::before {
-        background: var(--background-color-300);
+        background: var(--selectable-selected-color, var(--background-color-300));
     }
 
     &.selected::before {
         background: var(--p-primary-100);
+    }
+
+    &:active {
+        transform: scale(0.98);
     }
 }

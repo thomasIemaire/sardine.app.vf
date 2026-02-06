@@ -7,6 +7,7 @@ import { Component, input, output } from "@angular/core";
     host: {
         '[class.selected]': 'selected()',
         '[style.--selectable-radius]': 'borderRadius()',
+        '[style.--selectable-selected-color]': 'selectedColor()',
         '(click)': 'onClick()'
     }
 })
@@ -14,6 +15,7 @@ export class SelectableComponent {
     selected = input<boolean>(false);
     disabled = input<boolean>(false);
     borderRadius = input<string>('0');
+    selectedColor = input<string>('var(--background-color-300)');
 
     selectChange = output<void>();
 

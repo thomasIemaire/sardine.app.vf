@@ -6,6 +6,17 @@
 
         &__left {
             flex: 1;
+            display: flex;
+            align-items: center;
+
+            .filters-wrapper {
+                display: contents;
+            }
+
+            .actions {
+                display: flex;
+                align-items: center;
+            }
 
             input {
                 width: 30%;
@@ -14,4 +25,8 @@
             }
         }
     }
+}
+
+::ng-deep .filters-wrapper p-select {
+    width: 128px;
 }

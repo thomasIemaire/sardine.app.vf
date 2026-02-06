@@ -1,15 +1,50 @@
 <div class="page-table__wrapper">
     <div class="page-table__wrapper__table-toolbar">
-        <app-table-toolbar searchFieldPlaceholder="Rechercher un agent..." [actions]="toolbarActions" />
+        <app-table-toolbar searchFieldPlaceholder="Rechercher un agent..." [(view)]="currentView" [multipleViews]="true"
+            storageKey="agents" [actions]="toolbarActions">
+            <div toolbarFilters>
+                <p-select [options]="statusOptions" optionLabel="label" placeholder="Filtrer par statut"
+                    [(ngModel)]="selectedStatus" size="small" (onChange)="filterByStatus()" />
+            </div>
+        </app-table-toolbar>
     </div>
+    @if (currentView === 'card') {
     <div class="page-table__wrapper__grid">
-        <app-grid minItemWidth="256px">
-            <app-selectable borderRadius=".7rem"><div class="page-table__card"></div></app-selectable>
-            <app-selectable borderRadius=".7rem"><div class="page-table__card"></div></app-selectable>
-            <app-selectable borderRadius=".7rem"><div class="page-table__card"></div></app-selectable>
-            <app-selectable borderRadius=".7rem"><div class="page-table__card"></div></app-selectable>
-            <app-selectable borderRadius=".7rem"><div class="page-table__card"></div></app-selectable>
-            <app-selectable borderRadius=".7rem"><div class="page-table__card"></div></app-selectable>
+        <app-grid minItemWidth="278px">
+            @for (agent of agents; track agent.id) {
+            <app-agent-item [agent]="agent" />
+            }
         </app-grid>
     </div>
+    } @else {
+    <div class="page-table__wrapper__table">
+        <p-table [value]="agents" [tableStyle]="{ 'min-width': '50rem' }">
+            <ng-template #header>
+                <tr>
+                    <th>Statut</th>
+                    <th>Nom</th>
+                    <th>Référence</th>
+                    <th>Version</th>
+                    <th>Créé par</th>
+                    <th>Date de création</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-agent>
+                <tr>
+                    <td><app-pulsing-dot [active]="agent.status === 'active'" /></td>
+                    <td>{{ agent.name }}</td>
+                    <td>{{ agent.reference }}</td>
+                    <td>{{ agent.version }}</td>
+                    <td>{{ agent.createdBy.name }}</td>
+                    <td>{{ agent.createdAt | date:'dd/MM/yyyy' }}</td>
+                    <td>
+                        <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
+                            severity="secondary"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    }
 </div>

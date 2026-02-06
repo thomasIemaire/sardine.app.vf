@@ -1,6 +1,19 @@
 <div class="table-toolbar__wrapper">
     <div class="table-toolbar__wrapper__left">
         <input *ngIf="searchField()" pInputText [value]="value" [placeholder]="searchFieldPlaceholder()" pSize="small" rounded />
+        @if (hasFilters()) {
+            <p-divider layout="vertical" />
+        }
+        <div #filtersWrapper class="filters-wrapper">
+            <ng-content select="[toolbarFilters]" />
+        </div>
+        <div *ngIf="multipleViews()" class="actions">
+            <p-divider layout="vertical" />
+            <p-button text severity="secondary"
+                [label]="view() === 'card' ? 'Vue en liste' : 'Vue en carte'"
+                [icon]="view() === 'card' ? 'fa-jelly-fill fa-regular fa-list' : 'fa-jelly-fill fa-solid fa-grid'"
+                size="small" rounded (onClick)="toggleView()"></p-button>
+        </div>
     </div>
     <div class="table-toolbar__wrapper__right">
         <p-button *ngFor="let action of actions()" [label]="action.label" [icon]="action.icon"

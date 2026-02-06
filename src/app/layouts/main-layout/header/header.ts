@@ -1,7 +1,7 @@
 import { Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
-import { SidebarService, UserService } from "@core/services";
+import { SidebarService, ThemeService, UserService } from "@core/services";
 import { MenuItem } from "primeng/api";
 import { BreadcrumbModule } from "primeng/breadcrumb";
 import { ButtonModule } from "primeng/button";
@@ -19,6 +19,7 @@ export class HeaderComponent {
     private route = inject(ActivatedRoute);
     private userService = inject(UserService);
     protected sidebarService = inject(SidebarService);
+    protected themeService = inject(ThemeService);
 
     userName = computed(() => {
         const user = this.userService.user();

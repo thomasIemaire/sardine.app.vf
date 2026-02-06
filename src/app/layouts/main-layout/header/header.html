@@ -12,6 +12,7 @@
         <p-divider layout="vertical" />
         <div class="header-wrapper__actions">
             <p-button icon="fa-jelly-fill fa-regular fa-bell" size="small" severity="secondary" text rounded />
+            <p-button [icon]="themeService.darkMode() ? 'fa-jelly-fill fa-regular fa-sun' : 'fa-jelly-fill fa-regular fa-moon'" size="small" severity="secondary" text rounded (onClick)="themeService.toggle()" />
             <p-button icon="fa-jelly-fill fa-regular fa-arrow-right-from-bracket" size="small" severity="secondary" text
                 rounded (onClick)="logout()" />
         </div>
