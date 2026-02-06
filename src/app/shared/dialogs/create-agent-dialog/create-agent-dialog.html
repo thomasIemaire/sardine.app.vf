@@ -1,0 +1,32 @@
+<p-dialog header="Ajouter un agent" [modal]="true" [(visible)]="visible" [style]="{ width: '500px' }">
+    <div class="form-container">
+        <div class="form-section">
+            <app-field label="Nom" [required]="true">
+                <app-text-field [(ngModel)]="name" placeholder="Nom de l'agent" />
+            </app-field>
+            <app-field label="Référence" [required]="true">
+                <app-text-field [(ngModel)]="reference" placeholder="ex: agent-extraction" />
+            </app-field>
+            <app-field label="Statut" [required]="true">
+                <app-select-field [options]="statusOptions" [(ngModel)]="status" optionLabel="label" optionValue="value"
+                    placeholder="Sélectionner un statut" />
+            </app-field>
+            <app-field label="Description" [recommended]="true">
+                <app-textarea-field [(ngModel)]="description" placeholder="Description de l'agent" [rows]="3" />
+            </app-field>
+        </div>
+        <div class="form-section">
+            <div class="form-section__title">Partager</div>
+            <app-field label="Organisations">
+                <app-multiselect-field [options]="organizationOptions()" [(ngModel)]="selectedOrganizations"
+                    optionLabel="label" optionValue="value" placeholder="Sélectionner des organisations" />
+            </app-field>
+        </div>
+    </div>
+    <ng-template #footer>
+        <div class="dialog-footer">
+            <p-button label="Annuler" size="small" severity="secondary" text (onClick)="close()" />
+            <p-button label="Ajouter" size="small" [disabled]="!isValid()" (onClick)="submit()" />
+        </div>
+    </ng-template>
+</p-dialog>

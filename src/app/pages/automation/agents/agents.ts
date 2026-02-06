@@ -1,7 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { GridComponent, PulsingDotComponent, TableToolbarComponent } from "@shared/components";
+import { CreateAgentData, CreateAgentDialogComponent } from "@shared/dialogs";
 import { AgentItem, AgentItemComponent } from "./agent-item/agent-item";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
@@ -9,11 +10,13 @@ import { Select } from "primeng/select";
 
 @Component({
     selector: "app-agents",
-    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, AgentItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select],
+    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, AgentItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select, CreateAgentDialogComponent],
     templateUrl: "./agents.html",
     styleUrls: ["./agents.scss", "../../_page-table.scss"]
 })
 export class AgentsComponent {
+    private createAgentDialog = viewChild.required(CreateAgentDialogComponent);
+
     currentView: "list" | "card" = "list";
 
     statusOptions = [
@@ -27,11 +30,28 @@ export class AgentsComponent {
         {
             label: "Ajouter un agent",
             icon: "fa-solid fa-plus",
-            onClick: () => {
-                console.log("Ajouter un agent");
-            }
+            onClick: () => this.openCreateDialog()
         }
     ]
+
+    openCreateDialog(): void {
+        this.createAgentDialog().open();
+    }
+
+    onAgentCreated(data: CreateAgentData): void {
+        const newAgent: AgentItem = {
+            id: crypto.randomUUID(),
+            name: data.name,
+            reference: data.reference,
+            version: "1.0.0",
+            description: data.description,
+            status: data.status,
+            createdBy: { id: "1", name: "Utilisateur", context: "sardine" },
+            createdAt: new Date()
+        };
+        this.allAgents.push(newAgent);
+        this.filterByStatus();
+    }
 
     private allAgents: AgentItem[] = [
         {
@@ -43,7 +63,8 @@ export class AgentsComponent {
             status: "active",
             createdBy: {
                 id: "1",
-                name: "John Doe"
+                name: "John Doe",
+                context: "sardine"
             },
             createdAt: new Date()
         },
@@ -56,7 +77,8 @@ export class AgentsComponent {
             status: "inactive",
             createdBy: {
                 id: "2",
-                name: "Jane Doe"
+                name: "Jane Doe",
+                context: "sardine"
             },
             createdAt: new Date()
         }

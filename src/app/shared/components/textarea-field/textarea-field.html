@@ -1,0 +1,12 @@
+<textarea
+    pTextarea
+    [value]="value"
+    [placeholder]="placeholder()"
+    [rows]="rows()"
+    [disabled]="disabled()"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+    pSize="small"
+    class="textarea-field"
+    [style.resize]="resize()"
+></textarea>

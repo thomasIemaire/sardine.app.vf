@@ -1,11 +1,16 @@
 <div class="field" [class.has-error]="error()">
     @if (label()) {
-        <label class="field__label">
-            {{ label() }}
-            @if (required()) {
-                <span class="field__required">*</span>
+        <div class="field__header">
+            <label class="field__label">
+                {{ label() }}
+                @if (hint() === 'required') {
+                    <span class="field__required">*</span>
+                }
+            </label>
+            @if (hintLabel()) {
+                <span class="field__hint">{{ hintLabel() }}</span>
             }
-        </label>
+        </div>
     }
     <div class="field__content">
         <ng-content />

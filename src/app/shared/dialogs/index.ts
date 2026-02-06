@@ -1,4 +1,3 @@
 // Export dialogs here
-// Example: export { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog';
-
-export {};
+export { CreateAgentDialogComponent } from './create-agent-dialog/create-agent-dialog';
+export type { CreateAgentData } from './create-agent-dialog/create-agent-dialog';

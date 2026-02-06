@@ -1,0 +1,26 @@
+<p-multiselect
+    [options]="options()"
+    [optionLabel]="optionLabel()"
+    [optionValue]="optionValue()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [showClear]="showClear()"
+    [filter]="filter()"
+    [maxSelectedLabels]="maxSelectedLabels()"
+    [selectedItemsLabel]="selectedItemsLabel()"
+    [ngModel]="value"
+    (onChange)="onSelectionChange($event)"
+    (onBlur)="onBlur()"
+    class="multiselect-field"
+    size="small"
+    appendTo="body"
+>
+    <ng-template #item let-option>
+        <div class="multiselect-option">
+            <span class="multiselect-option__label">{{ getOptionLabel(option) }}</span>
+            <span class="multiselect-option__icon" [class.multiselect-option__icon--selected]="isSelected(option)">
+                <i [ngClass]="isSelected(option) ? 'fa-solid fa-check' : 'fa-solid fa-plus'"></i>
+            </span>
+        </div>
+    </ng-template>
+</p-multiselect>

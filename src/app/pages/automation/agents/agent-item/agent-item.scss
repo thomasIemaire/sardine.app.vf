@@ -39,14 +39,19 @@
         gap: .5rem;
 
         &__description {
+            min-height: 17.75px;
             font-size: .75rem;
             color: var(--background-color-600);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     }
 
     &__footer {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
+        justify-content: space-between;
         gap: .5rem;
 
         &__created {
@@ -72,11 +77,16 @@
                     color: var(--background-color-700);
                 }
 
-                .created-at {
+                .created-from {
                     font-size: .625rem;
                     color: var(--p-text-muted-color);
                 }
             }
+        }
+
+        .created-at {
+            font-size: .625rem;
+            color: var(--background-color-400);
         }
     }
 }

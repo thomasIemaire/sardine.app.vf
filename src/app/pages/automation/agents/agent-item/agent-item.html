@@ -7,7 +7,8 @@
                 <div class="agent-item__header__reference">{{ agent().reference }}</div>
             </div>
             <div class="agent-item__header__right">
-                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary" (click)="$event.stopPropagation()"></p-button>
+                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
+                    (click)="$event.stopPropagation()"></p-button>
             </div>
         </div>
         <div class="agent-item__body">
@@ -16,14 +17,19 @@
             </div>
         </div>
         <div class="agent-item__footer">
-            <div class="agent-item__footer__created">
-                <div class="agent-item__footer__created__picture">
+            <div class="agent-item__footer__left">
+                <div class="agent-item__footer__created">
+                    <div class="agent-item__footer__created__picture">
 
+                    </div>
+                    <div class="agent-item__footer__created__infos">
+                        <span class="created-by">{{ agent().createdBy.name }}</span>
+                        <span class="created-from">{{ agent().createdBy.context }}</span>
+                    </div>
                 </div>
-                <div class="agent-item__footer__created__infos">
-                    <span class="created-by">{{ agent().createdBy.name }}</span>
-                    <span class="created-at">Créé le {{ agent().createdAt | date:'dd/MM/yyyy' }}</span>
-                </div>
+            </div>
+            <div class="agent-item__footer__right">
+                <div class="created-at">Créé le {{ agent().createdAt | date:'dd/MM/yyyy' }}</div>
             </div>
         </div>
     </div>

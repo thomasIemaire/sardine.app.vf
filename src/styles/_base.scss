@@ -46,7 +46,19 @@ p-breadcrumb .p-breadcrumb {
   }
 }
 
-p-select .p-select-option {
-  padding: 0.25rem 0.625rem;
-  font-size: 0.75rem;
+// Select & Multiselect custom options styling
+.p-select-overlay,
+.p-multiselect-overlay {
+  .p-select-option,
+  .p-multiselect-option {
+    padding: 0.25rem 0.625rem !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+.p-multiselect-overlay {
+  .p-multiselect-option .p-checkbox,
+  .p-multiselect-header .p-checkbox {
+    display: none !important;
+  }
 }

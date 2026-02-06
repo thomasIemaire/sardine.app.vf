@@ -6,6 +6,7 @@ import { ButtonModule } from "primeng/button";
 export interface CreatedBy {
     id: string;
     name: string;
+    context: string;
 }
 
 export interface AgentItem {

@@ -6,6 +6,7 @@ import { progressbar } from "./progress-bar";
 import { divider } from "./divider";
 import { tag } from "./tag";
 import { datatable } from "./datatable";
+import { multiselect } from "./multiselect";
 
 export const defaultTheme = definePreset(Aura, {
     primitive: {
@@ -737,6 +738,7 @@ export const defaultTheme = definePreset(Aura, {
         progressbar,
         tag,
         divider,
-        datatable
+        datatable,
+        multiselect
     }
 });
