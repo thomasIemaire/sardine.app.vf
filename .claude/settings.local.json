@@ -4,7 +4,8 @@
       "Bash(npm run build:*)",
       "Bash(npm install:*)",
       "WebFetch(domain:github.com)",
-      "Bash(npx ng build:*)"
+      "Bash(npx ng build:*)",
+      "Bash(dir /s \"d:\\\\workspaces\\\\workspace.sardine\\\\sardine.app.vf\\\\src\\\\app\\\\shared\")"
     ]
   }
 }

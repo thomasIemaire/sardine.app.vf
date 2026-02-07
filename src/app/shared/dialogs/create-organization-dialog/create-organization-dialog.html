@@ -1,0 +1,37 @@
+<p-dialog header="Créer une organisation" [draggable]="false" [modal]="true" [(visible)]="visible" [style]="{ width: '500px' }">
+    <div class="form-container">
+        <div class="form-section">
+            <app-field label="Nom" [required]="true">
+                <app-text-field [(ngModel)]="name" placeholder="Nom de l'organisation" />
+            </app-field>
+            <app-field label="Description" [recommended]="true">
+                <app-textarea-field [(ngModel)]="description" placeholder="Description de l'organisation" [rows]="3" />
+            </app-field>
+        </div>
+        <div class="form-section">
+            <div class="form-section__title">Détails</div>
+            <app-field label="Holding">
+                <app-select-field [options]="holdingOptions" [(ngModel)]="holding" optionLabel="label" optionValue="value"
+                    placeholder="Sélectionner un holding" />
+            </app-field>
+            <app-field label="Distributeur">
+                <app-select-field [options]="distributorOptions" [(ngModel)]="distributor" optionLabel="label" optionValue="value"
+                    placeholder="Sélectionner un distributeur" />
+            </app-field>
+        </div>
+        <div class="form-section">
+            <div class="form-section__title">Membres</div>
+            <app-field label="Utilisateurs">
+                <app-multiselect-field [options]="memberOptions" [(ngModel)]="selectedMembers"
+                    optionLabel="label" optionValue="value" placeholder="Sélectionner des membres" [disabled]="allParentMembers" />
+            </app-field>
+            <app-toggle-switch-field label="Tous les membres de l'organisation parente" labelPosition="left" [(ngModel)]="allParentMembers" (change)="onAllParentMembersChange()" />
+        </div>
+    </div>
+    <ng-template #footer>
+        <div class="dialog-footer">
+            <p-button label="Annuler" size="small" severity="secondary" text (onClick)="close()" />
+            <p-button label="Créer" size="small" [disabled]="!isValid()" (onClick)="submit()" />
+        </div>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,52 @@
+<app-create-organization-dialog (submitted)="onOrganizationCreated($event)" />
+
+<div class="page-table__wrapper">
+    <div class="page-table__wrapper__table-toolbar">
+        <app-table-toolbar searchFieldPlaceholder="Rechercher une organisation..." [(view)]="currentView"
+            [multipleViews]="true" storageKey="organizations" [actions]="toolbarActions"
+            (search)="onSearch($event)">
+        </app-table-toolbar>
+    </div>
+    @if (!organizations.length) {
+    <app-no-results icon="fa-regular fa-building" title="Aucune organisation"
+        description="Créez votre première organisation pour commencer." />
+    } @else if (currentView === 'card') {
+    <div class="page-table__wrapper__grid">
+        <app-grid minItemWidth="278px">
+            @for (org of organizations; track org.id) {
+            <app-organization-item [organization]="org" />
+            }
+        </app-grid>
+    </div>
+    } @else {
+    <div class="page-table__wrapper__table">
+        <p-table [value]="organizations" [tableStyle]="{ 'min-width': '50rem' }">
+            <ng-template #header>
+                <tr>
+                    <th>Nom</th>
+                    <th>Description</th>
+                    <th>Holding</th>
+                    <th>Distributeur</th>
+                    <th>Membres</th>
+                    <th>Date de création</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-org>
+                <tr>
+                    <td>{{ org.name }}</td>
+                    <td>{{ org.description }}</td>
+                    <td>{{ org.holding }}</td>
+                    <td>{{ org.distributor }}</td>
+                    <td>{{ org.membersCount }}</td>
+                    <td>{{ org.createdAt | date:'dd/MM/yyyy' }}</td>
+                    <td>
+                        <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
+                            severity="secondary"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    }
+</div>

@@ -40,6 +40,17 @@ export const routes: Routes = [
                     },
                 ],
             },
+            {
+                path: 'organization',
+                data: { breadcrumb: 'Organisation' },
+                loadComponent: () => import('./pages/organization/organization').then(m => m.OrganizationComponent),
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./pages/organization/organizations/organizations').then(m => m.OrganizationsComponent),
+                    },
+                ],
+            },
         ],
     },
     {

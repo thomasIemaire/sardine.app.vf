@@ -1,0 +1,32 @@
+<app-selectable borderRadius=".7rem" selectedColor="var(--background-color-200)">
+    <div class="organization-item__wrapper">
+        <div class="organization-item__header">
+            <div class="organization-item__header__left">
+                <div class="organization-item__header__picture">
+                    <i class="fa-jelly-fill fa-solid fa-building"></i>
+                </div>
+                <div class="organization-item__header__name">{{ organization().name }}</div>
+            </div>
+            <div class="organization-item__header__right">
+                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
+                    (click)="$event.stopPropagation()"></p-button>
+            </div>
+        </div>
+        <div class="organization-item__body">
+            <div class="organization-item__body__description">
+                {{ organization().description }}
+            </div>
+        </div>
+        <div class="organization-item__footer">
+            <div class="organization-item__footer__left">
+                <div class="organization-item__footer__info">
+                    <i class="fa-jelly-fill fa-solid fa-users"></i>
+                    <span>{{ organization().membersCount }} membres</span>
+                </div>
+            </div>
+            <div class="organization-item__footer__right">
+                <div class="created-at">Créé le {{ organization().createdAt | date:'dd/MM/yyyy' }}</div>
+            </div>
+        </div>
+    </div>
+</app-selectable>
