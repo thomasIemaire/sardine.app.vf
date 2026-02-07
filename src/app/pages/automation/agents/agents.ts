@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { GridComponent, PulsingDotComponent, TableToolbarComponent } from "@shared/components";
+import { GridComponent, NoResultsComponent, PulsingDotComponent, TableToolbarComponent } from "@shared/components";
 import { CreateAgentData, CreateAgentDialogComponent } from "@shared/dialogs";
 import { AgentItem, AgentItemComponent } from "./agent-item/agent-item";
 import { TableModule } from "primeng/table";
@@ -10,7 +10,7 @@ import { Select } from "primeng/select";
 
 @Component({
     selector: "app-agents",
-    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, AgentItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select, CreateAgentDialogComponent],
+    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, AgentItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select, CreateAgentDialogComponent, NoResultsComponent],
     templateUrl: "./agents.html",
     styleUrls: ["./agents.scss", "../../_page-table.scss"]
 })
@@ -101,12 +101,32 @@ export class AgentsComponent {
 
     agents: AgentItem[] = [...this.allAgents];
 
+    private searchQuery = '';
+
+    onSearch(query: string): void {
+        this.searchQuery = query.toLowerCase();
+        this.applyFilters();
+    }
+
     filterByStatus(): void {
+        this.applyFilters();
+    }
+
+    private applyFilters(): void {
+        let filtered = [...this.allAgents];
+
         const status = this.selectedStatus?.value;
-        if (!status) {
-            this.agents = [...this.allAgents];
-        } else {
-            this.agents = this.allAgents.filter(a => a.status === status);
+        if (status) {
+            filtered = filtered.filter(a => a.status === status);
         }
+
+        if (this.searchQuery) {
+            filtered = filtered.filter(a =>
+                a.name.toLowerCase().includes(this.searchQuery) ||
+                a.reference.toLowerCase().includes(this.searchQuery)
+            );
+        }
+
+        this.agents = filtered;
     }
 }

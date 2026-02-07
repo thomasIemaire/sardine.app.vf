@@ -1,4 +1,4 @@
-<p-dialog header="Ajouter un agent" [modal]="true" [(visible)]="visible" [style]="{ width: '500px' }">
+<p-dialog header="Ajouter un agent" [draggable]="false" [modal]="true" [(visible)]="visible" [style]="{ width: '500px' }">
     <div class="form-container">
         <div class="form-section">
             <app-field label="Nom" [required]="true">
@@ -19,8 +19,9 @@
             <div class="form-section__title">Partager</div>
             <app-field label="Organisations">
                 <app-multiselect-field [options]="organizationOptions()" [(ngModel)]="selectedOrganizations"
-                    optionLabel="label" optionValue="value" placeholder="Sélectionner des organisations" />
+                    optionLabel="label" optionValue="value" placeholder="Sélectionner des organisations" [disabled]="shareAllChildren" />
             </app-field>
+            <app-toggle-switch-field label="Toutes les organisations enfants" labelPosition="left" [(ngModel)]="shareAllChildren" (change)="onShareAllChildrenChange()" />
         </div>
     </div>
     <ng-template #footer>

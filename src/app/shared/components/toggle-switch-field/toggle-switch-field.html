@@ -1,0 +1,9 @@
+<div class="toggle-switch-field" [class.toggle-switch-field--label-left]="labelPosition() === 'left'">
+    @if (label() && labelPosition() === 'left') {
+        <label class="toggle-switch-field__label" (click)="onToggle(!value)">{{ label() }}</label>
+    }
+    <p-toggleSwitch [(ngModel)]="value" [disabled]="disabled()" (ngModelChange)="onToggle($event)" />
+    @if (label() && labelPosition() === 'right') {
+        <label class="toggle-switch-field__label" (click)="onToggle(!value)">{{ label() }}</label>
+    }
+</div>

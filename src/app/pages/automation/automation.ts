@@ -14,7 +14,10 @@ export class AutomationComponent {
 
     tabs: PageHeaderTab[] = [
         { id: 'agents', label: 'Agents' },
-        { id: 'flows', label: 'Flows' },
+        { id: 'flows', label: 'Flows', subtabs: [
+            { id: 'all', label: 'Tous' },
+            { id: 'templates', label: 'Modèles' },
+        ] },
     ];
 
     openDocumentation = (): void => {

@@ -2,7 +2,7 @@ import { Component, computed, inject, output, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { DialogModule } from "primeng/dialog";
 import { ButtonModule } from "primeng/button";
-import { FieldComponent, MultiselectFieldComponent, SelectFieldComponent, TextareaFieldComponent, TextFieldComponent } from "@shared/components";
+import { FieldComponent, MultiselectFieldComponent, SelectFieldComponent, TextareaFieldComponent, TextFieldComponent, ToggleSwitchFieldComponent } from "@shared/components";
 import { DividerModule } from "primeng/divider";
 import { UserService } from "@core/services";
 
@@ -15,7 +15,7 @@ export interface CreateAgentData {
 
 @Component({
     selector: "app-create-agent-dialog",
-    imports: [FormsModule, DialogModule, ButtonModule, FieldComponent, SelectFieldComponent, TextareaFieldComponent, TextFieldComponent, DividerModule, MultiselectFieldComponent],
+    imports: [FormsModule, DialogModule, ButtonModule, FieldComponent, SelectFieldComponent, TextareaFieldComponent, TextFieldComponent, DividerModule, MultiselectFieldComponent, ToggleSwitchFieldComponent],
     templateUrl: "./create-agent-dialog.html",
     styleUrls: ["./create-agent-dialog.scss"]
 })
@@ -44,6 +44,8 @@ export class CreateAgentDialogComponent {
 
     selectedOrganizations: string[] = [];
 
+    shareAllChildren = false;
+
     open(): void {
         this.reset();
         this.visible.set(true);
@@ -68,6 +70,12 @@ export class CreateAgentDialogComponent {
 
     isValid(): boolean {
         return !!this.name.trim() && !!this.reference.trim() && !!this.status;
+    }
+
+    onShareAllChildrenChange(): void {
+        if (this.shareAllChildren) {
+            this.selectedOrganizations = [];
+        }
     }
 
     private reset(): void {

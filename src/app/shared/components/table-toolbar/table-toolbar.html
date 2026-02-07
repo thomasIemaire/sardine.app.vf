@@ -1,6 +1,6 @@
 <div class="table-toolbar__wrapper">
     <div class="table-toolbar__wrapper__left">
-        <input *ngIf="searchField()" pInputText [value]="value" [placeholder]="searchFieldPlaceholder()" pSize="small" rounded />
+        <input *ngIf="searchField()" pInputText [value]="value" [placeholder]="searchFieldPlaceholder()" pSize="small" rounded (input)="onSearch($event)" />
         @if (hasFilters()) {
             <p-divider layout="vertical" />
         }

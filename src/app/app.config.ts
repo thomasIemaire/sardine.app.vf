@@ -19,7 +19,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       withComponentInputBinding(),
-      withViewTransitions()
+      // withViewTransitions()
     ),
     provideHttpClient(),
     provideAnimationsAsync(),

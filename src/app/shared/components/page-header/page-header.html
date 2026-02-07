@@ -3,26 +3,37 @@
         <div class="page-header__secondary-action">
             <div class="page-header__title-group">
                 @if (backAction()) {
-                    <p-button icon="fa-regular fa-angle-left" severity="secondary" text rounded
-                        size="small" (onClick)="backAction()!()" />
+                <p-button icon="fa-regular fa-angle-left" severity="secondary" text rounded size="small"
+                    (onClick)="backAction()!()" />
                 }
                 <span class="page-header__title">{{ label() }}</span>
             </div>
             @if (secondaryAction()) {
-                <p-button [label]="secondaryAction()!.label" [icon]="secondaryAction()!.icon" severity="secondary"
-                    text rounded size="small" (onClick)="secondaryAction()!.command()" />
+            <p-button [label]="secondaryAction()!.label" [icon]="secondaryAction()!.icon" severity="secondary" text
+                rounded size="small" (onClick)="secondaryAction()!.command()" />
             }
         </div>
         @if (description()) {
-            <span class="page-header__description">{{ description() }}</span>
+        <span class="page-header__description">{{ description() }}</span>
         }
     </div>
     @if (tabs()?.length) {
+    <div class="page-header__actions">
         <div class="page-header__tabs">
             @for (tab of tabs(); track tab.id) {
-                <p-button [label]="tab.label" [severity]="isActive(tab) ? 'primary' : 'secondary'" rounded
-                    size="small" (onClick)="selectTab(tab)" />
+            <p-button [label]="tab.label" [severity]="isActive(tab) ? 'primary' : 'secondary'" rounded size="small"
+                (onClick)="selectTab(tab)" />
             }
         </div>
+        @if (activeSubtabs().length) {
+        <p-divider layout="vertical" />
+        <div class="page-header__subtabs">
+            @for (subtab of activeSubtabs(); track subtab.id) {
+            <p-button [label]="subtab.label" [severity]="isSubtabActive(subtab) ? 'primary' : 'secondary'" rounded
+                size="small" (onClick)="selectSubtab(subtab)" />
+            }
+        </div>
+        }
+    </div>
     }
 </div>

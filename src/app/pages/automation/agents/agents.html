@@ -3,14 +3,17 @@
 <div class="page-table__wrapper">
     <div class="page-table__wrapper__table-toolbar">
         <app-table-toolbar searchFieldPlaceholder="Rechercher un agent..." [(view)]="currentView" [multipleViews]="true"
-            storageKey="agents" [actions]="toolbarActions">
+            storageKey="agents" [actions]="toolbarActions" (search)="onSearch($event)">
             <div toolbarFilters>
                 <p-select [options]="statusOptions" optionLabel="label" placeholder="Filtrer par statut"
                     [(ngModel)]="selectedStatus" size="small" (onChange)="filterByStatus()" />
             </div>
         </app-table-toolbar>
     </div>
-    @if (currentView === 'card') {
+    @if (!agents.length) {
+    <app-no-results icon="fa-regular fa-robot" title="Aucun agent disponible"
+        description="Créez votre premier agent pour commencer." />
+    } @else if (currentView === 'card') {
     <div class="page-table__wrapper__grid">
         <app-grid minItemWidth="278px">
             @for (agent of agents; track agent.id) {

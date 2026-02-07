@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { AfterViewInit, Component, effect, ElementRef, input, model, OnInit, signal, viewChild } from "@angular/core";
+import { AfterViewInit, Component, effect, ElementRef, input, model, OnInit, output, signal, viewChild } from "@angular/core";
 import { ButtonModule } from "primeng/button";
 import { FormsModule } from "@angular/forms";
 import { InputTextModule } from "primeng/inputtext";
@@ -31,11 +31,18 @@ export class TableToolbarComponent implements OnInit, AfterViewInit {
     storageKey = input<string>();
     view = model<ViewMode>('card');
     actions = input<TableToolbarAction[]>([]);
+    search = output<string>();
 
     private filtersWrapper = viewChild<ElementRef>('filtersWrapper');
     hasFilters = signal(false);
 
     value: string = "";
+
+    onSearch(event: Event): void {
+        const target = event.target as HTMLInputElement;
+        this.value = target.value;
+        this.search.emit(this.value);
+    }
 
     constructor() {
         effect(() => {

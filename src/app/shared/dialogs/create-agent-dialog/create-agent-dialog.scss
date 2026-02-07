@@ -13,6 +13,13 @@
             font-weight: 600;
             padding-bottom: .25rem;
             border-bottom: 1px solid var(--surface-border);
+            margin-bottom: .5rem;
+        }
+
+        app-toggle-switch-field {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
         }
     }
 

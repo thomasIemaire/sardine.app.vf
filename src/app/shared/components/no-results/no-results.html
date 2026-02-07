@@ -1,0 +1,7 @@
+<div class="no-results">
+    <i class="no-results__icon" [class]="icon()"></i>
+    <span class="no-results__title">{{ title() }}</span>
+    @if (description()) {
+        <span class="no-results__description">{{ description() }}</span>
+    }
+</div>
