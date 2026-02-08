@@ -1,0 +1,28 @@
+<app-selectable borderRadius=".7rem" selectedColor="var(--background-color-200)">
+    <div class="team-item__wrapper">
+        <div class="team-item__header">
+            <div class="team-item__header__left">
+                <div class="team-item__header__picture">
+                    <i class="fa-jelly-fill fa-solid fa-users"></i>
+                </div>
+                <div class="team-item__header__name">{{ team().name }}</div>
+            </div>
+            <div class="team-item__header__right">
+                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
+                    (click)="$event.stopPropagation()"></p-button>
+            </div>
+        </div>
+        <div class="team-item__body">
+            <div class="team-item__body__description">{{ team().description }}</div>
+        </div>
+        <div class="team-item__footer">
+            <div class="team-item__footer__info">
+                <i class="fa-jelly-fill fa-solid fa-users"></i>
+                <span>{{ team().membersCount }} membres</span>
+            </div>
+            <div class="team-item__footer__date">
+                Créé le {{ team().createdAt | date:'dd/MM/yyyy' }}
+            </div>
+        </div>
+    </div>
+</app-selectable>

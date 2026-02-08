@@ -11,7 +11,10 @@ import { PageComponent } from "../page";
 })
 export class OrganizationComponent {
     tabs: PageHeaderTab[] = [
-        { id: 'members', label: 'Membres' },
+        { id: 'members', label: 'Membres', subtabs: [
+            { id: 'users', label: 'Utilisateurs' },
+            { id: 'teams', label: 'Équipes' },
+        ]},
         { id: 'clients', label: 'Clients' },
     ];
 }

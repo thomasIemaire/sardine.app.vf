@@ -1,0 +1,43 @@
+<app-selectable borderRadius=".7rem" selectedColor="var(--background-color-200)">
+    <div class="flow-item__wrapper">
+        <div class="flow-item__header">
+            <div class="flow-item__header__left">
+                <div class="flow-item__header__icon" [style.--icon-color]="statusColor()">
+                    <i class="fa-solid fa-diagram-project"></i>
+                </div>
+                <div class="flow-item__header__info">
+                    <div class="flow-item__header__name">{{ flow().name }}</div>
+                    <div class="flow-item__header__reference">{{ flow().reference }}</div>
+                </div>
+                @if (flow().isTemplate) {
+                <div class="flow-item__header__badge">Modèle</div>
+                }
+            </div>
+            <div class="flow-item__header__right">
+                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
+                    (click)="$event.stopPropagation()"></p-button>
+            </div>
+        </div>
+        <div class="flow-item__body">
+            <div class="flow-item__body__description">
+                {{ flow().description }}
+            </div>
+        </div>
+        <div class="flow-item__footer">
+            <div class="flow-item__footer__left">
+                <div class="flow-item__footer__created">
+                    <div class="flow-item__footer__created__picture">
+
+                    </div>
+                    <div class="flow-item__footer__created__infos">
+                        <span class="created-by">{{ flow().createdBy.name }}</span>
+                        <span class="created-from">{{ flow().createdBy.context }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flow-item__footer__right">
+                <div class="created-at">Créé le {{ flow().createdAt | date:'dd/MM/yyyy' }}</div>
+            </div>
+        </div>
+    </div>
+</app-selectable>
