@@ -1,0 +1,29 @@
+<p-dialog header="Ajouter des membres" [draggable]="false" [modal]="true" [(visible)]="visible" [style]="{ width: '500px' }">
+    <div class="form-container">
+        @for (entry of entries; track $index) {
+        <div class="member-row">
+            <div class="member-row__fields">
+                <app-field label="Email" [required]="true">
+                    <app-text-field [(ngModel)]="entry.email" placeholder="adresse@email.com" type="email" />
+                </app-field>
+                <app-field label="Rôle" [required]="true">
+                    <app-select-field [options]="roleOptions" [(ngModel)]="entry.role" optionLabel="label"
+                        optionValue="value" placeholder="Rôle" />
+                </app-field>
+            </div>
+            @if (entries.length > 1) {
+            <p-button icon="fa-solid fa-xmark" size="small" text rounded severity="secondary"
+                (onClick)="removeEntry($index)" />
+            }
+        </div>
+        }
+        <p-button label="Ajouter un autre membre" icon="fa-solid fa-plus" size="small" text severity="secondary"
+            (onClick)="addEntry()" />
+    </div>
+    <ng-template #footer>
+        <div class="dialog-footer">
+            <p-button label="Annuler" size="small" severity="secondary" text (onClick)="close()" />
+            <p-button label="Ajouter" size="small" [disabled]="!isValid()" (onClick)="submit()" />
+        </div>
+    </ng-template>
+</p-dialog>

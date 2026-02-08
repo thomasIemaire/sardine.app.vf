@@ -45,9 +45,16 @@ export const routes: Routes = [
                 data: { breadcrumb: 'Organisation' },
                 loadComponent: () => import('./pages/organization/organization').then(m => m.OrganizationComponent),
                 children: [
+                    { path: '', redirectTo: 'members', pathMatch: 'full' },
                     {
-                        path: '',
+                        path: 'members',
+                        loadComponent: () => import('./pages/organization/members/members').then(m => m.MembersComponent),
+                        data: { breadcrumb: 'Membres' },
+                    },
+                    {
+                        path: 'clients',
                         loadComponent: () => import('./pages/organization/organizations/organizations').then(m => m.OrganizationsComponent),
+                        data: { breadcrumb: 'Clients' },
                     },
                 ],
             },

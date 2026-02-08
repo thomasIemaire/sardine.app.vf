@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
-import { PageHeaderComponent } from "@shared/components";
+import { PageHeaderComponent, PageHeaderTab } from "@shared/components";
 import { PageComponent } from "../page";
 
 @Component({
@@ -9,4 +9,9 @@ import { PageComponent } from "../page";
     templateUrl: "./organization.html",
     styleUrls: ["./organization.scss"],
 })
-export class OrganizationComponent {}
+export class OrganizationComponent {
+    tabs: PageHeaderTab[] = [
+        { id: 'members', label: 'Membres' },
+        { id: 'clients', label: 'Clients' },
+    ];
+}

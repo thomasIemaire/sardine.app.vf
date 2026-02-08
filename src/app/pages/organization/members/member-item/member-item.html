@@ -1,0 +1,27 @@
+<app-selectable borderRadius=".7rem" selectedColor="var(--background-color-200)">
+    <div class="member-item__wrapper">
+        <div class="member-item__header">
+            <div class="member-item__header__left">
+                <div class="member-item__header__picture">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="member-item__header__info">
+                    <span class="member-item__header__name">{{ member().name }}</span>
+                    <span class="member-item__header__email">{{ member().email }}</span>
+                </div>
+            </div>
+            <div class="member-item__header__right">
+                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
+                    (click)="$event.stopPropagation()"></p-button>
+            </div>
+        </div>
+        <div class="member-item__footer">
+            <div class="member-item__footer__role">
+                <span class="member-item__footer__role__badge">{{ roleLabel() }}</span>
+            </div>
+            <div class="member-item__footer__date">
+                Ajouté le {{ member().addedAt | date:'dd/MM/yyyy' }}
+            </div>
+        </div>
+    </div>
+</app-selectable>

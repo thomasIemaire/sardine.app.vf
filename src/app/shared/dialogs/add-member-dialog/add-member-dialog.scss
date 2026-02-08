@@ -1,0 +1,31 @@
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    p-select {
+        width: 100%;
+    }
+}
+
+.member-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+
+    &__fields {
+        flex: 1;
+        display: flex;
+        gap: 0.5rem;
+
+        > * {
+            flex: 1;
+        }
+    }
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
