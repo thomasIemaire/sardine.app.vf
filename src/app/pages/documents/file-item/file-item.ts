@@ -38,22 +38,22 @@ export class FileItemComponent {
     fileColor = computed(() => {
         switch (this.file().type) {
             case 'pdf': return 'var(--p-red-500)';
-            case 'doc': return 'var(--p-blue-500)';
-            case 'xls': return 'var(--p-green-500)';
-            case 'img': return 'var(--p-purple-500)';
-            case 'txt': return 'var(--p-gray-500)';
-            default: return 'var(--p-gray-400)';
+            case 'doc': return 'var(--blue-color-500)';
+            case 'xls': return 'var(--green-color-500)';
+            case 'img': return 'var(--purple-color-500)';
+            case 'txt': return 'var(--gray-color-500)';
+            default: return 'var(--gray-color-400)';
         }
     });
 
     fileBgColor = computed(() => {
         switch (this.file().type) {
-            case 'pdf': return 'var(--p-red-100)';
-            case 'doc': return 'var(--p-blue-100)';
-            case 'xls': return 'var(--p-green-100)';
-            case 'img': return 'var(--p-purple-100)';
-            case 'txt': return 'var(--p-gray-100)';
-            default: return 'var(--p-gray-100)';
+            case 'pdf': return 'var(--red-color-100)';
+            case 'doc': return 'var(--blue-color-100)';
+            case 'xls': return 'var(--green-color-100)';
+            case 'img': return 'var(--purple-color-100)';
+            case 'txt': return 'var(--gray-color-100)';
+            default: return 'var(--gray-color-100)';
         }
     });
 
