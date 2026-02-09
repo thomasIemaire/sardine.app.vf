@@ -41,6 +41,11 @@ export const routes: Routes = [
                 ],
             },
             {
+                path: 'documents',
+                data: { breadcrumb: 'Documents' },
+                loadComponent: () => import('./pages/documents/documents').then(m => m.DocumentsComponent),
+            },
+            {
                 path: 'organization',
                 data: { breadcrumb: 'Organisation' },
                 loadComponent: () => import('./pages/organization/organization').then(m => m.OrganizationComponent),

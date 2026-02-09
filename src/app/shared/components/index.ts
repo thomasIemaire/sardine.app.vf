@@ -15,6 +15,7 @@ export { PulsingDotComponent } from './pulsing-dot/pulsing-dot';
 export { SelectableComponent } from './selectable/selectable';
 export { SelectFieldComponent } from './select-field/select-field';
 export { TableToolbarComponent } from './table-toolbar/table-toolbar';
+export type { ViewMode } from './table-toolbar/table-toolbar';
 export { TextareaFieldComponent } from './textarea-field/textarea-field';
 export { TextFieldComponent } from './text-field/text-field';
 export { ToggleSwitchFieldComponent } from './toggle-switch-field/toggle-switch-field';

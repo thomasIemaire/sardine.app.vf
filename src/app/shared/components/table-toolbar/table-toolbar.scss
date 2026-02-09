@@ -24,6 +24,12 @@
                 min-width: 256px;
             }
         }
+
+        &__right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
     }
 }
 

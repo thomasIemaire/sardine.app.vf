@@ -17,6 +17,6 @@
     </div>
     <div class="table-toolbar__wrapper__right">
         <p-button *ngFor="let action of actions()" [label]="action.label" [icon]="action.icon"
-            (onClick)="action.onClick()" size="small" rounded></p-button>
+            [outlined]="action.outlined" (onClick)="action.onClick()" size="small" rounded></p-button>
     </div>
 </div>

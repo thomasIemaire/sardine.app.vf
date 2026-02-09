@@ -28,9 +28,11 @@ const STORAGE_KEY = 'sardine_default_context';
 export class UserService {
     private currentUser = signal<User | null>(null);
     private currentContext = signal<Context>({ organization: null });
+    private previousContext = signal<Organization | null>(null);
 
     readonly user = this.currentUser.asReadonly();
     readonly context = this.currentContext.asReadonly();
+    readonly isBrowsingOrganizations = () => this.previousContext() !== null;
 
     constructor() {
         // Auto-login pour le développement (tant que l'API n'est pas branchée)
@@ -94,13 +96,24 @@ export class UserService {
 
     selectContext(organization: Organization, remember = false): void {
         this.currentContext.set({ organization });
+        this.previousContext.set(null);
         if (remember) {
             this.saveDefaultContext(organization.id);
         }
     }
 
     clearContext(): void {
+        const current = this.currentContext().organization;
+        this.previousContext.set(current);
         this.currentContext.set({ organization: null });
+    }
+
+    closeBrowser(): void {
+        const previous = this.previousContext();
+        if (previous) {
+            this.currentContext.set({ organization: previous });
+            this.previousContext.set(null);
+        }
     }
 
     clearDefaultContext(): void {

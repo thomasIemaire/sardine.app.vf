@@ -1,0 +1,21 @@
+<app-selectable borderRadius=".5rem" selectedColor="var(--background-color-200)">
+    <div class="file-item__wrapper">
+        <div class="file-item__icon" [style.background-color]="fileBgColor()" [style.color]="fileColor()">
+            <i [class]="fileIcon()"></i>
+        </div>
+        <div class="file-item__content">
+            <div class="file-item__name">{{ file().name }}</div>
+            <div class="file-item__meta">
+                <span class="file-item__meta__extension">.{{ file().extension }}</span>
+                <span class="file-item__meta__separator">•</span>
+                <span class="file-item__meta__size">{{ formattedSize() }}</span>
+                <span class="file-item__meta__separator">•</span>
+                <span class="file-item__meta__date">{{ file().updatedAt | date:'dd/MM/yyyy' }}</span>
+            </div>
+        </div>
+        <div class="file-item__actions">
+            <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
+                (click)="$event.stopPropagation()"></p-button>
+        </div>
+    </div>
+</app-selectable>

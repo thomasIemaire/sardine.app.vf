@@ -1,0 +1,140 @@
+<app-page>
+    <app-page-header pageHeader [label]="pageTitle()" [description]="pageDescription()!"
+        [backAction]="currentFolderId() ? navigateBack.bind(this) : undefined">
+    </app-page-header>
+
+    <div class="documents">
+        <div class="documents__toolbar">
+            <app-table-toolbar searchFieldPlaceholder="Rechercher un document..." [(view)]="currentView"
+                [multipleViews]="true" storageKey="documents" [actions]="toolbarActions()" (search)="onSearch($event)">
+            </app-table-toolbar>
+        </div>
+
+        @if (breadcrumbs().length > 0) {
+        <div class="documents__breadcrumbs">
+            <span class="documents__breadcrumbs__item documents__breadcrumbs__item--link" (click)="navigateToRoot()">
+                <i class="fa-solid fa-home"></i>
+                Documents
+            </span>
+            @for (crumb of breadcrumbs(); track crumb.id; let last = $last) {
+            <span class="documents__breadcrumbs__separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            @if (last) {
+            <span class="documents__breadcrumbs__item documents__breadcrumbs__item--current">{{ crumb.name }}</span>
+            } @else {
+            <span class="documents__breadcrumbs__item documents__breadcrumbs__item--link"
+                (click)="navigateToBreadcrumb(crumb)">{{ crumb.name }}</span>
+            }
+            }
+        </div>
+        }
+
+        @if (!folders.length && !files.length) {
+        <app-no-results icon="fa-solid fa-folder-open" title="Ce dossier est vide"
+            description="Ajoutez des fichiers ou créez des sous-dossiers." />
+        } @else {
+        <div class="documents__content">
+            @if (folders.length) {
+            <div class="documents__section documents__section--folders">
+                <div class="documents__section__header">
+                    <h3 class="documents__section__title">
+                        <i class="fa-solid fa-folder"></i>
+                        Dossiers
+                    </h3>
+                    <span class="documents__section__count">{{ folders.length }}</span>
+                </div>
+                @if (currentView === 'card') {
+                <div class="documents__section__grid">
+                    <app-grid minItemWidth="240px">
+                        @for (folder of folders; track folder.id) {
+                        <app-folder-item [folder]="folder" (folderClick)="navigateToFolder($event)" />
+                        }
+                    </app-grid>
+                </div>
+                } @else {
+                <p-table [value]="folders" [tableStyle]="{ 'min-width': '30rem' }">
+                    <ng-template #header>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Dossiers</th>
+                            <th>Fichiers</th>
+                            <th>Modifié le</th>
+                            <th></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template #body let-folder>
+                        <tr class="cursor-pointer" (click)="navigateToFolder(folder)">
+                            <td>
+                                <div class="table-folder-name">
+                                    <i class="fa-solid fa-folder"></i>
+                                    {{ folder.name }}
+                                </div>
+                            </td>
+                            <td>{{ folder.foldersCount }}</td>
+                            <td>{{ folder.filesCount }}</td>
+                            <td>{{ folder.updatedAt | date:'dd/MM/yyyy' }}</td>
+                            <td>
+                                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
+                                    severity="secondary" (click)="$event.stopPropagation()"></p-button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                }
+            </div>
+            }
+
+            @if (files.length) {
+            <div class="documents__section documents__section--files">
+                <div class="documents__section__header">
+                    <h3 class="documents__section__title">
+                        <i class="fa-solid fa-file"></i>
+                        Fichiers
+                    </h3>
+                    <span class="documents__section__count">{{ files.length }}</span>
+                </div>
+                @if (currentView === 'card') {
+                <div class="documents__section__grid">
+                    <app-grid minItemWidth="280px">
+                        @for (file of files; track file.id) {
+                        <app-file-item [file]="file" />
+                        }
+                    </app-grid>
+                </div>
+                } @else {
+                <p-table [value]="files" [tableStyle]="{ 'min-width': '30rem' }">
+                    <ng-template #header>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Type</th>
+                            <th>Taille</th>
+                            <th>Modifié le</th>
+                            <th></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template #body let-file>
+                        <tr>
+                            <td>
+                                <div class="table-file-name">
+                                    <i [class]="getFileIcon(file.type)"></i>
+                                    {{ file.name }}
+                                </div>
+                            </td>
+                            <td class="text-uppercase">.{{ file.extension }}</td>
+                            <td>{{ formatFileSize(file.size) }}</td>
+                            <td>{{ file.updatedAt | date:'dd/MM/yyyy' }}</td>
+                            <td>
+                                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
+                                    severity="secondary" (click)="$event.stopPropagation()"></p-button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                }
+            </div>
+            }
+        </div>
+        }
+    </div>
+</app-page>

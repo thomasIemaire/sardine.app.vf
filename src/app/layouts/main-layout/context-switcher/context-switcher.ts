@@ -1,12 +1,13 @@
 import { Component, computed, inject, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ToggleSwitchModule } from "primeng/toggleswitch";
+import { ButtonModule } from "primeng/button";
 import { Organization, UserService } from "@core/services";
 import { ContextItemComponent } from "./context-item/context-item";
 
 @Component({
     selector: "app-context-switcher",
-    imports: [FormsModule, ContextItemComponent, ToggleSwitchModule],
+    imports: [FormsModule, ContextItemComponent, ToggleSwitchModule, ButtonModule],
     templateUrl: "./context-switcher.html",
     styleUrls: ["./context-switcher.scss"]
 })
@@ -15,6 +16,7 @@ export class ContextSwitcherComponent {
 
     private userService = inject(UserService);
 
+    isBrowsing = this.userService.isBrowsingOrganizations;
     organizations = computed(() => this.userService.user()?.organizations ?? []);
     searchQuery = signal('');
     stopAsking = false;
@@ -44,5 +46,9 @@ export class ContextSwitcherComponent {
 
     onSearchInput(event: Event): void {
         this.searchQuery.set((event.target as HTMLInputElement).value);
+    }
+
+    closeBrowser(): void {
+        this.userService.closeBrowser();
     }
 }
