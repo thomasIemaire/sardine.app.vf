@@ -23,7 +23,7 @@
     </div>
     <div class="stop-ask-wrapper">
         @if (isBrowsing()) {
-            <p-button label="Fermer cet écran" severity="secondary" text rounded size="small" (onClick)="closeBrowser()" />
+            <p-button icon="fa-solid fa-times" label="Fermer cet écran" severity="secondary" text rounded size="small" (onClick)="closeBrowser()" />
         } @else {
             Ne plus afficher cet écran ? <p-toggle-switch [(ngModel)]="stopAsking" />
         }

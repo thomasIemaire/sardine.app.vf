@@ -88,6 +88,14 @@
         height: auto;
     }
 
+    &__component-wrapper {
+        margin: 0.75rem 0;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--surface-border);
+        background-color: var(--background-color-50);
+    }
+
     &__toc {
         position: sticky;
         top: 1rem;

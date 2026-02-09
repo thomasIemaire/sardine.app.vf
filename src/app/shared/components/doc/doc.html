@@ -33,6 +33,11 @@
                                     <img class="doc__image" [src]="block.value" [alt]="section.title" />
                                 </div>
                             }
+                            @case ('component') {
+                                <div class="doc__component-wrapper">
+                                    <ng-container *ngComponentOutlet="block.component; inputs: block.inputs" />
+                                </div>
+                            }
                         }
                     }
                 </div>

@@ -56,11 +56,17 @@
             font-size: .875rem;
             font-weight: 600;
             color: var(--background-color-700);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         &__reference {
             font-size: .625rem;
             color: var(--p-text-muted-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         &__badge {

@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ElementRef, inject, input, OnDestroy, signal } from "@angular/core";
-import { CommonModule } from "@angular/common";
+import { AfterViewInit, Component, ElementRef, inject, input, OnDestroy, signal, Type } from "@angular/core";
+import { CommonModule, NgComponentOutlet } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BadgeModule } from "primeng/badge";
 
@@ -16,14 +16,15 @@ export interface DocSection {
     contents: DocSectionContent[];
 }
 
-export interface DocSectionContent {
-    type: 'text' | 'list' | 'image';
-    value: string | string[];
-}
+export type DocSectionContent =
+    | { type: 'text'; value: string }
+    | { type: 'list'; value: string[] }
+    | { type: 'image'; value: string }
+    | { type: 'component'; component: Type<unknown>; inputs?: Record<string, unknown> };
 
 @Component({
     selector: "app-doc",
-    imports: [CommonModule, BadgeModule],
+    imports: [CommonModule, NgComponentOutlet, BadgeModule],
     templateUrl: "./doc.html",
     styleUrls: ["./doc.scss"],
 })

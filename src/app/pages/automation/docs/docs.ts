@@ -3,6 +3,7 @@ import { DocComponent, DocContent } from "@shared/components";
 import { PageComponent } from "../../page";
 import { PageHeaderComponent } from "@shared/components";
 import { Router } from "@angular/router";
+import { AgentItemComponent } from "../agents/agent-item/agent-item";
 
 @Component({
     selector: "app-automation-docs",
@@ -11,7 +12,7 @@ import { Router } from "@angular/router";
     styleUrls: ["./docs.scss"],
 })
 export class AutomationDocsComponent {
-    constructor(private router: Router) {}
+    constructor(private router: Router) { }
 
     content: DocContent = {
         title: 'Automatisation',
@@ -133,6 +134,22 @@ export class AutomationDocsComponent {
                     {
                         type: 'text',
                         value: 'Les nœuds Agents IA permettent d\'intégrer de l\'intelligence artificielle dans vos flows. Ils peuvent analyser du contenu, extraire des informations, classifier des documents ou générer du texte.'
+                    },
+                    {
+                        type: 'component',
+                        component: AgentItemComponent,
+                        inputs: {
+                            agent: {
+                                id: '1',
+                                name: 'Mon Agent',
+                                reference: 'mon-agent',
+                                version: '1.0.0',
+                                description: 'Un agent IA pour analyser les documents.',
+                                status: 'active',
+                                createdBy: { id: '1', name: 'John Doe', context: 'sardine' },
+                                createdAt: new Date(),
+                            }
+                        }
                     },
                     {
                         type: 'list',
