@@ -1,10 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, effect, inject, viewChild } from "@angular/core";
+import { Component, computed, effect, inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map } from "rxjs";
-import { GridComponent, NoResultsComponent, PulsingDotComponent, TableToolbarComponent } from "@shared/components";
+import { GflowComponent, GridComponent, NoResultsComponent, PulsingDotComponent, TableToolbarComponent } from "@shared/components";
 import { CreateFlowData, CreateFlowDialogComponent, CreateFlowTemplateData, CreateFlowTemplateDialogComponent } from "@shared/dialogs";
 import { FlowItem, FlowItemComponent } from "./flow-item/flow-item";
 import { TableModule } from "primeng/table";
@@ -13,7 +13,7 @@ import { Select } from "primeng/select";
 
 @Component({
     selector: "app-flows",
-    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, FlowItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select, CreateFlowDialogComponent, CreateFlowTemplateDialogComponent, NoResultsComponent],
+    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, FlowItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select, CreateFlowDialogComponent, CreateFlowTemplateDialogComponent, NoResultsComponent, GflowComponent],
     templateUrl: "./flows.html",
     styleUrls: ["./flows.scss", "../../_page-table.scss"]
 })
@@ -21,6 +21,7 @@ export class FlowsComponent {
     private route = inject(ActivatedRoute);
     private createFlowDialog = viewChild.required(CreateFlowDialogComponent);
     private createFlowTemplateDialog = viewChild.required(CreateFlowTemplateDialogComponent);
+    private gflowEditor = viewChild(GflowComponent);
 
     private activeTab = toSignal(
         this.route.queryParamMap.pipe(map(params => params.get('tab') ?? 'all')),
@@ -30,6 +31,9 @@ export class FlowsComponent {
     isAllTab = computed(() => this.activeTab() === 'all');
 
     currentView: "list" | "card" = "list";
+
+    selectedFlow = signal<FlowItem | null>(null);
+    isFlowEditorOpen = signal(false);
 
     statusOptions = [
         { label: 'Tous', value: null },
@@ -169,5 +173,35 @@ export class FlowsComponent {
         }
 
         this.flows = filtered;
+    }
+
+    openFlowEditor(flow: FlowItem): void {
+        this.selectedFlow.set(flow);
+        this.isFlowEditorOpen.set(true);
+
+        setTimeout(() => {
+            const editor = this.gflowEditor();
+            if (editor) {
+                editor.loadFlow({
+                    title: flow.name,
+                    description: flow.description,
+                    id: flow.id
+                });
+            }
+        }, 0);
+    }
+
+    createNewFlow(): void {
+        this.selectedFlow.set(null);
+        this.isFlowEditorOpen.set(true);
+    }
+
+    closeFlowEditor(): void {
+        this.isFlowEditorOpen.set(false);
+        this.selectedFlow.set(null);
+    }
+
+    onFlowSaved(payload: any): void {
+        console.log('Flow saved:', payload);
     }
 }

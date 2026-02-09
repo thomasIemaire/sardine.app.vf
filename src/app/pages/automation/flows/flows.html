@@ -18,7 +18,7 @@
     <div class="page-table__wrapper__grid">
         <app-grid minItemWidth="278px">
             @for (flow of flows; track flow.id) {
-            <app-flow-item [flow]="flow" />
+            <app-flow-item [flow]="flow" (openFlow)="openFlowEditor($event)" />
             }
         </app-grid>
     </div>
@@ -39,7 +39,7 @@
                 </tr>
             </ng-template>
             <ng-template #body let-flow>
-                <tr>
+                <tr class="clickable-row" (click)="openFlowEditor(flow)">
                     <td><app-pulsing-dot [active]="flow.status !== 'inactive'"
                             [color]="flow.status === 'active' ? 'var(--p-green-500)' : flow.status === 'error' ? 'var(--p-red-500)' : 'var(--p-gray-400)'" />
                     </td>
@@ -52,11 +52,17 @@
                     <td>{{ flow.createdAt | date:'dd/MM/yyyy' }}</td>
                     <td>
                         <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
-                            severity="secondary"></p-button>
+                            severity="secondary" (click)="$event.stopPropagation()"></p-button>
                     </td>
                 </tr>
             </ng-template>
         </p-table>
     </div>
+    }
+</div>
+
+<div class="flow-editor__wrapper" [class.active]="isFlowEditorOpen()">
+    @if (isFlowEditorOpen()) {
+    <app-gflow (close)="closeFlowEditor()" (saveFlow)="onFlowSaved($event)" />
     }
 </div>

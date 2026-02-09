@@ -5,6 +5,8 @@ export { DocComponent } from './doc/doc';
 export type { DocContent, DocSection, DocSectionContent } from './doc/doc';
 export { FieldComponent } from './field/field';
 export { FormComponent } from './form/form';
+export { GflowComponent } from './gflow/gflow';
+export type { GFlowNode, GFlowLink, GFlowPort, NodeType, PortKind, PortRef, JsonValue } from './gflow/core/gflow.types';
 export { GridComponent } from './grid/grid';
 export { MultiselectFieldComponent } from './multiselect-field/multiselect-field';
 export { NoResultsComponent } from './no-results/no-results';

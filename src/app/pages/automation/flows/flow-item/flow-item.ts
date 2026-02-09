@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, input, output } from "@angular/core";
 import { SelectableComponent } from "@shared/components";
 import { ButtonModule } from "primeng/button";
 import { CreatedBy } from "../../agents/agent-item/agent-item";
@@ -27,6 +27,7 @@ export interface FlowItem {
 })
 export class FlowItemComponent {
     flow = input.required<FlowItem>();
+    openFlow = output<FlowItem>();
 
     statusColor = computed(() => {
         switch (this.flow().status) {
@@ -35,4 +36,8 @@ export class FlowItemComponent {
             default: return 'var(--p-gray-400)';
         }
     });
+
+    onClick(): void {
+        this.openFlow.emit(this.flow());
+    }
 }

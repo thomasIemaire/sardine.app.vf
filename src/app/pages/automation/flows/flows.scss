@@ -1,0 +1,58 @@
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background-color: var(--background-color-100);
+    }
+}
+
+.flow-editor__wrapper {
+    --spacing-top: calc(var(--height-static-header) + 2 * var(--padding-l));
+    --spacing-left: calc(var(--width-expanded-sidebar) + 2 * var(--padding-l));
+    --margin-right: var(--padding-l);
+    --margin-bottom: var(--padding-l);
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 50;
+
+    overflow: hidden;
+
+    > * {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    &.active {
+        pointer-events: auto;
+        background-color: var(--background-color-50);
+        animation: expandFromLayout .5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes expandFromLayout {
+        0% {
+            opacity: 0;
+            top: var(--spacing-top);
+            left: var(--spacing-left);
+            width: calc(100vw - var(--spacing-left) - var(--margin-right));
+            height: calc(100vh - var(--spacing-top) - var(--margin-bottom));
+            border-radius: 16px;
+        }
+
+        100% {
+            opacity: 1;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+        }
+    }
+}
