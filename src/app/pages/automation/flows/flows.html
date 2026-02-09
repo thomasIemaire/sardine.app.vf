@@ -7,7 +7,7 @@
             storageKey="flows" [actions]="toolbarActions()" (search)="onSearch($event)">
             <div toolbarFilters>
                 <p-select [options]="statusOptions" optionLabel="label" placeholder="Filtrer par statut"
-                    [(ngModel)]="selectedStatus" size="small" (onChange)="filterByStatus()" />
+                    [(ngModel)]="selectedStatus" size="small" appendTo="body" (onChange)="filterByStatus()" />
             </div>
         </app-table-toolbar>
     </div>

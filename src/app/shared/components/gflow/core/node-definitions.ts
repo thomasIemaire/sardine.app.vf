@@ -1,32 +1,52 @@
-import { GFlowPort, JsonValue, NodeType } from './gflow.types';
+import { Type } from '@angular/core';
+import {
+    AgentConfig,
+    ApprovalConfig,
+    cloneJson,
+    EditConfig,
+    EndConfig,
+    GFlowPort,
+    HttpConfig,
+    IfConfig,
+    JsonValue,
+    MergeConfig,
+    NodeConfig,
+    NodeIcon,
+    NodeType,
+    NotificationConfig,
+    SwitchConfig
+} from './gflow.types';
+import { ConfigEndComponent } from '../configs/config-end';
+import { ConfigIfComponent } from '../configs/config-if';
+import { ConfigSwitchComponent } from '../configs/config-switch';
+import { ConfigEditComponent } from '../configs/config-edit';
+import { ConfigAgentComponent } from '../configs/config-agent';
+import { ConfigApprovalComponent } from '../configs/config-approval';
+import { ConfigHttpComponent } from '../configs/config-http';
+import { ConfigNotificationComponent } from '../configs/config-notification';
 
-const cloneJson = <T extends JsonValue>(value: T): T =>
-    JSON.parse(JSON.stringify(value));
+// ============================================================================
+// Types
+// ============================================================================
 
-const clonePorts = (ports?: GFlowPort[]): GFlowPort[] =>
-    (ports ?? []).map((port) => ({
-        ...port,
-        map: port.map === undefined ? undefined : cloneJson(port.map),
-    }));
+export type NodeCategory = 'Flux' | 'Logique' | 'Actions' | 'Agents';
 
-export type NodeCategory = 'Flux' | 'Logique' | 'Agents';
-
-interface NodeBlueprint {
+export interface NodeBlueprint {
     name: string;
-    inputs?: GFlowPort[];
-    outputs?: GFlowPort[];
-    entries?: GFlowPort[];
-    exits?: GFlowPort[];
-    configured?: boolean;
-    config?: unknown;
-    configComponent?: any;
+    inputs: GFlowPort[];
+    outputs: GFlowPort[];
+    entries: GFlowPort[];
+    exits: GFlowPort[];
+    configured: boolean;
+    config: NodeConfig;
+    configComponent: Type<unknown> | null;
 }
 
-export interface NodeTypeDefinition {
+export interface NodeDefinition {
     type: NodeType;
     label: string;
-    icon: { icon: string; rotate?: number };
-    color?: string;
+    icon: NodeIcon;
+    color: string;
     category: NodeCategory;
     create: () => NodeBlueprint;
 }
@@ -34,16 +54,36 @@ export interface NodeTypeDefinition {
 export interface PaletteItem {
     type: NodeType;
     label: string;
-    icon: { icon: string; rotate?: number };
-    color?: string;
+    icon: NodeIcon;
+    color: string;
 }
 
 export interface PaletteGroup {
-    name: string;
+    name: NodeCategory;
     items: PaletteItem[];
 }
 
-const definitions: NodeTypeDefinition[] = [
+// ============================================================================
+// Helpers
+// ============================================================================
+
+function clonePorts(ports: GFlowPort[]): GFlowPort[] {
+    return ports.map(port => ({
+        ...port,
+        map: port.map !== undefined ? cloneJson(port.map as JsonValue) : undefined,
+    }));
+}
+
+function createPort(name?: string, map?: JsonValue): GFlowPort {
+    return { name, map };
+}
+
+// ============================================================================
+// Node Definitions
+// ============================================================================
+
+const NODE_DEFINITIONS_LIST: NodeDefinition[] = [
+    // Hidden node type for creating new nodes
     {
         type: 'new',
         label: 'Nouveau',
@@ -52,145 +92,258 @@ const definitions: NodeTypeDefinition[] = [
         category: 'Flux',
         create: () => ({
             name: 'Nouveau',
-            inputs: clonePorts([{}]),
-            outputs: clonePorts([{}]),
-            entries: clonePorts([{}]),
-            exits: clonePorts([{}]),
+            inputs: [createPort()],
+            outputs: [createPort()],
+            entries: [createPort()],
+            exits: [createPort()],
+            configured: false,
+            config: {},
+            configComponent: null,
         }),
     },
+
+    // Flow control nodes
     {
         type: 'start',
         label: 'Début',
-        icon: { icon: 'fa-solid fa-play' },
-        color: '#DEF5EE',
+        icon: { icon: 'fa-jelly-fill fa-solid fa-play' },
+        color: 'var(--p-green-300)',
         category: 'Flux',
         create: () => ({
             name: 'Début',
             inputs: [],
-            outputs: clonePorts([{}]),
+            outputs: [createPort()],
+            entries: [],
+            exits: [],
+            configured: true,
+            config: { triggerType: 'manual' },
+            configComponent: null,
         }),
     },
     {
         type: 'end',
         label: 'Fin',
-        icon: { icon: 'fa-solid fa-stop' },
-        color: '#FADCD9',
+        icon: { icon: 'fa-jelly-fill fa-solid fa-stop' },
+        color: 'var(--p-red-300)',
         category: 'Flux',
         create: () => ({
             name: 'Fin',
-            inputs: clonePorts([{}]),
+            inputs: [createPort()],
             outputs: [],
+            entries: [],
+            exits: [],
             configured: false,
-            config: { status: 'completed' },
+            config: { status: 'completed' } as EndConfig,
+            configComponent: ConfigEndComponent,
         }),
     },
+
+    // Logic nodes
     {
         type: 'if',
         label: 'Si / Sinon',
-        icon: {
-            icon: 'fa-solid fa-arrows-split-up-and-left',
-            rotate: 90,
-        },
-        color: '#FFF3B0',
+        icon: { icon: 'fa-solid fa-split' },
+        color: 'var(--p-yellow-300)',
         category: 'Logique',
         create: () => ({
             name: 'Si / Sinon',
-            inputs: clonePorts([{}]),
-            outputs: clonePorts([{ name: 'true' }, { name: 'false' }]),
+            inputs: [createPort()],
+            outputs: [createPort('true'), createPort('false')],
+            entries: [],
+            exits: [],
             configured: false,
-            config: { condition: '' },
+            config: { condition: '', field: '', operator: 'equals', value: '' } as IfConfig,
+            configComponent: ConfigIfComponent,
         }),
     },
     {
         type: 'switch',
         label: 'Switch / Case',
         icon: { icon: 'fa-solid fa-shuffle' },
-        color: '#FFF3B0',
+        color: 'var(--p-yellow-300)',
         category: 'Logique',
         create: () => ({
             name: 'Switch / Case',
-            inputs: clonePorts([{}]),
-            outputs: clonePorts([{ name: 'Case 1' }]),
+            inputs: [createPort()],
+            outputs: [createPort('Case 1')],
+            entries: [],
+            exits: [],
             configured: false,
-            config: { cases: [{ label: 'Case 1', value: '' }] },
+            config: { field: '', cases: [{ label: 'Case 1', value: '' }] } as SwitchConfig,
+            configComponent: ConfigSwitchComponent,
         }),
     },
     {
         type: 'merge',
         label: 'Fusionner',
-        icon: { icon: 'fa-solid fa-code-fork' },
-        color: '#FFF3B0',
+        icon: { icon: 'fa-solid fa-merge' },
+        color: 'var(--p-yellow-300)',
         category: 'Logique',
         create: () => ({
             name: 'Fusionner',
-            inputs: clonePorts([{}]),
-            outputs: clonePorts([{}]),
+            inputs: [createPort()],
+            outputs: [createPort()],
+            entries: [],
+            exits: [],
             configured: false,
-            config: {},
+            config: { mode: 'all' } as MergeConfig,
+            configComponent: null,
         }),
     },
     {
         type: 'edit',
         label: 'Modifier',
-        icon: { icon: 'fa-solid fa-pen' },
-        color: '#FFF3B0',
+        icon: { icon: 'fa-jelly-fill fa-regular fa-arrows-rotate' },
+        color: 'var(--p-yellow-300)',
         category: 'Logique',
         create: () => ({
             name: 'Modifier',
-            inputs: clonePorts([{}]),
-            outputs: clonePorts([{ map: {} }]),
+            inputs: [createPort()],
+            outputs: [createPort(undefined, {})],
+            entries: [],
+            exits: [],
             configured: false,
-            config: { edits: [] },
+            config: { operations: [] } as EditConfig,
+            configComponent: ConfigEditComponent,
+        }),
+    },
+
+    // Action nodes
+    {
+        type: 'approval',
+        label: 'Approbation',
+        icon: { icon: 'fa-jelly-fill fa-regular fa-thumbs-up' },
+        color: 'var(--p-gray-300)',
+        category: 'Actions',
+        create: () => ({
+            name: 'Approbation',
+            inputs: [createPort()],
+            outputs: [createPort('Approuver'), createPort('Rejeter')],
+            entries: [],
+            exits: [],
+            configured: false,
+            config: {
+                title: '',
+                message: '',
+                options: [
+                    { label: 'Approuver', value: 'approved' },
+                    { label: 'Rejeter', value: 'rejected' }
+                ],
+                assigneeType: 'user',
+                assigneeId: '',
+                assigneeName: '',
+            } as ApprovalConfig,
+            configComponent: ConfigApprovalComponent,
         }),
     },
     {
+        type: 'http',
+        label: 'Requête HTTP',
+        icon: { icon: 'fa-jelly-fill fa-solid fa-globe' },
+        color: 'var(--p-gray-300)',
+        category: 'Actions',
+        create: () => ({
+            name: 'Requête HTTP',
+            inputs: [createPort()],
+            outputs: [createPort()],
+            entries: [],
+            exits: [],
+            configured: false,
+            config: {
+                method: 'GET',
+                url: '',
+                headers: [],
+                bodyType: 'none',
+                timeout: 30000,
+                retries: 0,
+            } as HttpConfig,
+            configComponent: ConfigHttpComponent,
+        }),
+    },
+    {
+        type: 'notification',
+        label: 'Notification',
+        icon: { icon: 'fa-jelly-fill fa-solid fa-bell' },
+        color: 'var(--p-gray-300)',
+        category: 'Actions',
+        create: () => ({
+            name: 'Notification',
+            inputs: [createPort()],
+            outputs: [createPort()],
+            entries: [],
+            exits: [],
+            configured: false,
+            config: {
+                title: '',
+                message: '',
+                channel: 'app',
+                targets: [{ type: 'user', id: '', name: '' }],
+                priority: 'normal',
+            } as NotificationConfig,
+            configComponent: ConfigNotificationComponent,
+        }),
+    },
+
+    // Agent nodes
+    {
         type: 'agent',
         label: 'Agent',
-        icon: { icon: 'fa-solid fa-location-arrow' },
-        color: '#DEF5EE',
+        icon: { icon: 'fa-solid fa-robot' },
+        color: 'var(--p-blue-300)',
         category: 'Agents',
         create: () => ({
             name: 'Agent',
-            inputs: clonePorts([{}]),
-            outputs: clonePorts([{}]),
-            exits: clonePorts([{}]),
+            inputs: [createPort()],
+            outputs: [createPort()],
+            entries: [],
+            exits: [createPort()],
             configured: false,
-            config: { agentName: '', version: '' },
+            config: { agentId: '', agentName: '', version: '' } as AgentConfig,
+            configComponent: ConfigAgentComponent,
         }),
     },
 ];
 
-export const NODE_DEFINITIONS = definitions;
+// ============================================================================
+// Exports
+// ============================================================================
 
-export const NODE_DEFINITION_MAP: Record<NodeType, NodeTypeDefinition> = definitions
-    .reduce((acc, definition) => {
-        acc[definition.type] = definition;
+export const NODE_DEFINITIONS = NODE_DEFINITIONS_LIST;
+
+export const NODE_DEFINITION_MAP: Record<NodeType, NodeDefinition> = NODE_DEFINITIONS_LIST.reduce(
+    (acc, def) => {
+        acc[def.type] = def;
         return acc;
-    }, {} as Record<NodeType, NodeTypeDefinition>);
+    },
+    {} as Record<NodeType, NodeDefinition>
+);
 
 export const PALETTE_GROUPS: PaletteGroup[] = (() => {
+    const categoryOrder: NodeCategory[] = ['Flux', 'Logique', 'Actions', 'Agents'];
     const groups = new Map<NodeCategory, PaletteGroup>();
 
-    definitions.forEach((definition) => {
-        if (definition.type === 'new' || definition.type === 'start') return;
+    // Initialize groups in order
+    categoryOrder.forEach(category => {
+        groups.set(category, { name: category, items: [] });
+    });
 
-        const existing = groups.get(definition.category);
-        const item: PaletteItem = {
-            type: definition.type,
-            label: definition.label,
-            icon: definition.icon,
-            color: definition.color,
-        };
+    // Populate groups (exclude 'new' and 'start')
+    NODE_DEFINITIONS_LIST.forEach(def => {
+        if (def.type === 'new' || def.type === 'start') return;
 
-        if (existing) {
-            existing.items.push(item);
-        } else {
-            groups.set(definition.category, {
-                name: definition.category,
-                items: [item],
+        const group = groups.get(def.category);
+        if (group) {
+            group.items.push({
+                type: def.type,
+                label: def.label,
+                icon: def.icon,
+                color: def.color,
             });
         }
     });
 
-    return Array.from(groups.values());
+    // Return only non-empty groups
+    return categoryOrder
+        .map(cat => groups.get(cat)!)
+        .filter(group => group.items.length > 0);
 })();

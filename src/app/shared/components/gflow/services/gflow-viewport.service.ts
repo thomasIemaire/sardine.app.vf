@@ -1,5 +1,14 @@
 import { Injectable } from '@angular/core';
 
+export interface Point {
+    x: number;
+    y: number;
+}
+
+const MIN_SCALE = 0.25;
+const MAX_SCALE = 2;
+const ZOOM_SENSITIVITY = 0.001;
+
 @Injectable()
 export class GflowViewportService {
     ox = 0;
@@ -15,7 +24,7 @@ export class GflowViewportService {
         return 4 * this.baseStep;
     }
 
-    setViewport(element: HTMLElement) {
+    setViewport(element: HTMLElement): void {
         this.viewport = element;
     }
 
@@ -23,7 +32,7 @@ export class GflowViewportService {
         return this.viewport;
     }
 
-    toWorld(clientX: number, clientY: number): { x: number; y: number } {
+    toWorld(clientX: number, clientY: number): Point {
         if (!this.viewport) {
             return { x: clientX, y: clientY };
         }
@@ -31,9 +40,17 @@ export class GflowViewportService {
         const rect = this.viewport.getBoundingClientRect();
         const vx = clientX - rect.left;
         const vy = clientY - rect.top;
+
         return {
             x: (vx - this.ox) / this.scale,
             y: (vy - this.oy) / this.scale,
+        };
+    }
+
+    toScreen(worldX: number, worldY: number): Point {
+        return {
+            x: worldX * this.scale + this.ox,
+            y: worldY * this.scale + this.oy,
         };
     }
 
@@ -42,13 +59,14 @@ export class GflowViewportService {
         return Math.round((value + g) / g) * g - g;
     }
 
-    applyWheel(event: WheelEvent) {
+    applyWheel(event: WheelEvent): void {
         event.preventDefault();
-        const factor = Math.exp(-event.deltaY * 0.001);
-        const previous = this.scale;
-        this.scale = Math.min(2, Math.max(0.25, this.scale * factor));
 
-        if (!this.viewport) {
+        const factor = Math.exp(-event.deltaY * ZOOM_SENSITIVITY);
+        const previousScale = this.scale;
+        this.scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, this.scale * factor));
+
+        if (!this.viewport || this.scale === previousScale) {
             return;
         }
 
@@ -56,27 +74,34 @@ export class GflowViewportService {
         const cx = event.clientX - rect.left;
         const cy = event.clientY - rect.top;
 
-        this.ox = cx - (cx - this.ox) * (this.scale / previous);
-        this.oy = cy - (cy - this.oy) * (this.scale / previous);
+        const scaleFactor = this.scale / previousScale;
+        this.ox = cx - (cx - this.ox) * scaleFactor;
+        this.oy = cy - (cy - this.oy) * scaleFactor;
     }
 
-    moveBy(dx: number, dy: number) {
+    moveBy(dx: number, dy: number): void {
         this.ox += dx;
         this.oy += dy;
     }
 
-    centerOn(worldX: number, worldY: number, width: number, height: number) {
+    centerOn(worldX: number, worldY: number, width: number, height: number): void {
         if (!this.viewport) {
             return;
         }
 
         const rect = this.viewport.getBoundingClientRect();
-        const vx = rect.width / 2;
-        const vy = rect.height / 2;
-        const wx = worldX + width / 2;
-        const wy = worldY + height / 2;
+        const viewportCenterX = rect.width / 2;
+        const viewportCenterY = rect.height / 2;
+        const worldCenterX = worldX + width / 2;
+        const worldCenterY = worldY + height / 2;
 
-        this.ox = vx - wx * this.scale;
-        this.oy = vy - wy * this.scale;
+        this.ox = viewportCenterX - worldCenterX * this.scale;
+        this.oy = viewportCenterY - worldCenterY * this.scale;
+    }
+
+    reset(): void {
+        this.ox = 0;
+        this.oy = 0;
+        this.scale = 1;
     }
 }

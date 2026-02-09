@@ -1,22 +1,30 @@
-<p-select
-    [options]="options()"
-    [optionLabel]="optionLabel()"
-    [optionValue]="optionValue()"
-    [placeholder]="placeholder()"
-    [disabled]="disabled()"
-    [ngModel]="value"
-    (onChange)="onSelectionChange($event)"
-    (onBlur)="onBlur()"
-    class="select-field"
-    size="small"
-    appendTo="body"
->
-    <ng-template #item let-option>
-        <div class="select-option">
-            <span class="select-option__label">{{ getOptionLabel(option) }}</span>
-            <span class="select-option__icon" [class.select-option__icon--selected]="isSelected(option)">
-                <i [ngClass]="isSelected(option) ? 'fa-solid fa-check' : 'fa-solid fa-plus'"></i>
-            </span>
-        </div>
-    </ng-template>
-</p-select>
+<div class="field">
+    @if (label()) {
+        <label class="field__label">{{ label() }}</label>
+    }
+    <p-select
+        [options]="options()"
+        [optionLabel]="optionLabel()"
+        [optionValue]="optionValue()"
+        [placeholder]="placeholder()"
+        [disabled]="disabled()"
+        [ngModel]="value"
+        (onChange)="onSelectionChange($event)"
+        (onBlur)="onBlur()"
+        class="field__select"
+        size="small"
+        appendTo="body"
+    >
+        <ng-template #item let-option>
+            <div class="select-option">
+                <span class="select-option__label">{{ getOptionLabel(option) }}</span>
+                <span class="select-option__icon" [class.select-option__icon--selected]="isSelected(option)">
+                    <i [ngClass]="isSelected(option) ? 'fa-solid fa-check' : 'fa-solid fa-plus'"></i>
+                </span>
+            </div>
+        </ng-template>
+    </p-select>
+    @if (hint()) {
+        <small class="field__hint">{{ hint() }}</small>
+    }
+</div>

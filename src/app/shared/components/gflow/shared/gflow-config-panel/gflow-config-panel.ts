@@ -29,26 +29,10 @@ export class GflowConfigPanelComponent implements OnChanges {
             if (this.node?.configComponent) {
                 this.componentInputs = {
                     node: this.node,
-                    nodes: this.nodes,
-                    links: this.links,
-                    inputMap: this.cloneJson(this.inputMap),
                 };
             } else {
                 this.componentInputs = null;
             }
         }
-
-        if ((changes['nodes'] || changes['links'] || changes['inputMap']) && this.node?.configComponent) {
-            this.componentInputs = {
-                node: this.node,
-                nodes: this.nodes,
-                links: this.links,
-                inputMap: this.cloneJson(this.inputMap),
-            };
-        }
-    }
-
-    private cloneJson<T>(value: T): T {
-        return value === null || value === undefined ? (value as T) : JSON.parse(JSON.stringify(value));
     }
 }

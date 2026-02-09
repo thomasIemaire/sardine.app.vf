@@ -1,0 +1,23 @@
+<div class="field">
+    @if (label()) {
+        <label class="field__label">{{ label() }}</label>
+    }
+    <p-inputNumber
+        [ngModel]="value"
+        [placeholder]="placeholder()"
+        [min]="min()"
+        [max]="max()"
+        [step]="step()"
+        [disabled]="disabled()"
+        [showButtons]="showButtons()"
+        [suffix]="suffix()"
+        [prefix]="prefix()"
+        (ngModelChange)="onValueChange($event)"
+        (onBlur)="onBlur()"
+        size="small"
+        class="field__input"
+    />
+    @if (hint()) {
+        <small class="field__hint">{{ hint() }}</small>
+    }
+</div>

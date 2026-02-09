@@ -1,38 +1,40 @@
 <div class="node__container">
 
-    <div class="node__wrapper" [class.focused]="item().focused || item().selected" [class.new]="item().type === 'new'"
-        [class.has-body]="hasNamedOutputs">
+    <div class="node__wrapper"
+         [class.focused]="isFocusedOrSelected()"
+         [class.new]="isNewNode()"
+         [class.has-body]="hasNamedOutputs()">
 
         <div class="node__header">
             <div class="node__icon" [style.backgroundColor]="item().color">
-                <span [class]="item().icon?.icon" [style.rotate.deg]="item().icon?.rotate"></span>
+                <span [class]="item().icon.icon" [style.rotate.deg]="item().icon.rotate"></span>
             </div>
             <div class="node__name">
                 <span>{{ item().name }}</span>
-                @if (item().type === 'agent') {
+                @if (isAgentNode()) {
                 <div class="node__subname">
-                    <span>{{item().config?.agentName}}</span>
-                    @if (item().config?.version) {
-                    <span class="node__tag">{{item().config?.version}}</span>
+                    <span>{{ agentName() }}</span>
+                    @if (agentVersion()) {
+                    <span class="node__tag">{{ agentVersion() }}</span>
                     }
                 </div>
                 }
-                @if (item().type === 'end') {
+                @if (isEndNode()) {
                 <div class="node__subname">
-                    <span>{{item().config?.status}}</span>
+                    <span>{{ endStatus() }}</span>
                 </div>
                 }
             </div>
         </div>
 
-        @if (hasNamedOutputs) {
+        @if (hasNamedOutputs()) {
         <div class="node__body">
             @for (out of item().outputs; track $index) {
             <div class="node__row">
                 <div class="node__label">{{ out.name }}</div>
-
-                <div class="port output-port" [attr.data-index]="$index"
-                    [class.port-connected]="isPortConnected('out', $index)">
+                <div class="port output-port"
+                     [attr.data-index]="$index"
+                     [class.port-connected]="isPortConnected('out', $index)">
                 </div>
             </div>
             }
@@ -42,36 +44,41 @@
 
     <div class="ports-wrapper inputs-centered">
         @for (inp of item().inputs; track $index) {
-        <div class="port input-port" [attr.data-index]="$index" [class.port-connected]="isPortConnected('in', $index)">
+        <div class="port input-port"
+             [attr.data-index]="$index"
+             [class.port-connected]="isPortConnected('in', $index)">
         </div>
         }
     </div>
 
-    @if (!hasNamedOutputs) {
+    @if (!hasNamedOutputs()) {
     <div class="ports-wrapper outputs-centered">
         @for (out of item().outputs; track $index) {
-        <div class="port output-port" [attr.data-index]="$index"
-            [class.port-connected]="isPortConnected('out', $index)">
+        <div class="port output-port"
+             [attr.data-index]="$index"
+             [class.port-connected]="isPortConnected('out', $index)">
         </div>
         }
     </div>
     }
 
-    @if (item().entries?.length) {
+    @if (hasEntries()) {
     <div class="ports-wrapper entries-centered">
         @for (e of item().entries; track $index) {
-        <div class="port entry-port" [attr.data-index]="$index"
-            [class.port-connected]="isPortConnected('entry', $index)">
+        <div class="port entry-port"
+             [attr.data-index]="$index"
+             [class.port-connected]="isPortConnected('entry', $index)">
         </div>
         }
     </div>
     }
 
-    @if (item().exits?.length) {
+    @if (hasExits()) {
     <div class="ports-wrapper exits-centered">
         @for (e of item().exits; track $index) {
-        <div class="port exit-port" [attr.data-index]="$index"
-            [class.port-connected]="isPortConnected('exit', $index)">
+        <div class="port exit-port"
+             [attr.data-index]="$index"
+             [class.port-connected]="isPortConnected('exit', $index)">
         </div>
         }
     </div>

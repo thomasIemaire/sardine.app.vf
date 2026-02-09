@@ -1,5 +1,22 @@
-.select-field {
-    width: 100%;
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: .375rem;
+
+    &__label {
+        font-size: .8125rem;
+        font-weight: 500;
+        color: var(--p-text-color);
+    }
+
+    &__select {
+        width: 100%;
+    }
+
+    &__hint {
+        font-size: .6875rem;
+        color: var(--p-text-muted-color);
+    }
 }
 
 .select-option {

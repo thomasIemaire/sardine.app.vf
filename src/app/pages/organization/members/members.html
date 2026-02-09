@@ -8,7 +8,7 @@
             [multipleViews]="true" storageKey="members" [actions]="userToolbarActions" (search)="onSearch($event)">
             <div toolbarFilters>
                 <p-select [options]="roleOptions" optionLabel="label" placeholder="Filtrer par rôle"
-                    [(ngModel)]="selectedRole" size="small" (onChange)="filterByRole()" />
+                    [(ngModel)]="selectedRole" size="small" appendTo="body" (onChange)="filterByRole()" />
             </div>
         </app-table-toolbar>
         } @else {

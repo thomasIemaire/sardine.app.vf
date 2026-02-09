@@ -1,12 +1,12 @@
-import { Component, forwardRef, input } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { TextareaModule } from "primeng/textarea";
+import { Component, forwardRef, input } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
-    selector: "app-textarea-field",
+    selector: 'app-textarea-field',
     imports: [TextareaModule],
-    templateUrl: "./textarea-field.html",
-    styleUrls: ["./textarea-field.scss"],
+    templateUrl: './textarea-field.html',
+    styleUrls: ['./textarea-field.scss'],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -16,7 +16,9 @@ import { TextareaModule } from "primeng/textarea";
     ]
 })
 export class TextareaFieldComponent implements ControlValueAccessor {
+    label = input<string>('');
     placeholder = input<string>('');
+    hint = input<string>('');
     rows = input<number>(3);
     disabled = input<boolean>(false);
     resize = input<'none' | 'both' | 'horizontal' | 'vertical'>('none');

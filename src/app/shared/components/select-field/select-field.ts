@@ -1,13 +1,18 @@
-import { CommonModule } from "@angular/common";
-import { Component, forwardRef, input } from "@angular/core";
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { Select } from "primeng/select";
+import { Component, forwardRef, input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { SelectModule } from 'primeng/select';
+
+export interface SelectOption {
+    label: string;
+    value: string;
+}
 
 @Component({
-    selector: "app-select-field",
-    imports: [CommonModule, FormsModule, Select],
-    templateUrl: "./select-field.html",
-    styleUrls: ["./select-field.scss"],
+    selector: 'app-select-field',
+    imports: [CommonModule, FormsModule, SelectModule],
+    templateUrl: './select-field.html',
+    styleUrls: ['./select-field.scss'],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -17,22 +22,26 @@ import { Select } from "primeng/select";
     ]
 })
 export class SelectFieldComponent implements ControlValueAccessor {
-    options = input<unknown[]>([]);
+    label = input<string>('');
+    placeholder = input<string>('Sélectionner');
+    hint = input<string>('');
+    options = input<SelectOption[]>([]);
     optionLabel = input<string>('label');
-    optionValue = input<string | undefined>(undefined);
-    placeholder = input<string>('');
+    optionValue = input<string>('value');
     disabled = input<boolean>(false);
 
-    value: unknown = null;
+    selectionChange = output<string>();
 
-    private onChange: (value: unknown) => void = () => {};
+    value: string = '';
+
+    private onChange: (value: string) => void = () => {};
     private onTouched: () => void = () => {};
 
-    writeValue(value: unknown): void {
-        this.value = value;
+    writeValue(value: string): void {
+        this.value = value || '';
     }
 
-    registerOnChange(fn: (value: unknown) => void): void {
+    registerOnChange(fn: (value: string) => void): void {
         this.onChange = fn;
     }
 
@@ -40,27 +49,23 @@ export class SelectFieldComponent implements ControlValueAccessor {
         this.onTouched = fn;
     }
 
-    onSelectionChange(event: { value: unknown }): void {
+    onSelectionChange(event: { value: string }): void {
         this.value = event.value;
         this.onChange(this.value);
+        this.selectionChange.emit(this.value);
     }
 
     onBlur(): void {
         this.onTouched();
     }
 
-    isSelected(option: unknown): boolean {
-        if (this.value === null || this.value === undefined) return false;
-        const optionVal = this.optionValue();
-        if (optionVal) {
-            const val = (option as Record<string, unknown>)[optionVal];
-            return this.value === val;
-        }
-        return this.value === option;
+    getOptionLabel(option: SelectOption | Record<string, unknown>): string {
+        const labelKey = this.optionLabel();
+        return (option as Record<string, unknown>)[labelKey] as string || '';
     }
 
-    getOptionLabel(option: unknown): string {
-        const label = this.optionLabel();
-        return (option as Record<string, unknown>)[label] as string || '';
+    isSelected(option: SelectOption | Record<string, unknown>): boolean {
+        const valueKey = this.optionValue();
+        return (option as Record<string, unknown>)[valueKey] === this.value;
     }
 }

@@ -20,4 +20,5 @@ export { TableToolbarComponent } from './table-toolbar/table-toolbar';
 export type { ViewMode } from './table-toolbar/table-toolbar';
 export { TextareaFieldComponent } from './textarea-field/textarea-field';
 export { TextFieldComponent } from './text-field/text-field';
+export { NumberFieldComponent } from './number-field/number-field';
 export { ToggleSwitchFieldComponent } from './toggle-switch-field/toggle-switch-field';

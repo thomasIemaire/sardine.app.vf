@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GFlowLink, GFlowNode, GFlowPort, JsonValue, NodeType, PortRef } from '../core/gflow.types';
-import { NodeFactory } from '../core/node.factory';
+import { createNodeFromType } from '../core/node.factory';
 
 @Injectable()
 export class GflowStateService {
@@ -10,11 +10,7 @@ export class GflowStateService {
     private nextLinkId = 1;
 
     addNode(type: NodeType, x: number, y: number): GFlowNode {
-        const node = NodeFactory.createNode(type, x, y);
-        if (!node.id) {
-            node.id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        }
-
+        const node = createNodeFromType(type, x, y);
         this.nodes.push(node);
         return node;
     }
@@ -250,14 +246,5 @@ export class GflowStateService {
 
     private cloneJson<T extends JsonValue>(value: T): T {
         return JSON.parse(JSON.stringify(value));
-    }
-
-    private snap(value: number): number {
-        const g = this.defaultNodeSize / 4;
-        return Math.round(value / g) * g;
-    }
-
-    private get defaultNodeSize(): number {
-        return 96;
     }
 }

@@ -1,12 +1,12 @@
-import { Component, forwardRef, input } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { Component, forwardRef, input } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
-    selector: "app-text-field",
+    selector: 'app-text-field',
     imports: [InputTextModule],
-    templateUrl: "./text-field.html",
-    styleUrls: ["./text-field.scss"],
+    templateUrl: './text-field.html',
+    styleUrls: ['./text-field.scss'],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -16,7 +16,9 @@ import { InputTextModule } from 'primeng/inputtext';
     ]
 })
 export class TextFieldComponent implements ControlValueAccessor {
+    label = input<string>('');
     placeholder = input<string>('');
+    hint = input<string>('');
     type = input<string>('text');
     disabled = input<boolean>(false);
 

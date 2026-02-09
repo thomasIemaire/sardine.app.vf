@@ -9,11 +9,12 @@
                 (click)="onClose()" />
 
             <div>
-                @if (isEditingTitle) {
-                <input #titleInput class="title-input" type="text" [(ngModel)]="flow.title" (blur)="stopEditingTitle()"
+                @if (isEditingTitle()) {
+                <input #titleInput class="title-input" type="text" [ngModel]="flow().title"
+                    (ngModelChange)="updateFlowTitle($event)" (blur)="stopEditingTitle()"
                     (keydown)="onTitleKeydown($event)" (mousedown)="$event.stopPropagation()" [pAutoFocus]="true" />
                 } @else {
-                <p-button iconPos="right" text rounded severity="secondary" [label]="flow.title"
+                <p-button iconPos="right" text rounded severity="secondary" [label]="flow().title"
                     (click)="startEditingTitle($event)" icon="fa-solid fa-pen-to-square edit-icon" />
                 }
             </div>
@@ -91,12 +92,12 @@
         </div>
 
         <div class="floating-actions-toolbar">
-            <button class="action-btn" [class.active]="currentTool === 'pan'" (click)="setTool('pan')"
+            <button class="action-btn" [class.active]="currentTool() === 'pan'" (click)="setTool('pan')"
                 title="Outil Main (Panoramique)">
                 <i class="fa-solid fa-hand"></i>
             </button>
 
-            <button class="action-btn" [class.active]="currentTool === 'select'" (click)="setTool('select')"
+            <button class="action-btn" [class.active]="currentTool() === 'select'" (click)="setTool('select')"
                 title="Outil Sélection (Curseur)">
                 <i class="fa-solid fa-arrow-pointer"></i>
             </button>
@@ -112,7 +113,7 @@
             </button>
         </div>
 
-        @if (configOpen) {
+        @if (configOpen()) {
         <aside class="config-sidebar" (mousedown)="$event.stopPropagation()">
 
             <div class="config-sidebar__content">
@@ -125,7 +126,7 @@
         </aside>
         }
 
-        @if (paletteOpen) {
+        @if (paletteOpen()) {
         <aside class="palette-floating" (mousedown)="$event.stopPropagation()">
             <div class="palette__content">
                 <div class="palette__groups">

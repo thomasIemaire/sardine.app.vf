@@ -1,11 +1,19 @@
-<input
-    [type]="type()"
-    pInputText
-    [value]="value"
-    [placeholder]="placeholder()"
-    [disabled]="disabled()"
-    (input)="onInput($event)"
-    (blur)="onBlur()"
-    pSize="small"
-    class="text-field"
-/>
+<div class="field">
+    @if (label()) {
+        <label class="field__label">{{ label() }}</label>
+    }
+    <input
+        [type]="type()"
+        pInputText
+        [value]="value"
+        [placeholder]="placeholder()"
+        [disabled]="disabled()"
+        (input)="onInput($event)"
+        (blur)="onBlur()"
+        pSize="small"
+        class="field__input"
+    />
+    @if (hint()) {
+        <small class="field__hint">{{ hint() }}</small>
+    }
+</div>
