@@ -32,6 +32,30 @@ export class UserService {
     readonly user = this.currentUser.asReadonly();
     readonly context = this.currentContext.asReadonly();
 
+    constructor() {
+        // Auto-login pour le développement (tant que l'API n'est pas branchée)
+        this.autoLogin();
+    }
+
+    private autoLogin(): void {
+        const user: User = {
+            id: '1',
+            email: 'thomas.lemaire+admin@sendoc.fr',
+            firstName: 'Thomas',
+            lastName: 'Lemaire',
+            organizations: [
+                { id: 'personal', name: 'Thomas Lemaire', isPersonal: true },
+                { id: 'sendoc', name: 'Sendoc', isPersonal: false },
+                { id: 'terre_du_sud', name: 'Terre du Sud', isPersonal: false, distributionName: 'Sendoc' },
+                { id: 'trhea', name: 'TRhéa', isPersonal: false, distributionName: 'Sendoc' },
+                { id: 'otre', name: 'OTRE', isPersonal: false, distributionName: 'Sendoc' },
+                { id: 'edylink', name: 'Edylink', isPersonal: false, holdingName: 'Sendoc', distributionName: 'Sendoc' },
+            ]
+        };
+        this.currentUser.set(user);
+        this.restoreDefaultContext(user);
+    }
+
     isAuthenticated(): boolean {
         return this.currentUser() !== null;
     }

@@ -5,7 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map } from "rxjs";
 import { GridComponent, NoResultsComponent, PulsingDotComponent, TableToolbarComponent } from "@shared/components";
-import { CreateFlowData, CreateFlowDialogComponent } from "@shared/dialogs";
+import { CreateFlowData, CreateFlowDialogComponent, CreateFlowTemplateData, CreateFlowTemplateDialogComponent } from "@shared/dialogs";
 import { FlowItem, FlowItemComponent } from "./flow-item/flow-item";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
@@ -13,13 +13,14 @@ import { Select } from "primeng/select";
 
 @Component({
     selector: "app-flows",
-    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, FlowItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select, CreateFlowDialogComponent, NoResultsComponent],
+    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, FlowItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select, CreateFlowDialogComponent, CreateFlowTemplateDialogComponent, NoResultsComponent],
     templateUrl: "./flows.html",
     styleUrls: ["./flows.scss", "../../_page-table.scss"]
 })
 export class FlowsComponent {
     private route = inject(ActivatedRoute);
     private createFlowDialog = viewChild.required(CreateFlowDialogComponent);
+    private createFlowTemplateDialog = viewChild.required(CreateFlowTemplateDialogComponent);
 
     private activeTab = toSignal(
         this.route.queryParamMap.pipe(map(params => params.get('tab') ?? 'all')),
@@ -38,13 +39,13 @@ export class FlowsComponent {
     ];
     selectedStatus: { label: string; value: string | null } | null = null;
 
-    toolbarActions = [
+    toolbarActions = computed(() => [
         {
-            label: "Ajouter un flow",
+            label: this.isAllTab() ? "Ajouter un flow" : "Ajouter un modèle",
             icon: "fa-solid fa-plus",
-            onClick: () => this.createFlowDialog().open()
+            onClick: () => this.isAllTab() ? this.createFlowDialog().open() : this.createFlowTemplateDialog().open()
         }
-    ];
+    ]);
 
     private allFlows: FlowItem[] = [
         {
@@ -83,7 +84,6 @@ export class FlowsComponent {
         {
             id: "4",
             name: "Modèle import CSV",
-            reference: "tpl-import-csv",
             version: "1.0.0",
             description: "Modèle pour l'import de fichiers CSV",
             status: "active",
@@ -94,7 +94,6 @@ export class FlowsComponent {
         {
             id: "5",
             name: "Modèle export PDF",
-            reference: "tpl-export-pdf",
             version: "1.0.0",
             description: "Modèle pour l'export de documents en PDF",
             status: "active",
@@ -134,7 +133,21 @@ export class FlowsComponent {
             status: data.status,
             createdBy: { id: "1", name: "Utilisateur", context: "sardine" },
             createdAt: new Date(),
-            isTemplate: !this.isAllTab()
+            isTemplate: false
+        });
+        this.applyFilters();
+    }
+
+    onFlowTemplateCreated(data: CreateFlowTemplateData): void {
+        this.allFlows.push({
+            id: crypto.randomUUID(),
+            name: data.name,
+            version: "1.0.0",
+            description: data.description,
+            status: data.status,
+            createdBy: { id: "1", name: "Utilisateur", context: "sardine" },
+            createdAt: new Date(),
+            isTemplate: true
         });
         this.applyFilters();
     }
@@ -151,7 +164,7 @@ export class FlowsComponent {
         if (this.searchQuery) {
             filtered = filtered.filter(f =>
                 f.name.toLowerCase().includes(this.searchQuery) ||
-                f.reference.toLowerCase().includes(this.searchQuery)
+                f.reference?.toLowerCase().includes(this.searchQuery)
             );
         }
 

@@ -1,9 +1,10 @@
 <app-create-flow-dialog (submitted)="onFlowCreated($event)" />
+<app-create-flow-template-dialog (submitted)="onFlowTemplateCreated($event)" />
 
 <div class="page-table__wrapper">
     <div class="page-table__wrapper__table-toolbar">
         <app-table-toolbar searchFieldPlaceholder="Rechercher un flow..." [(view)]="currentView" [multipleViews]="true"
-            storageKey="flows" [actions]="toolbarActions" (search)="onSearch($event)">
+            storageKey="flows" [actions]="toolbarActions()" (search)="onSearch($event)">
             <div toolbarFilters>
                 <p-select [options]="statusOptions" optionLabel="label" placeholder="Filtrer par statut"
                     [(ngModel)]="selectedStatus" size="small" (onChange)="filterByStatus()" />
@@ -28,7 +29,9 @@
                 <tr>
                     <th>Statut</th>
                     <th>Nom</th>
-                    <th>Référence</th>
+                    @if (isAllTab()) {
+                        <th>Référence</th>
+                    }
                     <th>Version</th>
                     <th>Créé par</th>
                     <th>Date de création</th>
@@ -41,7 +44,9 @@
                             [color]="flow.status === 'active' ? 'var(--p-green-500)' : flow.status === 'error' ? 'var(--p-red-500)' : 'var(--p-gray-400)'" />
                     </td>
                     <td>{{ flow.name }}</td>
-                    <td>{{ flow.reference }}</td>
+                    @if (isAllTab()) {
+                        <td>{{ flow.reference }}</td>
+                    }
                     <td>{{ flow.version }}</td>
                     <td>{{ flow.createdBy.name }}</td>
                     <td>{{ flow.createdAt | date:'dd/MM/yyyy' }}</td>

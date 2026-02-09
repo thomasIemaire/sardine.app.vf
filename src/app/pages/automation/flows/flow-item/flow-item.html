@@ -7,7 +7,9 @@
                 </div>
                 <div class="flow-item__header__info">
                     <div class="flow-item__header__name">{{ flow().name }}</div>
-                    <div class="flow-item__header__reference">{{ flow().reference }}</div>
+                    @if (!flow().isTemplate) {
+                        <div class="flow-item__header__reference">{{ flow().reference }}</div>
+                    }
                 </div>
                 @if (flow().isTemplate) {
                 <div class="flow-item__header__badge">Modèle</div>

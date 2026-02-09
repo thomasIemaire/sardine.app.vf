@@ -9,3 +9,5 @@ export { CreateTeamDialogComponent } from './create-team-dialog/create-team-dial
 export type { CreateTeamData } from './create-team-dialog/create-team-dialog';
 export { CreateFlowDialogComponent } from './create-flow-dialog/create-flow-dialog';
 export type { CreateFlowData } from './create-flow-dialog/create-flow-dialog';
+export { CreateFlowTemplateDialogComponent } from './create-flow-template-dialog/create-flow-template-dialog';
+export type { CreateFlowTemplateData } from './create-flow-template-dialog/create-flow-template-dialog';

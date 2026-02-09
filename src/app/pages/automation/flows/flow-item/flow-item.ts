@@ -7,7 +7,7 @@ import { CreatedBy } from "../../agents/agent-item/agent-item";
 export interface FlowItem {
     id: string;
     name: string;
-    reference: string;
+    reference?: string;
     version: string;
     description: string;
     status: "active" | "inactive" | "error";
