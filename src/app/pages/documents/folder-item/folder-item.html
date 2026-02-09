@@ -1,17 +1,17 @@
 <app-selectable borderRadius=".5rem" selectedColor="var(--background-color-200)" (click)="onFolderClick()">
     <div class="folder-item__wrapper">
         <div class="folder-item__icon">
-            <i class="fa-solid fa-folder"></i>
+            <i class="fa-jelly-fill fa-solid fa-folder"></i>
         </div>
         <div class="folder-item__content">
             <div class="folder-item__name">{{ folder().name }}</div>
             <div class="folder-item__meta">
                 <span class="folder-item__meta__item">
-                    <i class="fa-solid fa-folder"></i>
+                    <i class="fa-jelly-fill fa-solid fa-folder"></i>
                     {{ folder().foldersCount }}
                 </span>
                 <span class="folder-item__meta__item">
-                    <i class="fa-solid fa-file"></i>
+                    <i class="fa-jelly-fill fa-solid fa-file"></i>
                     {{ folder().filesCount }}
                 </span>
             </div>

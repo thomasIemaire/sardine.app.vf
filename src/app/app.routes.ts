@@ -46,6 +46,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/documents/documents').then(m => m.DocumentsComponent),
             },
             {
+                path: 'trash',
+                data: { breadcrumb: 'Corbeille' },
+                loadComponent: () => import('./pages/trash/trash').then(m => m.TrashComponent),
+            },
+            {
                 path: 'organization',
                 data: { breadcrumb: 'Organisation' },
                 loadComponent: () => import('./pages/organization/organization').then(m => m.OrganizationComponent),

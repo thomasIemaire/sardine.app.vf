@@ -13,7 +13,7 @@
         @if (breadcrumbs().length > 0) {
         <div class="documents__breadcrumbs">
             <span class="documents__breadcrumbs__item documents__breadcrumbs__item--link" (click)="navigateToRoot()">
-                <i class="fa-solid fa-home"></i>
+                <i class="fa-jelly-fill fa-solid fa-home"></i>
                 Documents
             </span>
             @for (crumb of breadcrumbs(); track crumb.id; let last = $last) {
@@ -39,7 +39,7 @@
             <div class="documents__section documents__section--folders">
                 <div class="documents__section__header">
                     <h3 class="documents__section__title">
-                        <i class="fa-solid fa-folder"></i>
+                        <i class="fa-jelly-fill fa-solid fa-folder"></i>
                         Dossiers
                     </h3>
                     <span class="documents__section__count">{{ folders.length }}</span>
@@ -89,7 +89,7 @@
             <div class="documents__section documents__section--files">
                 <div class="documents__section__header">
                     <h3 class="documents__section__title">
-                        <i class="fa-solid fa-file"></i>
+                        <i class="fa-jelly-fill  fa-solid fa-file"></i>
                         Fichiers
                     </h3>
                     <span class="documents__section__count">{{ files.length }}</span>
