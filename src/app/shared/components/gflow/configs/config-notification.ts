@@ -105,6 +105,7 @@ import { GFlowNode, NotificationConfig, NotificationTarget } from '../core/gflow
                 </div>
                 <small class="config-hint">Ajoute un bouton cliquable à la notification</small>
             </div>
+
         </div>
     `,
     styles: [`

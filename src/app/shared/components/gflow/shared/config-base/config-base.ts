@@ -4,6 +4,7 @@ import {
     Component,
     ComponentRef,
     EventEmitter,
+    inject,
     Input,
     OnChanges,
     OnDestroy,
@@ -13,6 +14,7 @@ import {
     ViewChild,
     ViewContainerRef,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { Subscription } from 'rxjs';
 
@@ -23,14 +25,27 @@ import { Subscription } from 'rxjs';
     <div class="config-base">
       <header class="config-base__header">
         <h3 class="config-base__title">{{ title }}</h3>
-        <p-button
-            *ngIf="canDelete"
-            icon="fa-solid fa-trash"
-            severity="danger"
-            text
-            rounded
-            size="small"
-            (onClick)="onDeleteClick()" />
+        <div class="config-base__actions">
+            @if (docFragment) {
+                <p-button
+                    label="Documentation"
+                    icon="fa-solid fa-book"
+                    severity="secondary"
+                    text
+                    rounded
+                    size="small"
+                    (onClick)="onDocClick()" />
+            }
+            @if (canDelete) {
+                <p-button
+                    icon="fa-solid fa-trash"
+                    severity="danger"
+                    text
+                    rounded
+                    size="small"
+                    (onClick)="onDeleteClick()" />
+            }
+        </div>
       </header>
 
       <section class="config-base__body">
@@ -57,17 +72,21 @@ import { Subscription } from 'rxjs';
     .config-base { display: flex; flex-direction: column; height: 100%; gap: 1rem; }
     .config-base__header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--surface-300); padding-bottom: .5rem; min-height: 2.5rem; }
     .config-base__title { margin: 0; font-size: 1.1rem; font-weight: 600; }
+    .config-base__actions { display: flex; align-items: center; gap: .25rem; }
     .config-base__body { flex: 1 1 auto; overflow: auto; display: flex; flex-direction: column; gap: .75rem; }
     .config-base__footer { display: flex; justify-content: flex-end; gap: .5rem; border-top: 1px solid var(--surface-300); padding-top: .5rem; }
   `],
 })
 export class ConfigBase implements AfterViewInit, OnChanges, OnDestroy {
+    private router = inject(Router);
+
     @Input() title = '';
     @Input() cancelLabel = 'Annuler';
     @Input() saveLabel = 'Sauvegarder';
     @Input() component: Type<unknown> | null = null;
     @Input() componentInputs: Record<string, unknown> | null = null;
     @Input() canDelete: boolean = true;
+    @Input() docFragment: string | null = null;
 
     @Output() cancel = new EventEmitter<void>();
     @Output() save = new EventEmitter<void>();
@@ -107,6 +126,9 @@ export class ConfigBase implements AfterViewInit, OnChanges, OnDestroy {
     onCancelClick() { this.cancel.emit(); }
     onSaveClick() { this.save.emit(); }
     onDeleteClick() { this.delete.emit(); }
+    onDocClick() {
+        this.router.navigate(['/automation/docs'], { fragment: this.docFragment || undefined });
+    }
 
     private renderComponent() {
         this.destroyInner();

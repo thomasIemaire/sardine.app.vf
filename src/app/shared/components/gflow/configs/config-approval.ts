@@ -119,6 +119,7 @@ import { ApprovalConfig, ApprovalOption, GFlowNode } from '../core/gflow.types';
                     }
                 </div>
             </div>
+
         </div>
     `,
     styles: [`

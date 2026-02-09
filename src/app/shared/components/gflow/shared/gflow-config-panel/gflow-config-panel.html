@@ -1,8 +1,8 @@
 @if (node) {
 @if (node.configComponent) {
 <app-config-base [title]="node.name || ''" [component]="node.configComponent" [componentInputs]="componentInputs"
-    [canDelete]="node.type !== 'start'" (cancel)="cancel.emit()" (save)="save.emit()" (delete)="delete.emit()"
-    (configChange)="configChange.emit($event)">
+    [canDelete]="node.type !== 'start'" [docFragment]="node.type" (cancel)="cancel.emit()" (save)="save.emit()"
+    (delete)="delete.emit()" (configChange)="configChange.emit($event)">
 </app-config-base>
 } @else {
 <div class="config-panel__empty">
