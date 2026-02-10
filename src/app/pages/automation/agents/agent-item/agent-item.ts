@@ -1,9 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, viewChild } from "@angular/core";
-import { PulsingDotComponent, SelectableComponent } from "@shared/components";
+import { Component, input } from "@angular/core";
+import { CreatedAtComponent, CreatedByComponent, EntityCardComponent, PulsingDotComponent } from "@shared/components";
 import { MenuItem } from "primeng/api";
-import { ButtonModule } from "primeng/button";
-import { Menu, MenuModule } from "primeng/menu";
 
 export interface CreatedBy {
     id: string;
@@ -24,7 +22,7 @@ export interface AgentItem {
 
 @Component({
     selector: "app-agent-item",
-    imports: [CommonModule, SelectableComponent, PulsingDotComponent, ButtonModule, MenuModule],
+    imports: [CommonModule, EntityCardComponent, PulsingDotComponent, CreatedByComponent, CreatedAtComponent],
     templateUrl: "./agent-item.html",
     styleUrls: ["./agent-item.scss"],
 })
@@ -32,9 +30,11 @@ export class AgentItemComponent {
     agent = input.required<AgentItem>();
     menuItems = input.required<MenuItem[]>();
 
-    menu = viewChild.required<Menu>('menu');
-
-    toggleMenu(event: Event): void {
-        this.menu().toggle(event);
+    getStatusColor(): string {
+        switch (this.agent().status) {
+            case 'active': return 'var(--p-green-500)';
+            case 'error': return 'var(--p-red-500)';
+            default: return 'var(--p-gray-400)';
+        }
     }
 }

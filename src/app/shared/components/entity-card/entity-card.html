@@ -1,0 +1,25 @@
+<app-selectable borderRadius=".7rem" selectedColor="var(--background-color-200)" (click)="onClick()">
+    <div class="entity-card__wrapper">
+        <div class="entity-card__header">
+            <div class="entity-card__header__left">
+                <ng-content select="[headerLeft]" />
+            </div>
+            <div class="entity-card__header__right">
+                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
+                    (click)="$event.stopPropagation(); toggleMenu($event)"></p-button>
+                <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" />
+            </div>
+        </div>
+        <div class="entity-card__body">
+            <ng-content select="[body]" />
+        </div>
+        <div class="entity-card__footer">
+            <div class="entity-card__footer__left">
+                <ng-content select="[footerLeft]" />
+            </div>
+            <div class="entity-card__footer__right">
+                <ng-content select="[footerRight]" />
+            </div>
+        </div>
+    </div>
+</app-selectable>

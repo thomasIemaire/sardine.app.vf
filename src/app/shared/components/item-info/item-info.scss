@@ -1,0 +1,11 @@
+.item-info {
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    font-size: .75rem;
+    color: var(--p-text-muted-color);
+
+    i {
+        font-size: .625rem;
+    }
+}

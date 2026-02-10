@@ -20,17 +20,13 @@
             @if (folders.length) {
             <div class="trash__section">
                 <div class="trash__section__header">
-                    <h3 class="trash__section__title">
-                        <i class="fa-solid fa-folder"></i>
-                        Dossiers
-                    </h3>
-                    <span class="trash__section__count">{{ folders.length }}</span>
+                    <app-section-header title="Dossiers" icon="fa-solid fa-folder" [count]="folders.length" />
                 </div>
                 @if (currentView === 'card') {
                 <div class="trash__section__grid">
                     <app-grid minItemWidth="320px">
                         @for (folder of folders; track folder.id) {
-                        <app-trash-folder-item [folder]="folder" (restore)="onRestoreFolder($event)"
+                        <app-trash-item [item]="folder" (restore)="onRestoreFolder($event)"
                             (deletePermanently)="onDeleteFolder($event)" />
                         }
                     </app-grid>
@@ -55,9 +51,7 @@
                             </td>
                             <td class="text-muted">{{ folder.originalPath }}</td>
                             <td>
-                                <span class="days-badge" [class.days-badge--warning]="getDaysRemaining(folder.deletedAt) <= 7">
-                                    {{ getDaysRemaining(folder.deletedAt) }} jours
-                                </span>
+                                <app-days-remaining [days]="getDaysRemaining(folder.deletedAt)" />
                             </td>
                             <td>
                                 <div class="table-actions">
@@ -77,17 +71,13 @@
             @if (files.length) {
             <div class="trash__section">
                 <div class="trash__section__header">
-                    <h3 class="trash__section__title">
-                        <i class="fa-solid fa-file"></i>
-                        Fichiers
-                    </h3>
-                    <span class="trash__section__count">{{ files.length }}</span>
+                    <app-section-header title="Fichiers" icon="fa-solid fa-file" [count]="files.length" />
                 </div>
                 @if (currentView === 'card') {
                 <div class="trash__section__grid">
                     <app-grid minItemWidth="340px">
                         @for (file of files; track file.id) {
-                        <app-trash-file-item [file]="file" (restore)="onRestoreFile($event)"
+                        <app-trash-item [item]="file" (restore)="onRestoreFile($event)"
                             (deletePermanently)="onDeleteFile($event)" />
                         }
                     </app-grid>
@@ -108,7 +98,7 @@
                         <tr>
                             <td>
                                 <div class="table-file-name">
-                                    <i [class]="getFileIcon(file.type)"></i>
+                                    <i [class]="getFileIcon(file.fileType)"></i>
                                     {{ file.name }}
                                 </div>
                             </td>
@@ -116,9 +106,7 @@
                             <td>{{ formatFileSize(file.size) }}</td>
                             <td class="text-muted">{{ file.originalPath }}</td>
                             <td>
-                                <span class="days-badge" [class.days-badge--warning]="getDaysRemaining(file.deletedAt) <= 7">
-                                    {{ getDaysRemaining(file.deletedAt) }} jours
-                                </span>
+                                <app-days-remaining [days]="getDaysRemaining(file.deletedAt)" />
                             </td>
                             <td>
                                 <div class="table-actions">

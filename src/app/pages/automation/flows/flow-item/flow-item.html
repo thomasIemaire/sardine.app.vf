@@ -1,46 +1,21 @@
-<app-selectable borderRadius=".7rem" selectedColor="var(--background-color-200)" (click)="onClick()">
-    <div class="flow-item__wrapper">
-        <div class="flow-item__header">
-            <div class="flow-item__header__left">
-                <div class="flow-item__header__icon" [style.--icon-color]="statusColor()">
-                    <i class="fa-solid fa-diagram-project"></i>
-                </div>
-                <div class="flow-item__header__info">
-                    <div class="flow-item__header__name">{{ flow().name }}</div>
-                    @if (!flow().isTemplate) {
-                        <div class="flow-item__header__reference">{{ flow().reference }}</div>
-                    }
-                </div>
-                @if (flow().isTemplate) {
-                <div class="flow-item__header__badge">Modèle</div>
-                }
-            </div>
-            <div class="flow-item__header__right">
-                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
-                    (click)="$event.stopPropagation(); toggleMenu($event)"></p-button>
-                <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" />
-            </div>
+<app-entity-card [menuItems]="menuItems()" [dashed]="flow().isTemplate" [clickable]="true" (cardClick)="onClick()">
+    <ng-container headerLeft>
+        <app-icon-badge icon="fa-solid fa-diagram-project" [iconColor]="statusColor()" [showStatus]="true" />
+        <div class="flow-item__header__info">
+            <div class="flow-item__header__name">{{ flow().name }}</div>
+            @if (!flow().isTemplate) {
+                <div class="flow-item__header__reference">{{ flow().reference }}</div>
+            }
         </div>
-        <div class="flow-item__body">
-            <div class="flow-item__body__description">
-                {{ flow().description }}
-            </div>
-        </div>
-        <div class="flow-item__footer">
-            <div class="flow-item__footer__left">
-                <div class="flow-item__footer__created">
-                    <div class="flow-item__footer__created__picture">
+        @if (flow().isTemplate) {
+            <div class="flow-item__header__badge">Modèle</div>
+        }
+    </ng-container>
 
-                    </div>
-                    <div class="flow-item__footer__created__infos">
-                        <span class="created-by">{{ flow().createdBy.name }}</span>
-                        <span class="created-from">{{ flow().createdBy.context }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="flow-item__footer__right">
-                <div class="created-at">Créé le {{ flow().createdAt | date:'dd/MM/yyyy' }}</div>
-            </div>
-        </div>
+    <div body class="flow-item__description">
+        {{ flow().description }}
     </div>
-</app-selectable>
+
+    <app-created-by footerLeft [data]="{ name: flow().createdBy.name, context: flow().createdBy.context }" />
+    <app-created-at footerRight [date]="flow().createdAt" />
+</app-entity-card>

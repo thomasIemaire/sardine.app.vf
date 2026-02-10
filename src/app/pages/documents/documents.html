@@ -38,11 +38,7 @@
             @if (folders.length) {
             <div class="documents__section documents__section--folders">
                 <div class="documents__section__header">
-                    <h3 class="documents__section__title">
-                        <i class="fa-jelly-fill fa-solid fa-folder"></i>
-                        Dossiers
-                    </h3>
-                    <span class="documents__section__count">{{ folders.length }}</span>
+                    <app-section-header title="Dossiers" icon="fa-jelly-fill fa-solid fa-folder" [count]="folders.length" />
                 </div>
                 @if (currentView === 'card') {
                 <div class="documents__section__grid">
@@ -89,11 +85,7 @@
             @if (files.length) {
             <div class="documents__section documents__section--files">
                 <div class="documents__section__header">
-                    <h3 class="documents__section__title">
-                        <i class="fa-jelly-fill  fa-solid fa-file"></i>
-                        Fichiers
-                    </h3>
-                    <span class="documents__section__count">{{ files.length }}</span>
+                    <app-section-header title="Fichiers" icon="fa-jelly-fill fa-solid fa-file" [count]="files.length" />
                 </div>
                 @if (currentView === 'card') {
                 <div class="documents__section__grid">

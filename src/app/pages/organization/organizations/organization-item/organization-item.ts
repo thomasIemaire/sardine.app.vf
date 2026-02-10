@@ -1,9 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, viewChild } from "@angular/core";
-import { SelectableComponent } from "@shared/components";
+import { Component, input } from "@angular/core";
+import { CreatedAtComponent, EntityCardComponent, IconBadgeComponent, ItemInfoComponent } from "@shared/components";
 import { MenuItem } from "primeng/api";
-import { ButtonModule } from "primeng/button";
-import { Menu, MenuModule } from "primeng/menu";
 
 export interface OrganizationItem {
     id: string;
@@ -18,17 +16,11 @@ export interface OrganizationItem {
 
 @Component({
     selector: "app-organization-item",
-    imports: [CommonModule, SelectableComponent, ButtonModule, MenuModule],
+    imports: [CommonModule, EntityCardComponent, IconBadgeComponent, ItemInfoComponent, CreatedAtComponent],
     templateUrl: "./organization-item.html",
     styleUrls: ["./organization-item.scss"],
 })
 export class OrganizationItemComponent {
     organization = input.required<OrganizationItem>();
     menuItems = input.required<MenuItem[]>();
-
-    menu = viewChild.required<Menu>('menu');
-
-    toggleMenu(event: Event): void {
-        this.menu().toggle(event);
-    }
 }

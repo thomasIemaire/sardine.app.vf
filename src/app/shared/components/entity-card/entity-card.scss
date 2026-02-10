@@ -1,0 +1,57 @@
+.entity-card {
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: .75rem;
+        padding: .5rem .75rem;
+        border-radius: .5rem;
+        background-color: var(--background-color-100);
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+
+        &__left {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            min-width: 0;
+            flex: 1;
+        }
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: .5rem;
+
+        &__left {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            min-width: 0;
+        }
+
+        &__right {
+            flex-shrink: 0;
+        }
+    }
+}
+
+// Dashed variant (for templates)
+:host(.entity-card--dashed) {
+    .entity-card__wrapper {
+        border: 2px dashed var(--background-color-300);
+        background-color: var(--background-color-100);
+    }
+}

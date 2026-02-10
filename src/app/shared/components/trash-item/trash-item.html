@@ -1,0 +1,29 @@
+<app-selectable borderRadius=".5rem" selectedColor="var(--background-color-200)">
+    <div class="trash-item__wrapper">
+        <div class="trash-item__icon" [style.background-color]="iconBgColor()" [style.color]="iconColor()">
+            <i [class]="icon()"></i>
+        </div>
+        <div class="trash-item__content">
+            <div class="trash-item__name">{{ item().name }}</div>
+            <div class="trash-item__meta">
+                @if (isFile() && item().extension) {
+                    <span class="trash-item__meta__extension">.{{ item().extension }}</span>
+                    <span class="trash-item__meta__separator">•</span>
+                    <span class="trash-item__meta__size">{{ formattedSize() }}</span>
+                    <span class="trash-item__meta__separator">•</span>
+                }
+                <span class="trash-item__meta__path" [title]="item().originalPath">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    {{ item().originalPath }}
+                </span>
+            </div>
+        </div>
+        <app-days-remaining [days]="daysRemaining()" />
+        <div class="trash-item__actions">
+            <p-button icon="fa-jelly-fill fa-regular fa-arrow-rotate-left" size="small" text rounded severity="secondary"
+                pTooltip="Restaurer" (onClick)="onRestore($event)"></p-button>
+            <p-button icon="fa-jelly-fill fa-solid fa-trash" size="small" text rounded severity="danger"
+                pTooltip="Supprimer définitivement" (onClick)="onDelete($event)"></p-button>
+        </div>
+    </div>
+</app-selectable>

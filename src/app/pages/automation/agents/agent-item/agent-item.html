@@ -1,38 +1,14 @@
-<app-selectable borderRadius=".7rem" selectedColor="var(--background-color-200)">
-    <div class="agent-item__wrapper">
-        <div class="agent-item__header">
-            <div class="agent-item__header__left">
-                <app-pulsing-dot [active]="agent().status !== 'inactive'"
-                    [color]="agent().status === 'active' ? 'var(--p-green-500)' : agent().status === 'error' ? 'var(--p-red-500)' : 'var(--p-gray-400)'" />
-                <div class="agent-item__header__name">{{ agent().name }}</div>
-                <div class="agent-item__header__reference">{{ agent().reference }}</div>
-            </div>
-            <div class="agent-item__header__right">
-                <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
-                    (click)="$event.stopPropagation(); toggleMenu($event)"></p-button>
-                <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" />
-            </div>
-        </div>
-        <div class="agent-item__body">
-            <div class="agent-item__body__description">
-                {{ agent().description }}
-            </div>
-        </div>
-        <div class="agent-item__footer">
-            <div class="agent-item__footer__left">
-                <div class="agent-item__footer__created">
-                    <div class="agent-item__footer__created__picture">
+<app-entity-card [menuItems]="menuItems()">
+    <ng-container headerLeft>
+        <app-pulsing-dot [active]="agent().status !== 'inactive'" [color]="getStatusColor()" />
+        <div class="agent-item__header__name">{{ agent().name }}</div>
+        <div class="agent-item__header__reference">{{ agent().reference }}</div>
+    </ng-container>
 
-                    </div>
-                    <div class="agent-item__footer__created__infos">
-                        <span class="created-by">{{ agent().createdBy.name }}</span>
-                        <span class="created-from">{{ agent().createdBy.context }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="agent-item__footer__right">
-                <div class="created-at">Créé le {{ agent().createdAt | date:'dd/MM/yyyy' }}</div>
-            </div>
-        </div>
+    <div body class="agent-item__description">
+        {{ agent().description }}
     </div>
-</app-selectable>
+
+    <app-created-by footerLeft [data]="{ name: agent().createdBy.name, context: agent().createdBy.context }" />
+    <app-created-at footerRight [date]="agent().createdAt" />
+</app-entity-card>

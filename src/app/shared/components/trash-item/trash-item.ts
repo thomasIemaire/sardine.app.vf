@@ -1,33 +1,41 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, input, output } from "@angular/core";
-import { SelectableComponent } from "@shared/components";
+import { SelectableComponent } from "../selectable/selectable";
+import { DaysRemainingComponent } from "../days-remaining/days-remaining";
 import { ButtonModule } from "primeng/button";
+import { TooltipModule } from "primeng/tooltip";
 
 export type FileType = 'pdf' | 'doc' | 'xls' | 'img' | 'txt' | 'other';
 
-export interface TrashFileItem {
+export interface TrashItemData {
     id: string;
     name: string;
-    type: FileType;
-    size: number;
-    extension: string;
+    type: 'file' | 'folder';
+    fileType?: FileType;
+    size?: number;
+    extension?: string;
     deletedAt: Date;
     originalPath: string;
 }
 
 @Component({
-    selector: "app-trash-file-item",
-    imports: [CommonModule, SelectableComponent, ButtonModule],
-    templateUrl: "./trash-file-item.html",
-    styleUrls: ["./trash-file-item.scss"],
+    selector: "app-trash-item",
+    imports: [CommonModule, SelectableComponent, DaysRemainingComponent, ButtonModule, TooltipModule],
+    templateUrl: "./trash-item.html",
+    styleUrls: ["./trash-item.scss"],
 })
-export class TrashFileItemComponent {
-    file = input.required<TrashFileItem>();
-    restore = output<TrashFileItem>();
-    deletePermanently = output<TrashFileItem>();
+export class TrashItemComponent {
+    item = input.required<TrashItemData>();
+    restore = output<TrashItemData>();
+    deletePermanently = output<TrashItemData>();
 
-    fileIcon = computed(() => {
-        switch (this.file().type) {
+    isFile = computed(() => this.item().type === 'file');
+
+    icon = computed(() => {
+        if (this.item().type === 'folder') {
+            return 'fa-jelly-fill fa-solid fa-folder';
+        }
+        switch (this.item().fileType) {
             case 'pdf': return 'fa-solid fa-file-pdf';
             case 'doc': return 'fa-solid fa-file-word';
             case 'xls': return 'fa-solid fa-file-excel';
@@ -37,8 +45,11 @@ export class TrashFileItemComponent {
         }
     });
 
-    fileColor = computed(() => {
-        switch (this.file().type) {
+    iconColor = computed(() => {
+        if (this.item().type === 'folder') {
+            return 'var(--gray-color-400)';
+        }
+        switch (this.item().fileType) {
             case 'pdf': return 'var(--red-color-500)';
             case 'doc': return 'var(--blue-color-500)';
             case 'xls': return 'var(--green-color-500)';
@@ -48,8 +59,11 @@ export class TrashFileItemComponent {
         }
     });
 
-    fileBgColor = computed(() => {
-        switch (this.file().type) {
+    iconBgColor = computed(() => {
+        if (this.item().type === 'folder') {
+            return 'var(--gray-color-100)';
+        }
+        switch (this.item().fileType) {
             case 'pdf': return 'var(--red-color-100)';
             case 'doc': return 'var(--blue-color-100)';
             case 'xls': return 'var(--green-color-100)';
@@ -60,14 +74,15 @@ export class TrashFileItemComponent {
     });
 
     formattedSize = computed(() => {
-        const size = this.file().size;
+        const size = this.item().size;
+        if (!size) return '';
         if (size < 1024) return `${size} o`;
         if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} Ko`;
         return `${(size / (1024 * 1024)).toFixed(1)} Mo`;
     });
 
     daysRemaining = computed(() => {
-        const deletedAt = this.file().deletedAt;
+        const deletedAt = this.item().deletedAt;
         const now = new Date();
         const diffTime = 30 * 24 * 60 * 60 * 1000 - (now.getTime() - deletedAt.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -76,11 +91,11 @@ export class TrashFileItemComponent {
 
     onRestore(event: Event): void {
         event.stopPropagation();
-        this.restore.emit(this.file());
+        this.restore.emit(this.item());
     }
 
     onDelete(event: Event): void {
         event.stopPropagation();
-        this.deletePermanently.emit(this.file());
+        this.deletePermanently.emit(this.item());
     }
 }

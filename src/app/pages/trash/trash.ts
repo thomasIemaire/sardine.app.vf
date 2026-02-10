@@ -1,10 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { GridComponent, NoResultsComponent, PageHeaderComponent, TableToolbarComponent, ViewMode } from "@shared/components";
+import { DaysRemainingComponent, GridComponent, NoResultsComponent, PageHeaderComponent, SectionHeaderComponent, TableToolbarComponent, TrashItemComponent, TrashItemData, ViewMode } from "@shared/components";
 import { PageComponent } from "../page";
-import { TrashFolderItem, TrashFolderItemComponent } from "./trash-folder-item/trash-folder-item";
-import { TrashFileItem, TrashFileItemComponent } from "./trash-file-item/trash-file-item";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
 import { ConfirmDialogModule } from "primeng/confirmdialog";
@@ -17,11 +15,12 @@ import { ConfirmationService } from "primeng/api";
         FormsModule,
         PageComponent,
         PageHeaderComponent,
+        SectionHeaderComponent,
         TableToolbarComponent,
         GridComponent,
         NoResultsComponent,
-        TrashFolderItemComponent,
-        TrashFileItemComponent,
+        TrashItemComponent,
+        DaysRemainingComponent,
         TableModule,
         ButtonModule,
         ConfirmDialogModule
@@ -53,30 +52,29 @@ export class TrashComponent {
         }
     ]);
 
-    private allFolders: TrashFolderItem[] = [
+    private allFolders: TrashItemData[] = [
         {
             id: 'trash-folder-1',
             name: 'Archives 2022',
-            filesCount: 15,
-            foldersCount: 3,
+            type: 'folder',
             deletedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
             originalPath: '/Documents/Archives'
         },
         {
             id: 'trash-folder-2',
             name: 'Projet abandonné',
-            filesCount: 8,
-            foldersCount: 0,
+            type: 'folder',
             deletedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
             originalPath: '/Documents/Projets'
         },
     ];
 
-    private allFiles: TrashFileItem[] = [
+    private allFiles: TrashItemData[] = [
         {
             id: 'trash-file-1',
             name: 'Ancien rapport',
-            type: 'pdf',
+            type: 'file',
+            fileType: 'pdf',
             size: 1250000,
             extension: 'pdf',
             deletedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
@@ -85,7 +83,8 @@ export class TrashComponent {
         {
             id: 'trash-file-2',
             name: 'Budget 2023',
-            type: 'xls',
+            type: 'file',
+            fileType: 'xls',
             size: 89000,
             extension: 'xlsx',
             deletedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
@@ -94,7 +93,8 @@ export class TrashComponent {
         {
             id: 'trash-file-3',
             name: 'Photo événement',
-            type: 'img',
+            type: 'file',
+            fileType: 'img',
             size: 3500000,
             extension: 'jpg',
             deletedAt: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000),
@@ -103,7 +103,8 @@ export class TrashComponent {
         {
             id: 'trash-file-4',
             name: 'Notes réunion',
-            type: 'txt',
+            type: 'file',
+            fileType: 'txt',
             size: 5000,
             extension: 'txt',
             deletedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
@@ -111,25 +112,25 @@ export class TrashComponent {
         },
     ];
 
-    folders: TrashFolderItem[] = [];
-    files: TrashFileItem[] = [];
+    folders: TrashItemData[] = [];
+    files: TrashItemData[] = [];
 
     onSearch(query: string): void {
         this.searchQuery = query.toLowerCase();
         this.applyFilters();
     }
 
-    onRestoreFolder(folder: TrashFolderItem): void {
+    onRestoreFolder(folder: TrashItemData): void {
         this.allFolders = this.allFolders.filter(f => f.id !== folder.id);
         this.applyFilters();
     }
 
-    onDeleteFolder(folder: TrashFolderItem): void {
+    onDeleteFolder(folder: TrashItemData): void {
         this.confirmationService.confirm({
             message: `Êtes-vous sûr de vouloir supprimer définitivement le dossier "${folder.name}" et tout son contenu ?`,
             header: 'Suppression définitive',
             icon: 'fa-solid fa-triangle-exclamation',
-            
+
             acceptLabel: 'Supprimer',
             rejectLabel: 'Annuler',
             acceptButtonStyleClass: 'p-button-danger p-button-sm',
@@ -141,12 +142,12 @@ export class TrashComponent {
         });
     }
 
-    onRestoreFile(file: TrashFileItem): void {
+    onRestoreFile(file: TrashItemData): void {
         this.allFiles = this.allFiles.filter(f => f.id !== file.id);
         this.applyFilters();
     }
 
-    onDeleteFile(file: TrashFileItem): void {
+    onDeleteFile(file: TrashItemData): void {
         this.confirmationService.confirm({
             message: `Êtes-vous sûr de vouloir supprimer définitivement le fichier "${file.name}" ?`,
             header: 'Suppression définitive',

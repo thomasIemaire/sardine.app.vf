@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { GridComponent, NoResultsComponent, PageHeaderComponent, TableToolbarComponent, ViewMode } from "@shared/components";
+import { GridComponent, NoResultsComponent, PageHeaderComponent, SectionHeaderComponent, TableToolbarComponent, ViewMode } from "@shared/components";
 import { PageComponent } from "../page";
 import { FolderItem, FolderItemComponent } from "./folder-item/folder-item";
 import { FileItem, FileItemComponent } from "./file-item/file-item";
@@ -22,6 +22,7 @@ interface Breadcrumb {
         FormsModule,
         PageComponent,
         PageHeaderComponent,
+        SectionHeaderComponent,
         TableToolbarComponent,
         GridComponent,
         NoResultsComponent,

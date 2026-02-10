@@ -1,0 +1,32 @@
+.days-remaining {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: .25rem .5rem;
+    border-radius: .375rem;
+    background-color: var(--background-color-200);
+
+    &__count {
+        font-size: .875rem;
+        font-weight: 600;
+        color: var(--background-color-600);
+    }
+
+    &__label {
+        font-size: .5rem;
+        text-transform: uppercase;
+        color: var(--gray-color-600);
+    }
+
+    &--warning {
+        background-color: var(--red-color-100);
+
+        .days-remaining__count {
+            color: var(--red-color-500);
+        }
+
+        .days-remaining__label {
+            color: var(--red-color-600);
+        }
+    }
+}
