@@ -48,7 +48,7 @@
                 <div class="documents__section__grid">
                     <app-grid minItemWidth="240px">
                         @for (folder of folders; track folder.id) {
-                        <app-folder-item [folder]="folder" (folderClick)="navigateToFolder($event)" />
+                        <app-folder-item [folder]="folder" [menuItems]="getFolderMenuItems(folder)" (folderClick)="navigateToFolder($event)" />
                         }
                     </app-grid>
                 </div>
@@ -76,7 +76,8 @@
                             <td>{{ folder.updatedAt | date:'dd/MM/yyyy' }}</td>
                             <td>
                                 <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
-                                    severity="secondary" (click)="$event.stopPropagation()"></p-button>
+                                    severity="secondary" (click)="$event.stopPropagation(); folderMenu.toggle($event)"></p-button>
+                                <p-menu #folderMenu [model]="getFolderMenuItems(folder)" [popup]="true" appendTo="body" />
                             </td>
                         </tr>
                     </ng-template>
@@ -98,7 +99,7 @@
                 <div class="documents__section__grid">
                     <app-grid minItemWidth="280px">
                         @for (file of files; track file.id) {
-                        <app-file-item [file]="file" />
+                        <app-file-item [file]="file" [menuItems]="getFileMenuItems(file)" />
                         }
                     </app-grid>
                 </div>
@@ -126,7 +127,8 @@
                             <td>{{ file.updatedAt | date:'dd/MM/yyyy' }}</td>
                             <td>
                                 <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
-                                    severity="secondary" (click)="$event.stopPropagation()"></p-button>
+                                    severity="secondary" (click)="$event.stopPropagation(); fileMenu.toggle($event)"></p-button>
+                                <p-menu #fileMenu [model]="getFileMenuItems(file)" [popup]="true" appendTo="body" />
                             </td>
                         </tr>
                     </ng-template>

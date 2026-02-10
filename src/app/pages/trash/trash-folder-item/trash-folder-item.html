@@ -1,7 +1,7 @@
 <app-selectable borderRadius=".5rem" selectedColor="var(--background-color-200)">
     <div class="trash-folder-item__wrapper">
         <div class="trash-folder-item__icon">
-            <i class="fa-solid fa-folder"></i>
+            <i class="fa-jelly-fill fa-solid fa-folder"></i>
         </div>
         <div class="trash-folder-item__content">
             <div class="trash-folder-item__name">{{ folder().name }}</div>
@@ -17,9 +17,9 @@
             <span class="trash-folder-item__days__label">jours</span>
         </div>
         <div class="trash-folder-item__actions">
-            <p-button icon="fa-solid fa-rotate-left" size="small" text rounded severity="secondary"
+            <p-button icon="fa-jelly-fill fa-regular fa-arrow-rotate-left" size="small" text rounded severity="secondary"
                 pTooltip="Restaurer" (onClick)="onRestore($event)"></p-button>
-            <p-button icon="fa-solid fa-trash" size="small" text rounded severity="danger"
+            <p-button icon="fa-jelly-fill fa-solid fa-trash" size="small" text rounded severity="danger"
                 pTooltip="Supprimer définitivement" (onClick)="onDelete($event)"></p-button>
         </div>
     </div>

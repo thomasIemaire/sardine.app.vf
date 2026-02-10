@@ -5,8 +5,10 @@ import { GridComponent, NoResultsComponent, PageHeaderComponent, TableToolbarCom
 import { PageComponent } from "../page";
 import { FolderItem, FolderItemComponent } from "./folder-item/folder-item";
 import { FileItem, FileItemComponent } from "./file-item/file-item";
+import { MenuItem } from "primeng/api";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
+import { MenuModule } from "primeng/menu";
 
 interface Breadcrumb {
     id: string;
@@ -26,7 +28,8 @@ interface Breadcrumb {
         FolderItemComponent,
         FileItemComponent,
         TableModule,
-        ButtonModule
+        ButtonModule,
+        MenuModule
     ],
     templateUrl: "./documents.html",
     styleUrls: ["./documents.scss"]
@@ -191,5 +194,76 @@ export class DocumentsComponent {
 
     private uploadFile(): void {
         console.log('Upload file');
+    }
+
+    getFolderMenuItems(folder: FolderItem): MenuItem[] {
+        return [
+            {
+                label: 'Ouvrir',
+                icon: 'fa-jelly-fill fa-solid fa-folder',
+                command: () => this.navigateToFolder(folder)
+            },
+            { separator: true },
+            {
+                label: 'Renommer',
+                icon: 'fa-solid fa-pen',
+                command: () => console.log('Rename folder', folder)
+            },
+            {
+                label: 'Déplacer',
+                icon: 'fa-solid fa-arrows-up-down-left-right',
+                command: () => console.log('Move folder', folder)
+            },
+            {
+                label: 'Partager',
+                icon: 'fa-jelly-fill fa-solid fa-share-nodes',
+                command: () => console.log('Share folder', folder)
+            },
+            { separator: true },
+            {
+                label: 'Supprimer',
+                icon: 'fa-jelly-fill fa-solid fa-trash',
+                styleClass: 'menu-item-danger',
+                command: () => console.log('Delete folder', folder)
+            }
+        ];
+    }
+
+    getFileMenuItems(file: FileItem): MenuItem[] {
+        return [
+            {
+                label: 'Ouvrir',
+                icon: 'fa-jelly-fill fa-solid fa-arrow-up-right-from-square',
+                command: () => console.log('Open file', file)
+            },
+            {
+                label: 'Télécharger',
+                icon: 'fa-solid fa-download',
+                command: () => console.log('Download file', file)
+            },
+            { separator: true },
+            {
+                label: 'Renommer',
+                icon: 'fa-solid fa-pen',
+                command: () => console.log('Rename file', file)
+            },
+            {
+                label: 'Déplacer',
+                icon: 'fa-solid fa-arrows-up-down-left-right',
+                command: () => console.log('Move file', file)
+            },
+            {
+                label: 'Partager',
+                icon: 'fa-jelly-fill fa-solid fa-share-nodes',
+                command: () => console.log('Share file', file)
+            },
+            { separator: true },
+            {
+                label: 'Supprimer',
+                icon: 'fa-jelly-fill fa-solid fa-trash',
+                styleClass: 'menu-item-danger',
+                command: () => console.log('Delete file', file)
+            }
+        ];
     }
 }

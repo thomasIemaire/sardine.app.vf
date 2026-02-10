@@ -17,7 +17,7 @@
     <div class="page-table__wrapper__grid">
         <app-grid minItemWidth="278px">
             @for (agent of agents; track agent.id) {
-            <app-agent-item [agent]="agent" />
+            <app-agent-item [agent]="agent" [menuItems]="getAgentMenuItems(agent)" />
             }
         </app-grid>
     </div>
@@ -47,7 +47,8 @@
                     <td>{{ agent.createdAt | date:'dd/MM/yyyy' }}</td>
                     <td>
                         <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
-                            severity="secondary"></p-button>
+                            severity="secondary" (click)="agentMenu.toggle($event)"></p-button>
+                        <p-menu #agentMenu [model]="getAgentMenuItems(agent)" [popup]="true" appendTo="body" />
                     </td>
                 </tr>
             </ng-template>

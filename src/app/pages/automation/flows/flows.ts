@@ -7,13 +7,15 @@ import { map } from "rxjs";
 import { GflowComponent, GridComponent, NoResultsComponent, PulsingDotComponent, TableToolbarComponent } from "@shared/components";
 import { CreateFlowData, CreateFlowDialogComponent, CreateFlowTemplateData, CreateFlowTemplateDialogComponent } from "@shared/dialogs";
 import { FlowItem, FlowItemComponent } from "./flow-item/flow-item";
+import { MenuItem } from "primeng/api";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
+import { MenuModule } from "primeng/menu";
 import { Select } from "primeng/select";
 
 @Component({
     selector: "app-flows",
-    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, FlowItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select, CreateFlowDialogComponent, CreateFlowTemplateDialogComponent, NoResultsComponent, GflowComponent],
+    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, FlowItemComponent, TableModule, ButtonModule, MenuModule, PulsingDotComponent, Select, CreateFlowDialogComponent, CreateFlowTemplateDialogComponent, NoResultsComponent, GflowComponent],
     templateUrl: "./flows.html",
     styleUrls: ["./flows.scss", "../../_page-table.scss"]
 })
@@ -203,5 +205,38 @@ export class FlowsComponent {
 
     onFlowSaved(payload: any): void {
         console.log('Flow saved:', payload);
+    }
+
+    getFlowMenuItems(flow: FlowItem): MenuItem[] {
+        return [
+            {
+                label: 'Ouvrir',
+                icon: 'fa-jelly-fill fa-solid fa-arrow-up-right-from-square',
+                command: () => this.openFlowEditor(flow)
+            },
+            { separator: true },
+            {
+                label: flow.status === 'active' ? 'Désactiver' : 'Activer',
+                icon: flow.status === 'active' ? 'fa-jelly-fill fa-solid fa-pause' : 'fa-jelly-fill fa-solid fa-play',
+                command: () => console.log('Toggle status', flow)
+            },
+            {
+                label: 'Voir les exécutions',
+                icon: 'fa-jelly-fill fa-regular fa-clock',
+                command: () => console.log('View executions', flow)
+            },
+            {
+                label: 'Exporter',
+                icon: 'fa-solid fa-file-export',
+                command: () => console.log('Export flow', flow)
+            },
+            { separator: true },
+            {
+                label: 'Supprimer',
+                icon: 'fa-jelly-fill fa-solid fa-trash',
+                styleClass: 'menu-item-danger',
+                command: () => console.log('Delete flow', flow)
+            }
+        ];
     }
 }

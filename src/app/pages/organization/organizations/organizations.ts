@@ -4,12 +4,14 @@ import { FormsModule } from "@angular/forms";
 import { GridComponent, NoResultsComponent, TableToolbarComponent } from "@shared/components";
 import { CreateOrganizationData, CreateOrganizationDialogComponent } from "@shared/dialogs";
 import { OrganizationItem, OrganizationItemComponent } from "./organization-item/organization-item";
+import { MenuItem } from "primeng/api";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
+import { MenuModule } from "primeng/menu";
 
 @Component({
     selector: "app-organizations",
-    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, OrganizationItemComponent, TableModule, ButtonModule, CreateOrganizationDialogComponent, NoResultsComponent],
+    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, OrganizationItemComponent, TableModule, ButtonModule, MenuModule, CreateOrganizationDialogComponent, NoResultsComponent],
     templateUrl: "./organizations.html",
     styleUrls: ["./organizations.scss", "../../_page-table.scss"]
 })
@@ -98,5 +100,32 @@ export class OrganizationsComponent {
         }
 
         this.organizations = filtered;
+    }
+
+    getOrganizationMenuItems(org: OrganizationItem): MenuItem[] {
+        return [
+            {
+                label: 'Modifier',
+                icon: 'fa-solid fa-pen',
+                command: () => console.log('Edit organization', org)
+            },
+            {
+                label: 'Gérer les membres',
+                icon: 'fa-solid fa-users-gear',
+                command: () => console.log('Manage members', org)
+            },
+            {
+                label: 'Paramètres',
+                icon: 'fa-jelly-fill fa-solid fa-gear',
+                command: () => console.log('View settings', org)
+            },
+            { separator: true },
+            {
+                label: 'Supprimer',
+                icon: 'fa-jelly-fill fa-solid fa-trash',
+                styleClass: 'menu-item-danger',
+                command: () => console.log('Delete organization', org)
+            }
+        ];
     }
 }

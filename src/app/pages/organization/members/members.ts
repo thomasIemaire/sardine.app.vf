@@ -8,13 +8,15 @@ import { GridComponent, NoResultsComponent, TableToolbarComponent } from "@share
 import { AddMemberData, AddMemberDialogComponent, CreateTeamData, CreateTeamDialogComponent } from "@shared/dialogs";
 import { MemberItem, MemberItemComponent } from "./member-item/member-item";
 import { TeamItem, TeamItemComponent } from "./team-item/team-item";
+import { MenuItem } from "primeng/api";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
+import { MenuModule } from "primeng/menu";
 import { Select } from "primeng/select";
 
 @Component({
     selector: "app-members",
-    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, MemberItemComponent, TeamItemComponent, TableModule, ButtonModule, AddMemberDialogComponent, CreateTeamDialogComponent, NoResultsComponent, Select],
+    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, MemberItemComponent, TeamItemComponent, TableModule, ButtonModule, MenuModule, AddMemberDialogComponent, CreateTeamDialogComponent, NoResultsComponent, Select],
     templateUrl: "./members.html",
     styleUrls: ["./members.scss", "../../_page-table.scss"]
 })
@@ -152,5 +154,49 @@ export class MembersComponent {
         }
 
         this.teams = filtered;
+    }
+
+    getMemberMenuItems(member: MemberItem): MenuItem[] {
+        return [
+            {
+                label: 'Voir le profil',
+                icon: 'fa-jelly-fill fa-solid fa-user',
+                command: () => console.log('View profile', member)
+            },
+            {
+                label: 'Changer le rôle',
+                icon: 'fa-solid fa-user-shield',
+                command: () => console.log('Change role', member)
+            },
+            { separator: true },
+            {
+                label: 'Retirer',
+                icon: 'fa-solid fa-user-minus',
+                styleClass: 'menu-item-danger',
+                command: () => console.log('Remove member', member)
+            }
+        ];
+    }
+
+    getTeamMenuItems(team: TeamItem): MenuItem[] {
+        return [
+            {
+                label: 'Modifier',
+                icon: 'fa-solid fa-pen',
+                command: () => console.log('Edit team', team)
+            },
+            {
+                label: 'Gérer les membres',
+                icon: 'fa-solid fa-users-gear',
+                command: () => console.log('Manage members', team)
+            },
+            { separator: true },
+            {
+                label: 'Supprimer',
+                icon: 'fa-jelly-fill fa-solid fa-trash',
+                styleClass: 'menu-item-danger',
+                command: () => console.log('Delete team', team)
+            }
+        ];
     }
 }

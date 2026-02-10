@@ -18,7 +18,7 @@
     <div class="page-table__wrapper__grid">
         <app-grid minItemWidth="278px">
             @for (flow of flows; track flow.id) {
-            <app-flow-item [flow]="flow" (openFlow)="openFlowEditor($event)" />
+            <app-flow-item [flow]="flow" [menuItems]="getFlowMenuItems(flow)" (openFlow)="openFlowEditor($event)" />
             }
         </app-grid>
     </div>
@@ -52,7 +52,8 @@
                     <td>{{ flow.createdAt | date:'dd/MM/yyyy' }}</td>
                     <td>
                         <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
-                            severity="secondary" (click)="$event.stopPropagation()"></p-button>
+                            severity="secondary" (click)="$event.stopPropagation(); flowMenu.toggle($event)"></p-button>
+                        <p-menu #flowMenu [model]="getFlowMenuItems(flow)" [popup]="true" appendTo="body" />
                     </td>
                 </tr>
             </ng-template>

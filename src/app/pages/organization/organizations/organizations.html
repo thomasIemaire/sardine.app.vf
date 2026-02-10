@@ -14,7 +14,7 @@
     <div class="page-table__wrapper__grid">
         <app-grid minItemWidth="278px">
             @for (org of organizations; track org.id) {
-            <app-organization-item [organization]="org" />
+            <app-organization-item [organization]="org" [menuItems]="getOrganizationMenuItems(org)" />
             }
         </app-grid>
     </div>
@@ -42,7 +42,8 @@
                     <td>{{ org.createdAt | date:'dd/MM/yyyy' }}</td>
                     <td>
                         <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
-                            severity="secondary"></p-button>
+                            severity="secondary" (click)="orgMenu.toggle($event)"></p-button>
+                        <p-menu #orgMenu [model]="getOrganizationMenuItems(org)" [popup]="true" appendTo="body" />
                     </td>
                 </tr>
             </ng-template>

@@ -62,3 +62,20 @@ p-breadcrumb .p-breadcrumb {
     display: none !important;
   }
 }
+
+// Menu item danger styling (for delete/remove actions)
+.p-menu {
+  .menu-item-danger {
+    .p-menu-item-content {
+      color: var(--red-color-500) !important;
+
+      .p-menu-item-icon {
+        color: var(--red-color-500) !important;
+      }
+
+      &:hover {
+        background-color: var(--red-color-50) !important;
+      }
+    }
+  }
+}

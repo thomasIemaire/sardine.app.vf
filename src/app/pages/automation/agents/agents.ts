@@ -4,13 +4,15 @@ import { FormsModule } from "@angular/forms";
 import { GridComponent, NoResultsComponent, PulsingDotComponent, TableToolbarComponent } from "@shared/components";
 import { CreateAgentData, CreateAgentDialogComponent } from "@shared/dialogs";
 import { AgentItem, AgentItemComponent } from "./agent-item/agent-item";
+import { MenuItem } from "primeng/api";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
+import { MenuModule } from "primeng/menu";
 import { Select } from "primeng/select";
 
 @Component({
     selector: "app-agents",
-    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, AgentItemComponent, TableModule, ButtonModule, PulsingDotComponent, Select, CreateAgentDialogComponent, NoResultsComponent],
+    imports: [CommonModule, FormsModule, TableToolbarComponent, GridComponent, AgentItemComponent, TableModule, ButtonModule, MenuModule, PulsingDotComponent, Select, CreateAgentDialogComponent, NoResultsComponent],
     templateUrl: "./agents.html",
     styleUrls: ["./agents.scss", "../../_page-table.scss"]
 })
@@ -128,5 +130,28 @@ export class AgentsComponent {
         }
 
         this.agents = filtered;
+    }
+
+    getAgentMenuItems(agent: AgentItem): MenuItem[] {
+        return [
+            {
+                label: 'Modifier',
+                icon: 'fa-solid fa-pen',
+                command: () => console.log('Edit agent', agent)
+            },
+            { separator: true },
+            {
+                label: agent.status === 'active' ? 'Désactiver' : 'Activer',
+                icon: agent.status === 'active' ? 'fa-jelly-fill fa-regular fa-pause' : 'fa-jelly-fill fa-regular fa-play',
+                command: () => console.log('Toggle status', agent)
+            },
+            { separator: true },
+            {
+                label: 'Supprimer',
+                icon: 'fa-jelly-fill fa-solid fa-trash',
+                styleClass: 'menu-item-danger',
+                command: () => console.log('Delete agent', agent)
+            }
+        ];
     }
 }

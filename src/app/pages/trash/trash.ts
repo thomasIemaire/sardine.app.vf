@@ -46,7 +46,7 @@ export class TrashComponent {
     toolbarActions = computed(() => [
         {
             label: "Vider la corbeille",
-            icon: "fa-solid fa-trash",
+            icon: "fa-jelly-fill fa-solid fa-trash",
             severity: "danger",
             text: true,
             onClick: () => this.emptyTrash()

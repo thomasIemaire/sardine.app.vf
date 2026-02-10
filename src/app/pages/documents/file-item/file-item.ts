@@ -1,7 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, input, viewChild } from "@angular/core";
 import { SelectableComponent } from "@shared/components";
+import { MenuItem } from "primeng/api";
 import { ButtonModule } from "primeng/button";
+import { Menu, MenuModule } from "primeng/menu";
 
 export type FileType = 'pdf' | 'doc' | 'xls' | 'img' | 'txt' | 'other';
 
@@ -17,12 +19,19 @@ export interface FileItem {
 
 @Component({
     selector: "app-file-item",
-    imports: [CommonModule, SelectableComponent, ButtonModule],
+    imports: [CommonModule, SelectableComponent, ButtonModule, MenuModule],
     templateUrl: "./file-item.html",
     styleUrls: ["./file-item.scss"],
 })
 export class FileItemComponent {
     file = input.required<FileItem>();
+    menuItems = input.required<MenuItem[]>();
+
+    menu = viewChild.required<Menu>('menu');
+
+    toggleMenu(event: Event): void {
+        this.menu().toggle(event);
+    }
 
     fileIcon = computed(() => {
         switch (this.file().type) {

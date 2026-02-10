@@ -1,7 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, output } from "@angular/core";
+import { Component, computed, input, output, viewChild } from "@angular/core";
 import { SelectableComponent } from "@shared/components";
+import { MenuItem } from "primeng/api";
 import { ButtonModule } from "primeng/button";
+import { Menu, MenuModule } from "primeng/menu";
 import { CreatedBy } from "../../agents/agent-item/agent-item";
 
 export interface FlowItem {
@@ -18,7 +20,7 @@ export interface FlowItem {
 
 @Component({
     selector: "app-flow-item",
-    imports: [CommonModule, SelectableComponent, ButtonModule],
+    imports: [CommonModule, SelectableComponent, ButtonModule, MenuModule],
     templateUrl: "./flow-item.html",
     styleUrls: ["./flow-item.scss"],
     host: {
@@ -27,7 +29,10 @@ export interface FlowItem {
 })
 export class FlowItemComponent {
     flow = input.required<FlowItem>();
+    menuItems = input.required<MenuItem[]>();
     openFlow = output<FlowItem>();
+
+    menu = viewChild.required<Menu>('menu');
 
     statusColor = computed(() => {
         switch (this.flow().status) {
@@ -39,5 +44,9 @@ export class FlowItemComponent {
 
     onClick(): void {
         this.openFlow.emit(this.flow());
+    }
+
+    toggleMenu(event: Event): void {
+        this.menu().toggle(event);
     }
 }

@@ -9,7 +9,8 @@
             </div>
             <div class="team-item__header__right">
                 <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded severity="secondary"
-                    (click)="$event.stopPropagation()"></p-button>
+                    (click)="$event.stopPropagation(); toggleMenu($event)"></p-button>
+                <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" />
             </div>
         </div>
         <div class="team-item__body">

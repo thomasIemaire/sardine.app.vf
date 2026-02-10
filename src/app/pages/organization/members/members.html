@@ -26,7 +26,7 @@
     <div class="page-table__wrapper__grid">
         <app-grid minItemWidth="278px">
             @for (member of members; track member.id) {
-            <app-member-item [member]="member" />
+            <app-member-item [member]="member" [menuItems]="getMemberMenuItems(member)" />
             }
         </app-grid>
     </div>
@@ -50,7 +50,8 @@
                     <td>{{ member.addedAt | date:'dd/MM/yyyy' }}</td>
                     <td>
                         <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
-                            severity="secondary"></p-button>
+                            severity="secondary" (click)="memberMenu.toggle($event)"></p-button>
+                        <p-menu #memberMenu [model]="getMemberMenuItems(member)" [popup]="true" appendTo="body" />
                     </td>
                 </tr>
             </ng-template>
@@ -65,7 +66,7 @@
     <div class="page-table__wrapper__grid">
         <app-grid minItemWidth="278px">
             @for (team of teams; track team.id) {
-            <app-team-item [team]="team" />
+            <app-team-item [team]="team" [menuItems]="getTeamMenuItems(team)" />
             }
         </app-grid>
     </div>
@@ -89,7 +90,8 @@
                     <td>{{ team.createdAt | date:'dd/MM/yyyy' }}</td>
                     <td>
                         <p-button icon="fa-solid fa-ellipsis-vertical" size="small" text rounded
-                            severity="secondary"></p-button>
+                            severity="secondary" (click)="teamMenu.toggle($event)"></p-button>
+                        <p-menu #teamMenu [model]="getTeamMenuItems(team)" [popup]="true" appendTo="body" />
                     </td>
                 </tr>
             </ng-template>
