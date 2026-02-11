@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard, guestGuard } from './core/guards';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout';
 
@@ -6,6 +7,7 @@ export const routes: Routes = [
     {
         path: '',
         component: MainLayoutComponent,
+        canActivate: [authGuard],
         children: [
             {
                 path: '',
@@ -43,7 +45,16 @@ export const routes: Routes = [
             {
                 path: 'documents',
                 data: { breadcrumb: 'Documents' },
-                loadComponent: () => import('./pages/documents/documents').then(m => m.DocumentsComponent),
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./pages/documents/documents').then(m => m.DocumentsComponent),
+                    },
+                    {
+                        path: ':folderId',
+                        loadComponent: () => import('./pages/documents/documents').then(m => m.DocumentsComponent),
+                    },
+                ],
             },
             {
                 path: 'trash',
@@ -73,6 +84,7 @@ export const routes: Routes = [
     {
         path: 'auth',
         component: AuthLayoutComponent,
+        canActivate: [guestGuard],
         loadChildren: () => import('./pages/auth/auth.routes').then(m => m.authRoutes),
     },
 ];

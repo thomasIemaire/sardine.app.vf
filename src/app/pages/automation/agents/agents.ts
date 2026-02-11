@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, viewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, effect, inject, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { GridComponent, NoResultsComponent, PulsingDotComponent, TableToolbarComponent } from "@shared/components";
 import { CreateAgentData, CreateAgentDialogComponent } from "@shared/dialogs";
@@ -9,6 +9,8 @@ import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
 import { MenuModule } from "primeng/menu";
 import { Select } from "primeng/select";
+import { AgentsService, UserService } from "@core/services";
+import { AgentResponse, AgentStatus } from "@models/api.model";
 
 @Component({
     selector: "app-agents",
@@ -17,6 +19,9 @@ import { Select } from "primeng/select";
     styleUrls: ["./agents.scss", "../../_page-table.scss"]
 })
 export class AgentsComponent {
+    private cdr = inject(ChangeDetectorRef);
+    private agentsService = inject(AgentsService);
+    private userService = inject(UserService);
     private createAgentDialog = viewChild.required(CreateAgentDialogComponent);
 
     currentView: "list" | "card" = "list";
@@ -35,75 +40,49 @@ export class AgentsComponent {
             icon: "fa-solid fa-plus",
             onClick: () => this.openCreateDialog()
         }
-    ]
+    ];
+
+    private allAgents: AgentItem[] = [];
+    agents: AgentItem[] = [];
+    private searchQuery = '';
+
+    constructor() {
+        effect(() => {
+            this.userService.context();
+            this.loadAgents();
+        });
+    }
+
+    private loadAgents(): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        const status = this.selectedStatus?.value as AgentStatus | undefined;
+        this.agentsService.list(orgId, {
+            status: status ?? undefined,
+            search: this.searchQuery || undefined
+        }).subscribe(agents => {
+            this.allAgents = agents.map(a => this.mapAgent(a));
+            this.applyFilters();
+            this.cdr.markForCheck();
+        });
+    }
 
     openCreateDialog(): void {
         this.createAgentDialog().open();
     }
 
     onAgentCreated(data: CreateAgentData): void {
-        const newAgent: AgentItem = {
-            id: crypto.randomUUID(),
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.agentsService.create(orgId, {
             name: data.name,
             reference: data.reference,
-            version: "1.0.0",
             description: data.description,
-            status: data.status,
-            createdBy: { id: "1", name: "Utilisateur", context: "sardine" },
-            createdAt: new Date()
-        };
-        this.allAgents.push(newAgent);
-        this.filterByStatus();
+            status: data.status as 'active' | 'inactive'
+        }).subscribe(() => this.loadAgents());
     }
-
-    private allAgents: AgentItem[] = [
-        {
-            id: "1",
-            name: "Agent 1",
-            reference: "agent-1",
-            version: "1.0.0",
-            description: "Description de l'agent 1",
-            status: "active",
-            createdBy: {
-                id: "1",
-                name: "John Doe",
-                context: "sardine"
-            },
-            createdAt: new Date()
-        },
-        {
-            id: "2",
-            name: "Agent 2",
-            reference: "agent-2",
-            version: "1.0.0",
-            description: "Description de l'agent 2",
-            status: "inactive",
-            createdBy: {
-                id: "2",
-                name: "Jane Doe",
-                context: "sardine"
-            },
-            createdAt: new Date()
-        },
-        {
-            id: "3",
-            name: "Agent 3",
-            reference: "agent-3",
-            version: "1.0.0",
-            description: "Description de l'agent 3",
-            status: "error",
-            createdBy: {
-                id: "1",
-                name: "John Doe",
-                context: "sardine"
-            },
-            createdAt: new Date()
-        }
-    ];
-
-    agents: AgentItem[] = [...this.allAgents];
-
-    private searchQuery = '';
 
     onSearch(query: string): void {
         this.searchQuery = query.toLowerCase();
@@ -143,15 +122,44 @@ export class AgentsComponent {
             {
                 label: agent.status === 'active' ? 'Désactiver' : 'Activer',
                 icon: agent.status === 'active' ? 'fa-jelly-fill fa-regular fa-pause' : 'fa-jelly-fill fa-regular fa-play',
-                command: () => console.log('Toggle status', agent)
+                command: () => this.toggleStatus(agent)
             },
             { separator: true },
             {
                 label: 'Supprimer',
                 icon: 'fa-jelly-fill fa-solid fa-trash',
                 styleClass: 'menu-item-danger',
-                command: () => console.log('Delete agent', agent)
+                command: () => this.deleteAgent(agent)
             }
         ];
+    }
+
+    private toggleStatus(agent: AgentItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.agentsService.toggleStatus(orgId, agent.id).subscribe(() => this.loadAgents());
+    }
+
+    private deleteAgent(agent: AgentItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.agentsService.delete(orgId, agent.id).subscribe(() => this.loadAgents());
+    }
+
+    private mapAgent(a: AgentResponse): AgentItem {
+        return {
+            id: a.id,
+            name: a.name,
+            reference: a.reference,
+            version: a.version,
+            description: a.description ?? '',
+            status: a.status,
+            createdBy: {
+                id: a.created_by?.id ?? '',
+                name: a.created_by ? `${a.created_by.first_name} ${a.created_by.last_name}` : '',
+                context: ''
+            },
+            createdAt: new Date(a.created_at)
+        };
     }
 }

@@ -1,6 +1,17 @@
 <div class="auth-form-container">
     <app-brand size="large" />
     <app-form submitLabel="S'inscrire" (formSubmit)="onRegister()">
+        @if (error()) {
+        <div class="auth-error">{{ error() }}</div>
+        }
+        <div class="auth-row">
+            <app-field label="Prénom">
+                <app-text-field [(ngModel)]="firstName" placeholder="Entrez votre prénom" />
+            </app-field>
+            <app-field label="Nom">
+                <app-text-field [(ngModel)]="lastName" placeholder="Entrez votre nom" />
+            </app-field>
+        </div>
         <app-field label="Email">
             <app-text-field [(ngModel)]="email" placeholder="Entrez votre email" type="email" />
         </app-field>

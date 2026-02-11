@@ -1,8 +1,9 @@
-import { Component, output, signal } from "@angular/core";
+import { ChangeDetectorRef, Component, inject, output, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { DialogModule } from "primeng/dialog";
 import { ButtonModule } from "primeng/button";
 import { FieldComponent, MultiselectFieldComponent, TextareaFieldComponent, TextFieldComponent } from "@shared/components";
+import { MembersService, UserService } from "@core/services";
 
 export interface CreateTeamData {
     name: string;
@@ -17,6 +18,10 @@ export interface CreateTeamData {
     styleUrls: ["./create-team-dialog.scss"]
 })
 export class CreateTeamDialogComponent {
+    private cdr = inject(ChangeDetectorRef);
+    private membersService = inject(MembersService);
+    private userService = inject(UserService);
+
     visible = signal(false);
     submitted = output<CreateTeamData>();
 
@@ -24,15 +29,25 @@ export class CreateTeamDialogComponent {
     description = '';
     selectedMembers: string[] = [];
 
-    memberOptions = [
-        { label: 'Thomas Lemaire', value: 'user-1' },
-        { label: 'John Doe', value: 'user-2' },
-        { label: 'Jane Doe', value: 'user-3' },
-    ];
+    memberOptions: { label: string; value: string }[] = [];
 
     open(): void {
         this.reset();
+        this.loadMembers();
         this.visible.set(true);
+    }
+
+    private loadMembers(): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.membersService.list(orgId).subscribe(members => {
+            this.memberOptions = members.map(m => ({
+                label: `${m.first_name} ${m.last_name}`,
+                value: m.user_id
+            }));
+            this.cdr.markForCheck();
+        });
     }
 
     close(): void {

@@ -1,8 +1,9 @@
-import { Component, output, signal } from "@angular/core";
+import { ChangeDetectorRef, Component, inject, output, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { DialogModule } from "primeng/dialog";
 import { ButtonModule } from "primeng/button";
 import { FieldComponent, MultiselectFieldComponent, SelectFieldComponent, TextareaFieldComponent, TextFieldComponent, ToggleSwitchFieldComponent } from "@shared/components";
+import { MembersService, OrganizationsService, UserService } from "@core/services";
 
 export interface CreateOrganizationData {
     name: string;
@@ -19,6 +20,11 @@ export interface CreateOrganizationData {
     styleUrls: ["./create-organization-dialog.scss"]
 })
 export class CreateOrganizationDialogComponent {
+    private cdr = inject(ChangeDetectorRef);
+    private organizationsService = inject(OrganizationsService);
+    private membersService = inject(MembersService);
+    private userService = inject(UserService);
+
     visible = signal(false);
     submitted = output<CreateOrganizationData>();
 
@@ -29,25 +35,34 @@ export class CreateOrganizationDialogComponent {
     selectedMembers: string[] = [];
     allParentMembers = false;
 
-    holdingOptions = [
-        { label: 'Sardine Group', value: 'sardine-group' },
-        { label: 'Sendoc Holding', value: 'sendoc-holding' },
-    ];
-
-    distributorOptions = [
-        { label: 'Distributeur A', value: 'dist-a' },
-        { label: 'Distributeur B', value: 'dist-b' },
-    ];
-
-    memberOptions = [
-        { label: 'John Doe', value: 'user-1' },
-        { label: 'Jane Doe', value: 'user-2' },
-        { label: 'Thomas Lemaire', value: 'user-3' },
-    ];
+    holdingOptions: { label: string; value: string }[] = [];
+    distributorOptions: { label: string; value: string }[] = [];
+    memberOptions: { label: string; value: string }[] = [];
 
     open(): void {
         this.reset();
+        this.loadOptions();
         this.visible.set(true);
+    }
+
+    private loadOptions(): void {
+        this.organizationsService.list().subscribe(orgs => {
+            const options = orgs.map(o => ({ label: o.name, value: o.id }));
+            this.holdingOptions = options;
+            this.distributorOptions = options;
+            this.cdr.markForCheck();
+        });
+
+        const orgId = this.userService.getCurrentOrgId();
+        if (orgId) {
+            this.membersService.list(orgId).subscribe(members => {
+                this.memberOptions = members.map(m => ({
+                    label: `${m.first_name} ${m.last_name}`,
+                    value: m.user_id
+                }));
+                this.cdr.markForCheck();
+            });
+        }
     }
 
     close(): void {

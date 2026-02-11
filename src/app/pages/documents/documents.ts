@@ -1,7 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, signal } from "@angular/core";
+import { ChangeDetectorRef, Component, computed, effect, inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 import { GridComponent, NoResultsComponent, PageHeaderComponent, SectionHeaderComponent, TableToolbarComponent, ViewMode } from "@shared/components";
+import { CreateFolderData, CreateFolderDialogComponent, ImportFileData, ImportFileDialogComponent } from "@shared/dialogs";
 import { PageComponent } from "../page";
 import { FolderItem, FolderItemComponent } from "./folder-item/folder-item";
 import { FileItem, FileItemComponent } from "./file-item/file-item";
@@ -9,6 +13,8 @@ import { MenuItem } from "primeng/api";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
 import { MenuModule } from "primeng/menu";
+import { FoldersService, FilesService, UserService } from "@core/services";
+import { FolderResponse, FileResponse } from "@models/api.model";
 
 interface Breadcrumb {
     id: string;
@@ -30,34 +36,31 @@ interface Breadcrumb {
         FileItemComponent,
         TableModule,
         ButtonModule,
-        MenuModule
+        MenuModule,
+        CreateFolderDialogComponent,
+        ImportFileDialogComponent
     ],
     templateUrl: "./documents.html",
     styleUrls: ["./documents.scss"]
 })
 export class DocumentsComponent {
+    private cdr = inject(ChangeDetectorRef);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private foldersService = inject(FoldersService);
+    private filesService = inject(FilesService);
+    private userService = inject(UserService);
+    private createFolderDialog = viewChild.required(CreateFolderDialogComponent);
+    private importFileDialog = viewChild.required(ImportFileDialogComponent);
+
     currentView: ViewMode = "card";
     private searchQuery = '';
 
-    currentFolderId = signal<string | null>(null);
-
-    breadcrumbs = computed<Breadcrumb[]>(() => {
-        const folderId = this.currentFolderId();
-        if (!folderId) return [];
-
-        const buildPath = (id: string): Breadcrumb[] => {
-            const folder = this.allFolders.find(f => f.id === id);
-            if (!folder) return [];
-
-            const parent = this.folderParents[id];
-            if (parent) {
-                return [...buildPath(parent), { id: folder.id, name: folder.name }];
-            }
-            return [{ id: folder.id, name: folder.name }];
-        };
-
-        return buildPath(folderId);
-    });
+    currentFolderId = toSignal(
+        this.route.paramMap.pipe(map(params => params.get('folderId'))),
+        { initialValue: null }
+    );
+    breadcrumbs = signal<Breadcrumb[]>([]);
 
     pageTitle = computed(() => {
         const crumbs = this.breadcrumbs();
@@ -84,92 +87,93 @@ export class DocumentsComponent {
         }
     ]);
 
-    private folderParents: Record<string, string | null> = {
-        'folder-1': null,
-        'folder-2': null,
-        'folder-3': null,
-        'folder-1-1': 'folder-1',
-        'folder-1-2': 'folder-1',
-        'folder-2-1': 'folder-2',
-    };
-
-    private allFolders: FolderItem[] = [
-        { id: 'folder-1', name: 'Factures', filesCount: 12, foldersCount: 2, updatedAt: new Date() },
-        { id: 'folder-2', name: 'Contrats', filesCount: 8, foldersCount: 1, updatedAt: new Date() },
-        { id: 'folder-3', name: 'Documents administratifs', filesCount: 25, foldersCount: 0, updatedAt: new Date() },
-        { id: 'folder-1-1', name: 'Factures 2024', filesCount: 5, foldersCount: 0, updatedAt: new Date() },
-        { id: 'folder-1-2', name: 'Factures 2023', filesCount: 7, foldersCount: 0, updatedAt: new Date() },
-        { id: 'folder-2-1', name: 'Contrats clients', filesCount: 4, foldersCount: 0, updatedAt: new Date() },
-    ];
-
-    private allFiles: (FileItem & { folderId: string | null })[] = [
-        { id: 'file-1', name: 'Rapport annuel 2024', type: 'pdf', size: 2457600, extension: 'pdf', createdAt: new Date(), updatedAt: new Date(), folderId: null },
-        { id: 'file-2', name: 'Budget prévisionnel', type: 'xls', size: 156000, extension: 'xlsx', createdAt: new Date(), updatedAt: new Date(), folderId: null },
-        { id: 'file-3', name: 'Présentation produit', type: 'doc', size: 890000, extension: 'docx', createdAt: new Date(), updatedAt: new Date(), folderId: null },
-        { id: 'file-4', name: 'Logo entreprise', type: 'img', size: 45000, extension: 'png', createdAt: new Date(), updatedAt: new Date(), folderId: null },
-        { id: 'file-5', name: 'Notes de réunion', type: 'txt', size: 12000, extension: 'txt', createdAt: new Date(), updatedAt: new Date(), folderId: null },
-        { id: 'file-6', name: 'Facture janvier', type: 'pdf', size: 125000, extension: 'pdf', createdAt: new Date(), updatedAt: new Date(), folderId: 'folder-1-1' },
-        { id: 'file-7', name: 'Facture février', type: 'pdf', size: 118000, extension: 'pdf', createdAt: new Date(), updatedAt: new Date(), folderId: 'folder-1-1' },
-        { id: 'file-8', name: 'Contrat client ABC', type: 'pdf', size: 340000, extension: 'pdf', createdAt: new Date(), updatedAt: new Date(), folderId: 'folder-2-1' },
-    ];
-
     folders: FolderItem[] = [];
     files: FileItem[] = [];
 
+    private lastOrgId: string | null = null;
+
     constructor() {
-        this.applyFilters();
+        effect(() => {
+            const orgId = this.userService.context()?.organization?.id ?? null;
+            const folderId = this.currentFolderId();
+
+            if (this.lastOrgId && orgId !== this.lastOrgId && folderId) {
+                this.lastOrgId = orgId;
+                this.router.navigate(['/documents']);
+                return;
+            }
+
+            this.lastOrgId = orgId;
+            this.loadContents();
+        });
+    }
+
+    private loadContents(): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        const folderId = this.currentFolderId();
+
+        if (folderId) {
+            this.foldersService.getContents(orgId, folderId).subscribe(response => {
+                this.folders = response.subfolders.map(f => this.mapFolder(f));
+                this.files = response.files.map(f => this.mapFile(f));
+                this.applySearch();
+                this.cdr.markForCheck();
+            });
+            this.foldersService.getBreadcrumbs(orgId, folderId).subscribe(crumbs => {
+                this.breadcrumbs.set(crumbs.map(c => ({ id: c.id, name: c.name })));
+            });
+        } else {
+            this.breadcrumbs.set([]);
+            this.foldersService.listRoot(orgId).subscribe(folders => {
+                this.folders = folders.map(f => this.mapFolder(f));
+                this.files = [];
+                this.applySearch();
+                this.cdr.markForCheck();
+            });
+        }
     }
 
     onSearch(query: string): void {
         this.searchQuery = query.toLowerCase();
-        this.applyFilters();
+        this.loadContents();
     }
 
     navigateToFolder(folder: FolderItem): void {
-        this.currentFolderId.set(folder.id);
         this.searchQuery = '';
-        this.applyFilters();
+        this.router.navigate(['/documents', folder.id]);
     }
 
     navigateToBreadcrumb(breadcrumb: Breadcrumb): void {
-        this.currentFolderId.set(breadcrumb.id);
         this.searchQuery = '';
-        this.applyFilters();
+        this.router.navigate(['/documents', breadcrumb.id]);
     }
 
     navigateBack(): void {
-        const currentId = this.currentFolderId();
-        if (currentId) {
-            const parentId = this.folderParents[currentId];
-            this.currentFolderId.set(parentId);
-            this.searchQuery = '';
-            this.applyFilters();
+        const crumbs = this.breadcrumbs();
+        this.searchQuery = '';
+        if (crumbs.length > 1) {
+            this.router.navigate(['/documents', crumbs[crumbs.length - 2].id]);
+        } else {
+            this.router.navigate(['/documents']);
         }
     }
 
     navigateToRoot(): void {
-        this.currentFolderId.set(null);
         this.searchQuery = '';
-        this.applyFilters();
+        this.router.navigate(['/documents']);
     }
 
-    private applyFilters(): void {
-        const currentId = this.currentFolderId();
-
-        let filteredFolders = this.allFolders.filter(f => this.folderParents[f.id] === currentId);
-        let filteredFiles = this.allFiles.filter(f => f.folderId === currentId);
-
+    private applySearch(): void {
         if (this.searchQuery) {
-            filteredFolders = filteredFolders.filter(f =>
+            this.folders = this.folders.filter(f =>
                 f.name.toLowerCase().includes(this.searchQuery)
             );
-            filteredFiles = filteredFiles.filter(f =>
+            this.files = this.files.filter(f =>
                 f.name.toLowerCase().includes(this.searchQuery)
             );
         }
-
-        this.folders = filteredFolders;
-        this.files = filteredFiles;
     }
 
     getFileIcon(type: string): string {
@@ -190,11 +194,28 @@ export class DocumentsComponent {
     }
 
     private createFolder(): void {
-        console.log('Create folder');
+        this.createFolderDialog().open();
     }
 
     private uploadFile(): void {
-        console.log('Upload file');
+        this.importFileDialog().open();
+    }
+
+    onFolderCreated(data: CreateFolderData): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.foldersService.create(orgId, {
+            name: data.name,
+            parent_id: this.currentFolderId() ?? undefined
+        }).subscribe(() => this.loadContents());
+    }
+
+    onFilesImported(data: ImportFileData): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.filesService.upload(orgId, data.files, this.currentFolderId() ?? undefined).subscribe(() => this.loadContents());
     }
 
     getFolderMenuItems(folder: FolderItem): MenuItem[] {
@@ -225,7 +246,7 @@ export class DocumentsComponent {
                 label: 'Supprimer',
                 icon: 'fa-jelly-fill fa-solid fa-trash',
                 styleClass: 'menu-item-danger',
-                command: () => console.log('Delete folder', folder)
+                command: () => this.deleteFolder(folder)
             }
         ];
     }
@@ -240,7 +261,7 @@ export class DocumentsComponent {
             {
                 label: 'Télécharger',
                 icon: 'fa-solid fa-download',
-                command: () => console.log('Download file', file)
+                command: () => this.downloadFile(file)
             },
             { separator: true },
             {
@@ -263,8 +284,55 @@ export class DocumentsComponent {
                 label: 'Supprimer',
                 icon: 'fa-jelly-fill fa-solid fa-trash',
                 styleClass: 'menu-item-danger',
-                command: () => console.log('Delete file', file)
+                command: () => this.deleteFile(file)
             }
         ];
+    }
+
+    private deleteFolder(folder: FolderItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.foldersService.delete(orgId, folder.id).subscribe(() => this.loadContents());
+    }
+
+    private deleteFile(file: FileItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.filesService.delete(orgId, file.id).subscribe(() => this.loadContents());
+    }
+
+    private downloadFile(file: FileItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.filesService.download(orgId, file.id).subscribe(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    private mapFolder(f: FolderResponse): FolderItem {
+        return {
+            id: f.id,
+            name: f.name,
+            filesCount: f.files_count,
+            foldersCount: f.folders_count,
+            updatedAt: new Date(f.updated_at)
+        };
+    }
+
+    private mapFile(f: FileResponse): FileItem {
+        return {
+            id: f.id,
+            name: f.name,
+            type: f.file_type,
+            size: f.size,
+            extension: f.extension,
+            createdAt: new Date(f.created_at),
+            updatedAt: new Date(f.updated_at)
+        };
     }
 }

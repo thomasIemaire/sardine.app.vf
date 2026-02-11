@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, effect, inject, signal, viewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, computed, effect, inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -12,6 +12,8 @@ import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
 import { MenuModule } from "primeng/menu";
 import { Select } from "primeng/select";
+import { FlowsService, UserService } from "@core/services";
+import { FlowResponse, FlowStatus } from "@models/api.model";
 
 @Component({
     selector: "app-flows",
@@ -20,7 +22,10 @@ import { Select } from "primeng/select";
     styleUrls: ["./flows.scss", "../../_page-table.scss"]
 })
 export class FlowsComponent {
+    private cdr = inject(ChangeDetectorRef);
     private route = inject(ActivatedRoute);
+    private flowsService = inject(FlowsService);
+    private userService = inject(UserService);
     private createFlowDialog = viewChild.required(CreateFlowDialogComponent);
     private createFlowTemplateDialog = viewChild.required(CreateFlowTemplateDialogComponent);
     private gflowEditor = viewChild(GflowComponent);
@@ -53,70 +58,31 @@ export class FlowsComponent {
         }
     ]);
 
-    private allFlows: FlowItem[] = [
-        {
-            id: "1",
-            name: "Flow extraction",
-            reference: "flow-extraction",
-            version: "1.0.0",
-            description: "Extraction automatique des données depuis les documents",
-            status: "active",
-            createdBy: { id: "1", name: "Thomas Lemaire", context: "sardine" },
-            createdAt: new Date(),
-            isTemplate: false
-        },
-        {
-            id: "2",
-            name: "Flow validation",
-            reference: "flow-validation",
-            version: "1.0.0",
-            description: "Validation des données extraites avant intégration",
-            status: "inactive",
-            createdBy: { id: "2", name: "John Doe", context: "sardine" },
-            createdAt: new Date(),
-            isTemplate: false
-        },
-        {
-            id: "3",
-            name: "Flow notification",
-            reference: "flow-notification",
-            version: "1.0.0",
-            description: "Envoi de notifications aux utilisateurs concernés",
-            status: "error",
-            createdBy: { id: "1", name: "Thomas Lemaire", context: "sardine" },
-            createdAt: new Date(),
-            isTemplate: false
-        },
-        {
-            id: "4",
-            name: "Modèle import CSV",
-            version: "1.0.0",
-            description: "Modèle pour l'import de fichiers CSV",
-            status: "active",
-            createdBy: { id: "1", name: "Thomas Lemaire", context: "sardine" },
-            createdAt: new Date(),
-            isTemplate: true
-        },
-        {
-            id: "5",
-            name: "Modèle export PDF",
-            version: "1.0.0",
-            description: "Modèle pour l'export de documents en PDF",
-            status: "active",
-            createdBy: { id: "2", name: "John Doe", context: "sardine" },
-            createdAt: new Date(),
-            isTemplate: true
-        }
-    ];
-
+    private allFlows: FlowItem[] = [];
     flows: FlowItem[] = [];
-
     private searchQuery = '';
 
     constructor() {
         effect(() => {
+            this.userService.context();
             this.isAllTab();
+            this.loadFlows();
+        });
+    }
+
+    private loadFlows(): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        const isAll = this.isAllTab();
+        this.flowsService.list(orgId, {
+            is_template: !isAll,
+            status: (this.selectedStatus?.value as FlowStatus) ?? undefined,
+            search: this.searchQuery || undefined
+        }).subscribe(flows => {
+            this.allFlows = flows.map(f => this.mapFlow(f));
             this.applyFilters();
+            this.cdr.markForCheck();
         });
     }
 
@@ -130,37 +96,32 @@ export class FlowsComponent {
     }
 
     onFlowCreated(data: CreateFlowData): void {
-        this.allFlows.push({
-            id: crypto.randomUUID(),
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.flowsService.create(orgId, {
             name: data.name,
             reference: data.reference,
-            version: "1.0.0",
             description: data.description,
-            status: data.status,
-            createdBy: { id: "1", name: "Utilisateur", context: "sardine" },
-            createdAt: new Date(),
-            isTemplate: false
-        });
-        this.applyFilters();
+            status: data.status as 'active' | 'inactive',
+            is_template: false
+        }).subscribe(() => this.loadFlows());
     }
 
     onFlowTemplateCreated(data: CreateFlowTemplateData): void {
-        this.allFlows.push({
-            id: crypto.randomUUID(),
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.flowsService.create(orgId, {
             name: data.name,
-            version: "1.0.0",
             description: data.description,
-            status: data.status,
-            createdBy: { id: "1", name: "Utilisateur", context: "sardine" },
-            createdAt: new Date(),
-            isTemplate: true
-        });
-        this.applyFilters();
+            status: data.status as 'active' | 'inactive',
+            is_template: true
+        }).subscribe(() => this.loadFlows());
     }
 
     applyFilters(): void {
-        const isAll = this.isAllTab();
-        let filtered = this.allFlows.filter(f => isAll ? !f.isTemplate : f.isTemplate);
+        let filtered = [...this.allFlows];
 
         const status = this.selectedStatus?.value;
         if (status) {
@@ -204,7 +165,15 @@ export class FlowsComponent {
     }
 
     onFlowSaved(payload: any): void {
-        console.log('Flow saved:', payload);
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        const flow = this.selectedFlow();
+        if (flow) {
+            this.flowsService.update(orgId, flow.id, {
+                flow_data: payload.flowData
+            }).subscribe(() => this.loadFlows());
+        }
     }
 
     getFlowMenuItems(flow: FlowItem): MenuItem[] {
@@ -218,7 +187,7 @@ export class FlowsComponent {
             {
                 label: flow.status === 'active' ? 'Désactiver' : 'Activer',
                 icon: flow.status === 'active' ? 'fa-jelly-fill fa-solid fa-pause' : 'fa-jelly-fill fa-solid fa-play',
-                command: () => console.log('Toggle status', flow)
+                command: () => this.toggleStatus(flow)
             },
             {
                 label: 'Voir les exécutions',
@@ -228,15 +197,59 @@ export class FlowsComponent {
             {
                 label: 'Exporter',
                 icon: 'fa-solid fa-file-export',
-                command: () => console.log('Export flow', flow)
+                command: () => this.exportFlow(flow)
             },
             { separator: true },
             {
                 label: 'Supprimer',
                 icon: 'fa-jelly-fill fa-solid fa-trash',
                 styleClass: 'menu-item-danger',
-                command: () => console.log('Delete flow', flow)
+                command: () => this.deleteFlow(flow)
             }
         ];
+    }
+
+    private toggleStatus(flow: FlowItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.flowsService.toggleStatus(orgId, flow.id).subscribe(() => this.loadFlows());
+    }
+
+    private deleteFlow(flow: FlowItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.flowsService.delete(orgId, flow.id).subscribe(() => this.loadFlows());
+    }
+
+    private exportFlow(flow: FlowItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.flowsService.export(orgId, flow.id).subscribe(data => {
+            const blob = new Blob([JSON.stringify(data.flow_json, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${flow.name}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    private mapFlow(f: FlowResponse): FlowItem {
+        return {
+            id: f.id,
+            name: f.name,
+            reference: f.reference ?? undefined,
+            version: f.version,
+            description: f.description ?? '',
+            status: f.status,
+            createdBy: {
+                id: f.created_by?.id ?? '',
+                name: f.created_by ? `${f.created_by.first_name} ${f.created_by.last_name}` : '',
+                context: ''
+            },
+            createdAt: new Date(f.created_at),
+            isTemplate: f.is_template
+        };
     }
 }

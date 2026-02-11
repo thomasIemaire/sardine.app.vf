@@ -131,4 +131,7 @@
         </div>
         }
     </div>
+
+    <app-create-folder-dialog (submitted)="onFolderCreated($event)" />
+    <app-import-file-dialog (submitted)="onFilesImported($event)" />
 </app-page>

@@ -1,0 +1,131 @@
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2rem;
+    border: 2px dashed var(--surface-border);
+    border-radius: var(--border-radius);
+    background: var(--surface-ground);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: var(--primary-color);
+        background: var(--surface-hover);
+    }
+
+    &--active {
+        border-color: var(--primary-color);
+        background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    }
+
+    &__icon {
+        font-size: 2rem;
+        color: var(--text-color-secondary);
+
+        .dropzone--active & {
+            color: var(--primary-color);
+        }
+    }
+
+    &__text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    &__title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    &__subtitle {
+        font-size: 0.8rem;
+        color: var(--text-color-secondary);
+    }
+}
+
+.file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    &__header {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-color-secondary);
+        padding-bottom: 0.25rem;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--border-radius);
+        background: var(--surface-ground);
+    }
+
+    &__item-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+    }
+
+    &__item-icon {
+        font-size: 0.875rem;
+        color: var(--text-color-secondary);
+        flex-shrink: 0;
+    }
+
+    &__item-name {
+        font-size: 0.8rem;
+        color: var(--text-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__item-size {
+        font-size: 0.75rem;
+        color: var(--text-color-secondary);
+        flex-shrink: 0;
+    }
+
+    &__item-remove {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--text-color-secondary);
+        border-radius: 50%;
+        flex-shrink: 0;
+        transition: all 0.15s ease;
+
+        &:hover {
+            background: var(--surface-hover);
+            color: var(--red-500);
+        }
+    }
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}

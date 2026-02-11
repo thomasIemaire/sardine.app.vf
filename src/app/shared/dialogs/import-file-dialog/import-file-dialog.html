@@ -1,0 +1,44 @@
+<p-dialog header="Importer des fichiers" [draggable]="false" [modal]="true" [(visible)]="visible" [style]="{ width: '520px' }">
+    <div class="form-container">
+        <div class="dropzone" [class.dropzone--active]="isDragOver"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            (click)="fileInput.click()">
+            <input #fileInput type="file" multiple hidden (change)="onFileSelected($event)">
+            <div class="dropzone__icon">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <div class="dropzone__text">
+                <span class="dropzone__title">Glissez-déposez vos fichiers ici</span>
+                <span class="dropzone__subtitle">ou cliquez pour parcourir</span>
+            </div>
+        </div>
+
+        @if (selectedFiles.length > 0) {
+            <div class="file-list">
+                <div class="file-list__header">
+                    <span>{{ selectedFiles.length }} fichier{{ selectedFiles.length > 1 ? 's' : '' }} sélectionné{{ selectedFiles.length > 1 ? 's' : '' }}</span>
+                </div>
+                @for (file of selectedFiles; track file.name; let i = $index) {
+                    <div class="file-list__item">
+                        <div class="file-list__item-info">
+                            <i class="fa-solid fa-file file-list__item-icon"></i>
+                            <span class="file-list__item-name">{{ file.name }}</span>
+                            <span class="file-list__item-size">{{ formatFileSize(file.size) }}</span>
+                        </div>
+                        <button class="file-list__item-remove" (click)="removeFile(i); $event.stopPropagation()">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    <ng-template #footer>
+        <div class="dialog-footer">
+            <p-button label="Annuler" size="small" severity="secondary" text (onClick)="close()" />
+            <p-button label="Importer" size="small" icon="fa-solid fa-upload" [disabled]="!isValid()" (onClick)="submit()" />
+        </div>
+    </ng-template>
+</p-dialog>

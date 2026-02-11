@@ -16,6 +16,24 @@
     font-size: .75rem;
 }
 
+.auth-row {
+    display: flex;
+    gap: 1rem;
+
+    > * {
+        flex: 1;
+    }
+}
+
+.auth-error {
+    padding: .75rem 1rem;
+    background-color: var(--p-red-50);
+    border: 1px solid var(--p-red-200);
+    border-radius: .5rem;
+    color: var(--p-red-700);
+    font-size: .8125rem;
+}
+
 .auth-account-question .link {
     color: var(--p-primary-color);
     text-decoration: none;

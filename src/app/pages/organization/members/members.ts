@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, inject, viewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, computed, effect, inject, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -13,6 +13,8 @@ import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
 import { MenuModule } from "primeng/menu";
 import { Select } from "primeng/select";
+import { MembersService, TeamsService, UserService } from "@core/services";
+import { MemberResponse, MemberRole, TeamResponse } from "@models/api.model";
 
 @Component({
     selector: "app-members",
@@ -21,7 +23,11 @@ import { Select } from "primeng/select";
     styleUrls: ["./members.scss", "../../_page-table.scss"]
 })
 export class MembersComponent {
+    private cdr = inject(ChangeDetectorRef);
     private route = inject(ActivatedRoute);
+    private membersService = inject(MembersService);
+    private teamsService = inject(TeamsService);
+    private userService = inject(UserService);
     private addMemberDialog = viewChild.required(AddMemberDialogComponent);
     private createTeamDialog = viewChild.required(CreateTeamDialogComponent);
 
@@ -51,13 +57,8 @@ export class MembersComponent {
         }
     ];
 
-    private allMembers: MemberItem[] = [
-        { id: "1", name: "Thomas Lemaire", email: "thomas.lemaire@sendoc.fr", role: "admin", addedAt: new Date() },
-        { id: "2", name: "John Doe", email: "john.doe@sendoc.fr", role: "member", addedAt: new Date() },
-        { id: "3", name: "Jane Doe", email: "jane.doe@sendoc.fr", role: "reader", addedAt: new Date() }
-    ];
-
-    members: MemberItem[] = [...this.allMembers];
+    private allMembers: MemberItem[] = [];
+    members: MemberItem[] = [];
     private memberSearchQuery = '';
 
     // --- Teams ---
@@ -69,16 +70,45 @@ export class MembersComponent {
         }
     ];
 
-    private allTeams: TeamItem[] = [
-        { id: "1", name: "Équipe Développement", description: "Équipe en charge du développement logiciel", membersCount: 5, createdAt: new Date() },
-        { id: "2", name: "Équipe Support", description: "Équipe en charge du support client", membersCount: 3, createdAt: new Date() },
-        { id: "3", name: "Équipe Commercial", description: "Équipe en charge des ventes", membersCount: 4, createdAt: new Date() }
-    ];
-
-    teams: TeamItem[] = [...this.allTeams];
+    private allTeams: TeamItem[] = [];
+    teams: TeamItem[] = [];
     private teamSearchQuery = '';
 
-    constructor() {}
+    constructor() {
+        effect(() => {
+            this.userService.context();
+            this.loadMembers();
+            this.loadTeams();
+        });
+    }
+
+    // --- Data loading ---
+    private loadMembers(): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.membersService.list(orgId, {
+            role: (this.selectedRole?.value as MemberRole) ?? undefined,
+            search: this.memberSearchQuery || undefined
+        }).subscribe(members => {
+            this.allMembers = members.map(m => this.mapMember(m));
+            this.applyMemberFilters();
+            this.cdr.markForCheck();
+        });
+    }
+
+    private loadTeams(): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.teamsService.list(orgId, {
+            search: this.teamSearchQuery || undefined
+        }).subscribe(teams => {
+            this.allTeams = teams.map(t => this.mapTeam(t));
+            this.applyTeamFilters();
+            this.cdr.markForCheck();
+        });
+    }
 
     // --- Users methods ---
     onSearch(query: string): void {
@@ -96,16 +126,12 @@ export class MembersComponent {
     }
 
     onMembersAdded(data: AddMemberData): void {
-        for (const entry of data) {
-            this.allMembers.push({
-                id: crypto.randomUUID(),
-                name: entry.email.split('@')[0],
-                email: entry.email,
-                role: entry.role,
-                addedAt: new Date()
-            });
-        }
-        this.applyMemberFilters();
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.membersService.add(orgId, {
+            members: data.map(entry => ({ email: entry.email, role: entry.role as MemberRole }))
+        }).subscribe(() => this.loadMembers());
     }
 
     private applyMemberFilters(): void {
@@ -133,14 +159,14 @@ export class MembersComponent {
     }
 
     onTeamCreated(data: CreateTeamData): void {
-        this.allTeams.push({
-            id: crypto.randomUUID(),
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+
+        this.teamsService.create(orgId, {
             name: data.name,
-            description: data.description,
-            membersCount: data.members.length,
-            createdAt: new Date()
-        });
-        this.applyTeamFilters();
+            description: data.description || undefined,
+            member_ids: data.members
+        }).subscribe(() => this.loadTeams());
     }
 
     private applyTeamFilters(): void {
@@ -173,7 +199,7 @@ export class MembersComponent {
                 label: 'Retirer',
                 icon: 'fa-solid fa-user-minus',
                 styleClass: 'menu-item-danger',
-                command: () => console.log('Remove member', member)
+                command: () => this.removeMember(member)
             }
         ];
     }
@@ -195,8 +221,40 @@ export class MembersComponent {
                 label: 'Supprimer',
                 icon: 'fa-jelly-fill fa-solid fa-trash',
                 styleClass: 'menu-item-danger',
-                command: () => console.log('Delete team', team)
+                command: () => this.deleteTeam(team)
             }
         ];
+    }
+
+    private removeMember(member: MemberItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.membersService.remove(orgId, member.id).subscribe(() => this.loadMembers());
+    }
+
+    private deleteTeam(team: TeamItem): void {
+        const orgId = this.userService.getCurrentOrgId();
+        if (!orgId) return;
+        this.teamsService.delete(orgId, team.id).subscribe(() => this.loadTeams());
+    }
+
+    private mapMember(m: MemberResponse): MemberItem {
+        return {
+            id: m.user_id,
+            name: `${m.first_name} ${m.last_name}`,
+            email: m.email,
+            role: m.role,
+            addedAt: new Date(m.added_at)
+        };
+    }
+
+    private mapTeam(t: TeamResponse): TeamItem {
+        return {
+            id: t.id,
+            name: t.name,
+            description: t.description ?? '',
+            membersCount: t.member_count,
+            createdAt: new Date(t.created_at)
+        };
     }
 }

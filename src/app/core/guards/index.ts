@@ -1,4 +1,1 @@
-// Export guards here
-// Example: export { authGuard } from './auth.guard';
-
-export {};
+export { authGuard, guestGuard } from './auth.guard';

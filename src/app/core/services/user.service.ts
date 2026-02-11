@@ -1,5 +1,10 @@
-import { Injectable, signal } from "@angular/core";
+import { Injectable, inject, signal } from "@angular/core";
+import { Observable, tap, of, catchError, map } from "rxjs";
+import { ApiService } from "./api.service";
+import { AuthService } from "./auth.service";
+import { UserResponse, OrganizationResponse } from "@models/api.model";
 
+// Re-export types for backwards compatibility
 export interface Organization {
     id: string;
     name: string;
@@ -13,6 +18,7 @@ export interface User {
     email: string;
     firstName: string;
     lastName: string;
+    avatarUrl?: string;
     organizations: Organization[];
 }
 
@@ -26,40 +32,25 @@ const STORAGE_KEY = 'sardine_default_context';
     providedIn: 'root'
 })
 export class UserService {
+    private api = inject(ApiService);
+    private authService = inject(AuthService);
+
     private currentUser = signal<User | null>(null);
     private currentContext = signal<Context>({ organization: null });
     private previousContext = signal<Organization | null>(null);
+    private loadingUser = signal<boolean>(false);
 
     readonly user = this.currentUser.asReadonly();
     readonly context = this.currentContext.asReadonly();
+    readonly loading = this.loadingUser.asReadonly();
     readonly isBrowsingOrganizations = () => this.previousContext() !== null;
 
-    constructor() {
-        // Auto-login pour le développement (tant que l'API n'est pas branchée)
-        this.autoLogin();
-    }
-
-    private autoLogin(): void {
-        const user: User = {
-            id: '1',
-            email: 'thomas.lemaire+admin@sendoc.fr',
-            firstName: 'Thomas',
-            lastName: 'Lemaire',
-            organizations: [
-                { id: 'personal', name: 'Thomas Lemaire', isPersonal: true },
-                { id: 'sendoc', name: 'Sendoc', isPersonal: false },
-                { id: 'terre_du_sud', name: 'Terre du Sud', isPersonal: false, distributionName: 'Sendoc' },
-                { id: 'trhea', name: 'TRhéa', isPersonal: false, distributionName: 'Sendoc' },
-                { id: 'otre', name: 'OTRE', isPersonal: false, distributionName: 'Sendoc' },
-                { id: 'edylink', name: 'Edylink', isPersonal: false, holdingName: 'Sendoc', distributionName: 'Sendoc' },
-            ]
-        };
-        this.currentUser.set(user);
-        this.restoreDefaultContext(user);
-    }
+    // ========================================================================
+    // Auth Status
+    // ========================================================================
 
     isAuthenticated(): boolean {
-        return this.currentUser() !== null;
+        return this.authService.isAuthenticated();
     }
 
     hasOrganizations(): boolean {
@@ -71,28 +62,51 @@ export class UserService {
         return this.currentContext().organization !== null;
     }
 
-    login(email: string, password: string): boolean {
-        if (email === 'thomas.lemaire+admin@sendoc.fr' && password === 'Sendoc25!') {
-            const user: User = {
-                id: '1',
-                email: 'thomas.lemaire+admin@sendoc.fr',
-                firstName: 'Thomas',
-                lastName: 'Lemaire',
-                organizations: [
-                    { id: 'personal', name: 'Thomas Lemaire', isPersonal: true },
-                    { id: 'sendoc', name: 'Sendoc', isPersonal: false },
-                    { id: 'terre_du_sud', name: 'Terre du Sud', isPersonal: false, distributionName: 'Sendoc' },
-                    { id: 'trhea', name: 'TRhéa', isPersonal: false, distributionName: 'Sendoc' },
-                    { id: 'otre', name: 'OTRE', isPersonal: false, distributionName: 'Sendoc' },
-                    { id: 'edylink', name: 'Edylink', isPersonal: false, holdingName: 'Sendoc', distributionName: 'Sendoc' },
-                ]
-            };
-            this.currentUser.set(user);
-            this.restoreDefaultContext(user);
-            return true;
+    // ========================================================================
+    // User Data
+    // ========================================================================
+
+    loadCurrentUser(): Observable<User | null> {
+        if (!this.isAuthenticated()) {
+            return of(null);
         }
-        return false;
+
+        this.loadingUser.set(true);
+
+        return this.api.get<UserResponse>('/users/me').pipe(
+            map(response => this.mapUserResponse(response)),
+            tap(user => {
+                if (user) {
+                    this.loadUserOrganizations(user);
+                }
+            }),
+            catchError(() => {
+                this.loadingUser.set(false);
+                return of(null);
+            })
+        );
     }
+
+    private loadUserOrganizations(user: User): void {
+        this.api.get<OrganizationResponse[]>('/users/me/organizations').pipe(
+            map(orgs => orgs.map(org => this.mapOrganizationResponse(org))),
+            tap(organizations => {
+                const fullUser: User = { ...user, organizations };
+                this.currentUser.set(fullUser);
+                this.restoreDefaultContext(fullUser);
+                this.loadingUser.set(false);
+            }),
+            catchError(() => {
+                this.currentUser.set(user);
+                this.loadingUser.set(false);
+                return of([]);
+            })
+        ).subscribe();
+    }
+
+    // ========================================================================
+    // Context Management
+    // ========================================================================
 
     selectContext(organization: Organization, remember = false): void {
         this.currentContext.set({ organization });
@@ -120,10 +134,29 @@ export class UserService {
         localStorage.removeItem(STORAGE_KEY);
     }
 
+    // ========================================================================
+    // Auth Actions
+    // ========================================================================
+
     logout(): void {
-        this.currentUser.set(null);
-        this.currentContext.set({ organization: null });
+        this.authService.logout().subscribe(() => {
+            this.currentUser.set(null);
+            this.currentContext.set({ organization: null });
+            this.previousContext.set(null);
+        });
     }
+
+    // ========================================================================
+    // Helper: Get current organization ID
+    // ========================================================================
+
+    getCurrentOrgId(): string | null {
+        return this.currentContext().organization?.id ?? null;
+    }
+
+    // ========================================================================
+    // Private Methods
+    // ========================================================================
 
     private saveDefaultContext(organizationId: string): void {
         localStorage.setItem(STORAGE_KEY, organizationId);
@@ -135,7 +168,36 @@ export class UserService {
             const organization = user.organizations.find(org => org.id === savedOrgId);
             if (organization) {
                 this.currentContext.set({ organization });
+                return;
             }
         }
+        // If no saved context or not found, select the personal org or first one
+        const personalOrg = user.organizations.find(org => org.isPersonal);
+        if (personalOrg) {
+            this.currentContext.set({ organization: personalOrg });
+        } else if (user.organizations.length > 0) {
+            this.currentContext.set({ organization: user.organizations[0] });
+        }
+    }
+
+    private mapUserResponse(response: UserResponse): User {
+        return {
+            id: response.id,
+            email: response.email,
+            firstName: response.first_name,
+            lastName: response.last_name,
+            avatarUrl: response.avatar_url ?? undefined,
+            organizations: []
+        };
+    }
+
+    private mapOrganizationResponse(response: OrganizationResponse): Organization {
+        return {
+            id: response.id,
+            name: response.name,
+            isPersonal: response.is_personal,
+            holdingName: response.holding_name ?? undefined,
+            distributionName: response.distributor_name ?? undefined
+        };
     }
 }

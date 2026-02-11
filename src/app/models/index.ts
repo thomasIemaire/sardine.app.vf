@@ -1,4 +1,2 @@
-// Export models here
-// Example: export * from './user.model';
-
-export {};
+// API Models
+export * from './api.model';
